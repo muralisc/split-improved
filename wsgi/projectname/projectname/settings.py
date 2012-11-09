@@ -1,4 +1,27 @@
-# Django settings for projectname project.
+# Django settings for openshift project.
+import os
+import sys
+from os.path import abspath, dirname, join, normpath
+
+# a setting to determine whether we are running on OpenShift
+ON_OPENSHIFT = False
+if os.environ.has_key('OPENSHIFT_REPO_DIR'):
+    ON_OPENSHIFT = True
+if os.environ.has_key('OPENSHIFT_APP_NAME'):
+    DB_NAME = os.environ['OPENSHIFT_APP_NAME']
+if os.environ.has_key('OPENSHIFT_DB_USERNAME'):
+    DB_USER = os.environ['OPENSHIFT_DB_USERNAME']
+if os.environ.has_key('OPENSHIFT_DB_PASSWORD'):
+    DB_PASSWD = os.environ['OPENSHIFT_DB_PASSWORD']
+if os.environ.has_key('OPENSHIFT_DB_HOST'):
+    DB_HOST = os.environ['OPENSHIFT_DB_HOST']
+if os.environ.has_key('OPENSHIFT_DB_PORT'):
+    DB_PORT = os.environ['OPENSHIFT_DB_PORT']
+
+DJANGO_ROOT = dirname(dirname(abspath(__file__)))
+SITE_ROOT = dirname(DJANGO_ROOT)
+
+sys.path.append(normpath(join(DJANGO_ROOT, 'apps')))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -9,14 +32,28 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASES = {
+if ON_OPENSHIFT:
+    # os.environ['OPENSHIFT_DB_*'] variables can be used with databases created
+    # with rhc app cartridge add (see /README in this git repo)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': DB_NAME,               # Or path to database file if using sqlite3.
+            'USER': DB_USER,               # Not used with sqlite3.
+            'PASSWORD': DB_PASSWD,         # Not used with sqlite3.
+            'HOST': DB_HOST,               # Set to empty string for localhost. Not used with sqlite3.
+            'PORT': DB_PORT,               # Set to empty string for default. Not used with sqlite3.
+        }
+    }
+else:                                                                                                                       # DEVELOPMENT
+    DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'klachingDB',                 # Or path to database file if using sqlite3.
+        'USER': 'root',                       # Not used with sqlite3.
+        'PASSWORD': 'murali',                 # Not used with sqlite3.
+        'HOST': '',                           # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                           # Set to empty string for default. Not used with sqlite3.
     }
 }
 
@@ -24,7 +61,7 @@ DATABASES = {
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'Asia/Kolkata'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -45,7 +82,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.environ.get('OPENSHIFT_DATA_DIR', '')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -56,7 +93,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = normpath(join(SITE_ROOT, 'static'))
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -115,11 +152,16 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    'django.contrib.admin',
+    'django.contrib.admindocs',
+    'projectApp1',
 )
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'muralisc@gmail.com'
+EMAIL_HOST_PASSWORD = 'dogspihksifwannn'
+EMAIL_PORT = 587
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
