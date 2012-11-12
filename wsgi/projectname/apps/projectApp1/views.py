@@ -15,6 +15,8 @@ def createUser(request):
             #myuser.user_permissions.add(permission, permission,)
             user.save()
             newUserCreated = True
+        else:
+            formErrors = True
     else:
         form = LoginCreateForm()
     return render_to_response('loginCreate.html', locals(), context_instance=RequestContext(request))
