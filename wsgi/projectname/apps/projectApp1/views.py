@@ -16,7 +16,7 @@ def createUser(request):
             user = User.objects.create_user(username, email, password)
             #myuser.user_permissions.add(permission, permission,)
             user.save()
-            newUserCreated = Trug
+            newUserCreated = True
         else:
             pass
             # form is invalid erros auto set
