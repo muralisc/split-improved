@@ -16,13 +16,14 @@ def createUser(request):
             user = User.objects.create_user(username, email, password)
             #myuser.user_permissions.add(permission, permission,)
             user.save()
-            newUserCreated = True
+            newUserCreated = Trug
         else:
             pass
             # form is invalid erros auto set
     else:
-        form = LoginCreateForm()
-    return render_to_response('loginCreate.html', locals(), context_instance=RequestContext(request))
+        pass
+        # redict to login
+    return redirect('/login/')
 
 
 def siteLogin(request):
