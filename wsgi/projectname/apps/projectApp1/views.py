@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from projectApp1.forms import LoginCreateForm
@@ -57,3 +57,20 @@ def siteLogin(request):
 @login_required(login_url='/login/')
 def home(request):
     return render_to_response('home.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def enableDissablePermissions(request, codename, enableDissable):
+    try:
+        perm = Permission.objects.get(codename=codename)
+        usr = request.user
+        if enableDissable == 'dissable':
+            usr.user_permissions.remove(perm)
+            usr.save()
+        else:
+            usr.user_permissions.add(perm)
+            usr.save()
+        return redirect('/settings/')
+    except Permission.DoesNotExist:
+        # log error
+        return redirect('/settings/')
