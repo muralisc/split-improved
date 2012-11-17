@@ -9,69 +9,83 @@
 
 {% block body %}
 <div class="offset4 span4">
-<form class="form-horizontal">	
-{{ form.paid_user }} Paid<br/>
-rs{{ form.amount }}<br/>
-{% if perms.projectApp1.group_transactions %}
-<table class="table table-condensed table-striped">
-	<caption>...</caption>
-	<thead>
-		<tr>
-			<th><label class="center"><input type="checkbox" value=""> <b>Involving</b></label></th>
-		</tr>
-	</thead>
-	<tbody>
-	{% for ch in form.fields.users_involved.choices %}
-		<tr>
-			<td>
-				<label class="checkbox">
-					<input type="checkbox" value="{{ ch.0 }}">
-					{{ ch.1 }}
-				</label>
-			</td>
-		</tr>
-	{% endfor %}
-</table>
-{% endif %}
-{% if perms.projectApp1.personal_transactions %}
-<div class="control-group">
-	<label class="control-label" for="inputEmail">From Cayegory </label>
-	<div class="controls">
-		{{ form.from_category }}<a href="#">New Group</a><br/>
-	</div>
+	<form class="form-horizontal">	
+		<div class="control-group">
+			<label class="control-label" for="inputEmail"></label>
+			<div class="controls">
+				{{ form.paid_user }}
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputEmail">paid</label>
+			<div class="controls">
+				{{ form.amount }}
+			</div>
+		</div>
+		{% if perms.projectApp1.group_transactions %}
+			<table class="table table-condensed table-striped">
+				<thead>
+					<tr>
+						<th>
+							<label class="center">
+								{% if perms.projectApp1.group_transactions and perms.projectApp1.personal_transactions %}
+								<input type="checkbox" value=""> 
+								{% endif %}
+								<b>Involving</b>
+							</label>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for ch in form.fields.users_involved.choices %}
+						<tr>
+							<td>
+								<label class="checkbox">
+									<input type="checkbox" value="{{ ch.0 }}">
+									{{ ch.1 }}
+								</label>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% endif %}
+		{% if perms.projectApp1.personal_transactions %}
+			<div class="control-group">
+				<label class="control-label" for="inputEmail">From Cayegory </label>
+				<div class="controls">
+					{{ form.from_category }}<a href="#">New Group</a><br/>
+				</div>
+			</div>
+		{% endif %}
+		<div class="control-group">
+			<label class="control-label" for="inputEmail">for</label>
+			<div class="controls">
+				{{ form.description }}
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputEmail">toCategory</label>
+			<div class="controls">
+				{{ form.to_category }}<a href="#">New Group</a><br/>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputEmail">on</label>
+			<div class="controls">
+				{{ form.date }}
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<input class="btn btn-primary" type="submit" name="Submit" value="Submit"/>
+			</div>
+		</div>
+	</form>
+	ropo Paid rs 33 Involving muralisc,jayalalv@j from cash for water(water) on 9/9/9
 </div>
-{% endif %}
-<div class="control-group">
-	<label class="control-label" for="inputEmail">for</label>
-	<div class="controls">
-		{{ form.description }}
-	</div>
-</div>
-<div class="control-group">
-	<label class="control-label" for="inputEmail">toCategory</label>
-	<div class="controls">
-		{{ form.to_category }}<a href="#">New Group</a><br/>
-	</div>
-</div>
-<div class="control-group">
-	<label class="control-label" for="inputEmail">on</label>
-	<div class="controls">
-		{{ form.date }}
-	</div>
-</div>
-</form>
 
-    
-
-
-                                        
-</div>
 {% endblock %}
-
-
-	
-
-
 
 
 {% block footer%}
@@ -79,4 +93,5 @@ rs{{ form.amount }}<br/>
 
 
 {% block afterbody%}
+
 {% endblock %}

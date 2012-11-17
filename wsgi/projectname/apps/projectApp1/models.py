@@ -24,8 +24,11 @@ class Category(models.Model):
     category_type = models.CharField(max_length=64)
     initial_amount = models.IntegerField(null=False, blank=True)
     created_by_user = models.ForeignKey(User, related_name='createdCategory', null=False, blank=True)
-    created_for_group = models.ForeignKey(Group, null=False, blank=True)
+    created_for_group = models.ForeignKey(Group, null=True, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
+
+    def __unicode__(self):
+        return self.name
 
 
 class Transaction(models.Model):
@@ -37,7 +40,7 @@ class Transaction(models.Model):
     users_involved = models.ManyToManyField(User, through='Payee', related_name='involvedInTransactions')
     date = models.DateTimeField(null=False, blank=True)
     created_by_user = models.ForeignKey(User, related_name='ceatedTransaction', null=False, blank=True)
-    created_for_group = models.ForeignKey(Group, null=False, blank=True)
+    created_for_group = models.ForeignKey(Group, null=True, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
 
     class Meta:
@@ -51,7 +54,8 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
         widgets = {
-                    'amount': forms.TextInput(attrs={'placeholder': 'Amount', 'class': 'input-block-level'}),
+                    'paid_user': forms.Select(attrs={'class': ''}),
+                    'amount': forms.TextInput(attrs={'placeholder': 'Amount', 'class': ''}),
                     'description': forms.TextInput(attrs={'placeholder': 'Description', 'class': ''}),
                     'users_involved': forms.CheckboxSelectMultiple(),
                     'date': forms.TextInput(attrs={'placeholder': 'Date', 'class': ''}),
