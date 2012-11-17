@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}
+{% endblock %}
+
+
+{% block header %}
+{% endblock %}
+
+
+{% block body %}
+<div class="offset4 span4">
+{{ form.paid_user }} Paid<br/>
+rs{{ form.amount }}<br/>
+{% if perms.projectApp1.group_transactions %}
+<table class="table table-condensed table-striped">
+	<caption>...</caption>
+	<thead>
+		<tr>
+			<th><label class="center"><input type="checkbox" value=""> <b>Involving</b></label></th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for ch in form.fields.users_involved.choices %}
+		<tr>
+			<td>
+				<label class="checkbox">
+					<input type="checkbox" value="{{ ch.0 }}">
+					{{ ch.1 }}
+				</label>
+			</td>
+		</tr>
+	{% endfor %}
+</table>
+{% endif %}
+{% if perms.projectApp1.personal_transactions %}
+<div class="control-group">
+	<label class="control-label" for="inputEmail">From Cayegory </label>
+	<div class="controls">
+		{{ form.from_category }}
+	</div>
+</div>
+<a href="#">New Group</a><br/>
+{% endif %}
+for {{ form.description }}<br/>
+toCategory{{ form.to_category }}<a href="#">New Group</a><br/>
+on{{ form.date }}<br/>
+
+    
+
+
+                                        
+</div>
+{% endblock %}
+
+
+	
+
+
+
+
+{% block footer%}
+{% endblock %}
+
+
+{% block afterbody%}
+{% endblock %}

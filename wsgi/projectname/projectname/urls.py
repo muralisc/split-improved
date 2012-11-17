@@ -10,6 +10,9 @@ urlpatterns = patterns('',
     (r'^login/$', 'projectApp1.views.siteLogin'),
     (r'^createUser/', 'projectApp1.views.createUser'),
     (r'^home/$', 'projectApp1.views.home'),
+    (r'^settings/$', 'projectApp1.views.home'),
+    (r'^permission/(\w+)/(enable|dissable)/$', 'projectApp1.views.enableDissablePermissions'),
+    (r'^makeTransaction/$', 'projectApp1.views.makeTransaction'),
 
 
     (r'^logout/$', 'django.contrib.auth.views.logout_then_login', {'login_url': '/login/'}),
