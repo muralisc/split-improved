@@ -9,80 +9,87 @@
 
 {% block body %}
 <div class="offset4 span4">
-	<form class="form-horizontal">	
-		<div class="control-group">
-			<label class="control-label" for="inputEmail"></label>
-			<div class="controls">
-				{{ form.paid_user }}
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="inputEmail">paid</label>
-			<div class="controls">
-				{{ form.amount }}
-			</div>
-		</div>
-		{% if perms.projectApp1.group_transactions %}
-			<table class="table table-condensed table-striped">
-				<thead>
-					<tr>
-						<th>
-							<label class="center">
-								{% if perms.projectApp1.group_transactions and perms.projectApp1.personal_transactions %}
-								<input type="checkbox" value=""> 
-								{% endif %}
-								<b>Involving</b>
-							</label>
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for ch in form.fields.users_involved.choices %}
-						<tr>
-							<td>
-								<label class="checkbox">
-									<input type="checkbox" value="{{ ch.0 }}">
-									{{ ch.1 }}
-								</label>
-							</td>
-						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-		{% endif %}
-		{% if perms.projectApp1.personal_transactions %}
-			<div class="control-group">
-				<label class="control-label" for="inputEmail">From Cayegory </label>
-				<div class="controls">
-					{{ form.from_category }}<a href="#">New Group</a><br/>
-				</div>
-			</div>
-		{% endif %}
-		<div class="control-group">
-			<label class="control-label" for="inputEmail">for</label>
-			<div class="controls">
-				{{ form.description }}
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="inputEmail">toCategory</label>
-			<div class="controls">
-				{{ form.to_category }}<a href="#">New Group</a><br/>
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="inputEmail">on</label>
-			<div class="controls">
-				{{ form.date }}
-			</div>
-		</div>
-		<div class="control-group">
-			<div class="controls">
-				<input class="btn btn-primary" type="submit" name="Submit" value="Submit"/>
-			</div>
-		</div>
-	</form>
-	ropo Paid rs 33 Involving muralisc,jayalalv@j from cash for water(water) on 9/9/9
+    <form class="form-horizontal" ng-controller="TransactionsFormController">	
+		{[{paid_user.username}]} Paid {[{amount}]} for <span ng-repeat="u in users_inv">{[{u}]},</span> 
+		from {[{selectedFromCategory.name}]} for{[{description}]} to {[{selectedToCategory.name}]} on {[{date}]}
+        <div class="control-group">
+            <label class="control-label" for="inputEmail"></label>
+            <div class="controls">
+                <select ng-model="paid_user" ng-options="c.username for c in users_in_grp">
+                    <option value="" selected="selected">---------</option>
+                </select>
+                <input id="id_paid_user" class="" name="paid_user" style="display: none" type="text" value={[{paid_user.id}]} >
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="inputEmail">paid</label>
+            <div class="controls">
+                <input ng-model="amount" name="amount" type="number" placeholder="Amount" id="id_amount">
+            </div>
+        </div>
+        {% if perms.projectApp1.group_transactions %}
+        <div class="control-group">
+            <label class="control-label">
+                {% if perms.projectApp1.group_transactions and perms.projectApp1.personal_transactions %}
+                <input type="checkbox" ng-model="display_value" ng-true-value="inline" ng-false-value="none">
+                {% endif %}
+                Involving
+            </label>
+            <div class="controls">
+                <table class="table table-condensed table-striped">
+                    <tbody style="display:{[{display_value}]}">
+                        <tr ng-repeat="usr in users_in_grp">
+                            <td>
+                                <label class="checkbox">
+                                    <input type="checkbox" name="users_involved" value="{[{ usr.id}]}" ng-model="usr.checked" ng-click="updateUsersInvolved(usr)">{[{ usr.username}]} {[{amount/users_inv.length}]}
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        {% if perms.projectApp1.personal_transactions %}
+        <div class="control-group">
+            <label class="control-label" for="inputEmail">From Cayegory </label>
+            <div class="controls">
+                <select ng-model="selectedFromCategory" ng-options="c.name for c in category_user">
+                    <option value="" selected="selected">---------</option>
+                </select>
+                <input id="id_from_category" class="" name="from_category" style="display: none" type="text" value={[{selectedFromCategory.id}]} >
+                <a href="#">New Group</a><br/>
+            </div>
+        </div>
+        {% endif %}
+        <div class="control-group">
+            <label class="control-label" for="inputEmail">for</label>
+            <div class="controls">
+                <input name="description" ng-model="description" maxlength="705" placeholder="Description" type="text" class="" id="id_description" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="inputEmail">toCategory</label>
+            <div class="controls">
+                <select ng-model="selectedToCategory" ng-options="c.name for c in category_user">
+                    <option value="" selected="selected">---------</option>
+                </select>
+                <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
+                <a href="#">New Group</a><br/>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="inputEmail">on</label>
+            <div class="controls">
+                <input id="id_date" type="date" placeholder="Datemm" class="" name="date" ng-model="date"/>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <input class="btn btn-primary" type="submit" name="Submit" value="Submit"/>
+            </div>
+        </div>
+    </form>
 </div>
 
 {% endblock %}
@@ -93,5 +100,24 @@
 
 
 {% block afterbody%}
+<script type="text/javascript">
 
+    function TransactionsFormController($scope) {
+        $scope.users_in_grp={{ response_json.users_in_grp }};
+        $scope.category_user={{ response_json.category_user }};
+        {% if perms.projectApp1.group_transactions and perms.projectApp1.personal_transactions %}
+        $scope.display_value="none";
+        {% else %}
+        $scope.display_value="inline";
+        {% endif %}
+        $scope.users_inv = new Array();
+        $scope.updateUsersInvolved = function(usr){
+            if (usr.checked){
+                $scope.users_inv.push(usr.username);
+            }else{
+                $scope.users_inv.splice($scope.users_inv.indexOf(usr.username),1);	
+            }
+        };
+    };
+</script>
 {% endblock %}
