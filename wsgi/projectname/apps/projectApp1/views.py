@@ -5,8 +5,8 @@ from django.contrib.auth.models import User, Permission
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from projectApp1.forms import LoginCreateForm
-from projectApp1.models import TransactionForm, Category
-from django.utils.safestring import SafeString
+from projectApp1.models import GroupForm, Membership, Group
+from django.http import Http404
 
 
 def createUser(request):
@@ -59,6 +59,8 @@ def siteLogin(request):
 
 @login_required(login_url='/login/')
 def home(request):
+    form = GroupForm()
+    members = Membership.objects.filter(user=request.user)
     return render_to_response('home.html', locals(), context_instance=RequestContext(request))
 
 
@@ -66,13 +68,13 @@ def home(request):
 def enableDissablePermissions(request, codename, enableDissable):
     try:
         perm = Permission.objects.get(codename=codename)
-        usr = request.user
+        user = request.user
         if enableDissable == 'dissable':
-            usr.user_permissions.remove(perm)
-            usr.save()
+            user.user_permissions.remove(perm)
+            user.save()
         else:
-            usr.user_permissions.add(perm)
-            usr.save()
+            user.user_permissions.add(perm)
+            user.save()
         return redirect('/settings/')
     except Permission.DoesNotExist:
         # log error
@@ -80,11 +82,46 @@ def enableDissablePermissions(request, codename, enableDissable):
 
 
 @login_required(login_url='/login/')
-def makeTransaction(request):
-    form = TransactionForm()
-    users_in_grp = [{'username': usr.username, 'id': usr.id, 'checked': False} for usr in User.objects.all()]
-    category_user = [{'name': i.name, 'id': i.id} for i in Category.objects.all()]
-    response_json = dict()
-    response_json['users_in_grp'] = SafeString(json.dumps(users_in_grp))
-    response_json['category_user'] = SafeString(json.dumps(category_user))
-    return render_to_response('makeTransaction.html', locals(), context_instance=RequestContext(request))
+def createGroup(request):
+    if request.method == 'POST':
+        form = GroupForm(request.POST)
+        if form.is_valid():
+            groupRow = form.save(commit=False)
+            groupRow.save()
+            Membership.objects.create(
+                                    group=groupRow,
+                                    user=request.user,
+                                    administrator=True,
+                                    positions='',
+                                    amount_in_pool=0
+                                    )
+            for member in form.cleaned_data['members']:
+                Membership.objects.create(
+                                        group=groupRow,
+                                        user=member,
+                                        administrator=False,
+                                        positions='',
+                                        amount_in_pool=0
+                                        )
+        else:
+            pass
+    else:
+        pass
+    return redirect('/settings/')
+
+
+@login_required(login_url='/login/')
+def groupHome(request, gid):
+    try:
+        group = Group.objects.get(id=gid)
+    except Group.DoesNotExist:
+        # log error 404
+        raise Http404
+    members = Membership.objects.filter(group=group)
+    return render_to_response('groupHome.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def settings(request):
+    pass
+    return render_to_response('userSettings.html', locals(), context_instance=RequestContext(request))

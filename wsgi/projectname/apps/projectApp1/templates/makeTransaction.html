@@ -27,10 +27,10 @@
                 <input ng-model="amount" name="amount" type="number" placeholder="Amount" id="id_amount">
             </div>
         </div>
-        {% if perms.projectApp1.group_transactions %}
+        {% if perms.TransactionApp.group_transactions %}
         <div class="control-group">
             <label class="control-label">
-                {% if perms.projectApp1.group_transactions and perms.projectApp1.personal_transactions %}
+                {% if perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
                 <input type="checkbox" ng-model="display_value" ng-true-value="inline" ng-false-value="none">
                 {% endif %}
                 Involving
@@ -41,7 +41,8 @@
                         <tr ng-repeat="usr in users_in_grp">
                             <td>
                                 <label class="checkbox">
-                                    <input type="checkbox" name="users_involved" value="{[{ usr.id}]}" ng-model="usr.checked" ng-click="updateUsersInvolved(usr)">{[{ usr.username}]} {[{amount/users_inv.length}]}
+                                    <input type="checkbox" name="users_involved" value="{[{ usr.id}]}" ng-model="usr.checked" ng-click="updateUsersInvolved(usr)">
+                                    {[{ usr.username }]} {[{amount/users_inv.length}]}
                                 </label>
                             </td>
                         </tr>
@@ -50,7 +51,7 @@
             </div>
         </div>
         {% endif %}
-        {% if perms.projectApp1.personal_transactions %}
+        {% if perms.TransactionApp.personal_transactions %}
         <div class="control-group">
             <label class="control-label" for="inputEmail">From Cayegory </label>
             <div class="controls">
@@ -105,7 +106,7 @@
     function TransactionsFormController($scope) {
         $scope.users_in_grp={{ response_json.users_in_grp }};
         $scope.category_user={{ response_json.category_user }};
-        {% if perms.projectApp1.group_transactions and perms.projectApp1.personal_transactions %}
+        {% if perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
         $scope.display_value="none";
         {% else %}
         $scope.display_value="inline";

@@ -5,70 +5,32 @@ from django import forms
 
 class Group(models.Model):
     name = models.CharField(max_length=64)
+    description = models.CharField(max_length=564)
     members = models.ManyToManyField(User, through='Membership', related_name='memberOfGroup')
-    deleted = models.BooleanField(null=False, blank=True)
-
-
-class Membership(models.Model):
-    '''
-    Table releating User with Group
-    '''
-    grp = models.ForeignKey(Group)
-    usr = models.ForeignKey(User)
-    membership_type = models.CharField(max_length=64)
-    amount_in_pool = models.IntegerField()
-
-
-class Category(models.Model):
-    name = models.CharField(max_length=6)
-    category_type = models.CharField(max_length=64)
-    initial_amount = models.IntegerField(null=False, blank=True)
-    created_by_user = models.ForeignKey(User, related_name='createdCategory', null=False, blank=True)
-    created_for_group = models.ForeignKey(Group, null=True, blank=True)
+    update_time = models.DateTimeField(auto_now_add=True, null=False, blank=True)
+    privacy = models.CharField(max_length=64, null=False, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
         return self.name
 
 
-class Transaction(models.Model):
-    paid_user = models.ForeignKey(User, related_name='paidForTransaction')
-    amount = models.IntegerField()
-    from_category = models.ForeignKey(Category, related_name='inFromfield', null=False, blank=True)
-    description = models.CharField(max_length=256, null=True, blank=True)
-    to_category = models.ForeignKey(Category, related_name='inToField', null=False, blank=True)
-    users_involved = models.ManyToManyField(User, through='Payee', related_name='involvedInTransactions')
-    date = models.DateTimeField(null=False, blank=True)
-    created_by_user = models.ForeignKey(User, related_name='ceatedTransaction', null=False, blank=True)
-    created_for_group = models.ForeignKey(Group, null=True, blank=True)
-    deleted = models.BooleanField(null=False, blank=True)
-
+class GroupForm(forms.ModelForm):
     class Meta:
-            permissions = (
-                ("group_transactions", "Can make group transactions"),
-                ("personal_transactions", "Can make personal transactions"),
-            )
+        model = Group
 
 
-class TransactionForm(forms.ModelForm):
-    class Meta:
-        model = Transaction
-        widgets = {
-                    'paid_user': forms.Select(attrs={'class': ''}),
-                    'amount': forms.TextInput(attrs={'placeholder': 'Amount', 'class': ''}),
-                    'description': forms.TextInput(attrs={'placeholder': 'Description', 'class': ''}),
-                    'users_involved': forms.CheckboxSelectMultiple(),
-                    'date': forms.TextInput(attrs={'placeholder': 'Date', 'class': ''}),
-                  }
-        exclude = ('created_by_user',
-                   'created_for_group',
-                   'deleted')
-
-
-class Payee(models.Model):
+class Membership(models.Model):
     '''
-    Table relating User table with Transaction table
+    Table releating User with Group
     '''
-    txn = models.ForeignKey(Transaction)
+    group = models.ForeignKey(Group)
     user = models.ForeignKey(User)
-    cost = models.IntegerField()
+    administrator = models.BooleanField(null=False, blank=True)
+    positions = models.CharField(max_length=64)
+    amount_in_pool = models.IntegerField()
+
+    def __unicode__(self):
+        return "{0}|  {1}".format(self.group.name, self.user.username)
+
+

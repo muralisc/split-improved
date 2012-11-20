@@ -1,5 +1,6 @@
 from django.contrib import admin
-from projectApp1.models import Group, Membership, Category, Transaction, Payee
+from projectApp1.models import Group, Membership
+from TransactionApp.models import Category, Transaction, Payee
 
 admin.site.register(Group)
 admin.site.register(Membership)

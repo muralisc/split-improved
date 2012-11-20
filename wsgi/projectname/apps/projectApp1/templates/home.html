@@ -8,40 +8,18 @@
 
 
 {% block body %}
-<div class="span12 well">
-{{ request.user.username }}
-<a class="pull-right btn btn-primary btn-small" href="/logout/" >logout</a>
-<br/><a class="" href="/passwordChange/" >ChangePassword</a>
+<div class="span12">
+<a class="pull-right btn-primary btn-small" href="/logout/" >logout</a>
 <br/>
 {{ user.username}}
-<label>Personal
-<a class="" href="/permission/personal_transactions/
-	{% if perms.projectApp1.personal_transactions %}
-	dissable
-	{% else %}
-	enable
-	{% endif %}
-	/">
-	{% if perms.projectApp1.personal_transactions %}
-	dissable
-	{% else %}
-	enable
-	{% endif %}
-</a></label>
-<label>Group
-<a class="" href="/permission/group_transactions/
-	{% if perms.projectApp1.group_transactions %}
-	dissable
-	{% else %}
-	enable
-	{% endif %}
-	/">
-	{% if perms.projectApp1.group_transactions %}
-	dissable
-	{% else %}
-	enable
-	{% endif %}
-</a></label>
+<div class="row-fluid">
+	<a href="#myModal" class="" data-toggle="modal">Create New Group</a><br/>
+	{% for i in members %}
+		{{ i.group.name }} --
+		{{ i.administrator }}
+		<br/>
+	{% endfor %}
+</div>
 </div>
 {% endblock %}
 
@@ -51,4 +29,21 @@
 
 
 {% block afterbody%}
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myModalLabel">user created</h3>
+	</div>
+	<div class="modal-body">
+		<div id="">
+			<form class="form form-horizontal" action="/createGroup/" method="post">{% csrf_token %}   
+				{{form.as_p}}
+				<input class="btn" type="submit" name="Create" value="Create"/>
+			</form>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+	</div>
+</div>
 {% endblock %}
