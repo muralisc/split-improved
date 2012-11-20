@@ -1,10 +1,23 @@
 from django.db import models
 from django.contrib.auth.models import Permission, User
+from django import forms
+
 
 class Group(models.Model):
     name = models.CharField(max_length=64)
+    description = models.CharField(max_length=564)
     members = models.ManyToManyField(User, through='Membership', related_name='memberOfGroup')
+    update_time = models.DateTimeField(auto_now_add=True, null=False, blank=True)
+    privacy = models.CharField(max_length=64, null=False, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
+
+    def __unicode__(self):
+        return self.name
+
+
+class GroupForm(forms.ModelForm):
+    class Meta:
+        model = Group
 
 
 class Membership(models.Model):
@@ -13,8 +26,12 @@ class Membership(models.Model):
     '''
     grp = models.ForeignKey(Group)
     usr = models.ForeignKey(User)
-    membership_type = models.CharField(max_length=64)
+    administrator = models.BooleanField(null=False, blank=True)
+    positions = models.CharField(max_length=64)
     amount_in_pool = models.IntegerField()
+
+    def __unicode__(self):
+        return "{0}|  {1}".format(self.grp.name, self.usr.username)
 
 
 class Category(models.Model):

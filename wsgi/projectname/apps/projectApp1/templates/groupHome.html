@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}
+groupinfo Page
+{% endblock %}
+
+
+{% block header %}
+{% endblock %}
+
+
+{% block body %}
+{{ group.name }}<br/>
+{{ group.description}}<br/>
+Members:<br/>
+{% for i in members %}
+{{ i.usr.username }}
+{{ i.administrator }}
+{{ i.positions }}
+{{ i.amount_in_pool }}
+<br/>
+{% endfor %}
+
+{% endblock %}
+
+
+{% block footer%}
+{% endblock %}
+
+
+{% block afterbody%}
+{% endblock %}

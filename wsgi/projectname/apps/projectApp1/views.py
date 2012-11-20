@@ -4,6 +4,8 @@ from django.contrib.auth.models import User, Permission
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from projectApp1.forms import LoginCreateForm
+from projectApp1.models import GroupForm, Membership, Group
+from django.http import Http404
 
 
 def createUser(request):
@@ -56,6 +58,8 @@ def siteLogin(request):
 
 @login_required(login_url='/login/')
 def home(request):
+    form = GroupForm()
+    members = Membership.objects.filter(usr=request.user)
     return render_to_response('home.html', locals(), context_instance=RequestContext(request))
 
 
@@ -74,3 +78,49 @@ def enableDissablePermissions(request, codename, enableDissable):
     except Permission.DoesNotExist:
         # log error
         return redirect('/settings/')
+
+
+@login_required(login_url='/login/')
+def createGroup(request):
+    if request.method == 'POST':
+        form = GroupForm(request.POST)
+        if form.is_valid():
+            groupRow = form.save(commit=False)
+            groupRow.save()
+            Membership.objects.create(
+                                    grp=groupRow,
+                                    usr=request.user,
+                                    administrator=True,
+                                    positions='',
+                                    amount_in_pool=0
+                                    )
+            for member in form.cleaned_data['members']:
+                Membership.objects.create(
+                                        grp=groupRow,
+                                        usr=member,
+                                        administrator=False,
+                                        positions='',
+                                        amount_in_pool=0
+                                        )
+        else:
+            pass
+    else:
+        pass
+    return redirect('/settings/')
+
+
+@login_required(login_url='/login/')
+def groupHome(request, gid):
+    try:
+        group = Group.objects.get(id=gid)
+    except Group.DoesNotExist:
+        # log error 404
+        raise Http404
+    members = Membership.objects.filter(grp=group)
+    return render_to_response('groupHome.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def settings(request):
+    pass
+    return render_to_response('userSettings.html', locals(), context_instance=RequestContext(request))
