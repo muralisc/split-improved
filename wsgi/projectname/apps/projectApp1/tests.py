@@ -25,9 +25,9 @@ class UserManagementTestCase(TestCase):
         A regular call to /createUser/ redirects to /login/
         create user should not create for invalid email
         Create a user,
-        accessing the /login/ page after usr login will fetch /login/
+        accessing the /login/ page after user login will fetch /login/
         login into the created user(check weather the user is actually created),
-        accessing the /login/ page after usr login will fetch /home/
+        accessing the /login/ page after user login will fetch /home/
         logout
         login with wrong password
         """
@@ -91,10 +91,10 @@ class UserManagementTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
         # crete a group and verify admin is the logged in user
         response = self.client.post('/createGroup/',
-                                    {'name': 'grp1', 'description': 'grp1_desc', 'members': [User.objects.get(username='default1@default.com').id]},
+                                    {'name': 'group1', 'description': 'group1_desc', 'members': [User.objects.get(username='default1@default.com').id]},
                                     follow=True)
-        self.assertEqual(Membership.objects.get(administrator=True).usr.username, 'default@default.com')
+        self.assertEqual(Membership.objects.get(administrator=True).user.username, 'default@default.com')
         # valid groupid in url
-        group = Group.objects.get(name='grp1')
+        group = Group.objects.get(name='group1')
         response = self.client.post('/group/{0}/'.format(group.id))
         self.assertEqual(response.context['group'], group)

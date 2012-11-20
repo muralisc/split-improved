@@ -24,14 +24,14 @@ class Membership(models.Model):
     '''
     Table releating User with Group
     '''
-    grp = models.ForeignKey(Group)
-    usr = models.ForeignKey(User)
+    group = models.ForeignKey(Group)
+    user = models.ForeignKey(User)
     administrator = models.BooleanField(null=False, blank=True)
     positions = models.CharField(max_length=64)
     amount_in_pool = models.IntegerField()
 
     def __unicode__(self):
-        return "{0}|  {1}".format(self.grp.name, self.usr.username)
+        return "{0}|  {1}".format(self.group.name, self.user.username)
 
 
 class Category(models.Model):

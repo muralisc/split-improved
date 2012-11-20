@@ -59,7 +59,7 @@ def siteLogin(request):
 @login_required(login_url='/login/')
 def home(request):
     form = GroupForm()
-    members = Membership.objects.filter(usr=request.user)
+    members = Membership.objects.filter(user=request.user)
     return render_to_response('home.html', locals(), context_instance=RequestContext(request))
 
 
@@ -67,13 +67,13 @@ def home(request):
 def enableDissablePermissions(request, codename, enableDissable):
     try:
         perm = Permission.objects.get(codename=codename)
-        usr = request.user
+        user = request.user
         if enableDissable == 'dissable':
-            usr.user_permissions.remove(perm)
-            usr.save()
+            user.user_permissions.remove(perm)
+            user.save()
         else:
-            usr.user_permissions.add(perm)
-            usr.save()
+            user.user_permissions.add(perm)
+            user.save()
         return redirect('/settings/')
     except Permission.DoesNotExist:
         # log error
@@ -88,16 +88,16 @@ def createGroup(request):
             groupRow = form.save(commit=False)
             groupRow.save()
             Membership.objects.create(
-                                    grp=groupRow,
-                                    usr=request.user,
+                                    group=groupRow,
+                                    user=request.user,
                                     administrator=True,
                                     positions='',
                                     amount_in_pool=0
                                     )
             for member in form.cleaned_data['members']:
                 Membership.objects.create(
-                                        grp=groupRow,
-                                        usr=member,
+                                        group=groupRow,
+                                        user=member,
                                         administrator=False,
                                         positions='',
                                         amount_in_pool=0
@@ -116,7 +116,7 @@ def groupHome(request, gid):
     except Group.DoesNotExist:
         # log error 404
         raise Http404
-    members = Membership.objects.filter(grp=group)
+    members = Membership.objects.filter(group=group)
     return render_to_response('groupHome.html', locals(), context_instance=RequestContext(request))
 
 
