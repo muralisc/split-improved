@@ -14,11 +14,13 @@
 {{ user.username}}
 <div class="row-fluid">
 	<a href="#myModal" class="" data-toggle="modal">Create New Group</a><br/>
-	{% for i in members %}
-		{{ i.grp.name }}
+	GROUPS :
+	{% for i in member_of %}
+		<a href="/group/{{ i.group.pk }}">{{ i.group.name }}</a>
 		{{ i.administrator }}
 		<br/>
 	{% endfor %}
+	NO OF INVITES <a href="/allInvites/">{{ no_of_invites }}</a><br/>
 </div>
 </div>
 {% endblock %}

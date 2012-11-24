@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% block title %}
-groupinfo Page
 {% endblock %}
 
 
@@ -9,17 +8,9 @@ groupinfo Page
 
 
 {% block body %}
-{{ group.name }}<br/>
-{{ group.description}}<br/>
-Members:<br/>
-{% for i in members %}
-{{ i.user.username }}
-{{ i.administrator }}
-{{ i.positions }}
-{{ i.amount_in_pool }}
-<br/>
+{% for i in all_invites %}
+{{ i.from_user }} invited you to <strong>{{ i.group }}</strong> : {{ i.message }} <a href="/invite/accept/{{ i.pk }}/">Accept</a> <a href="/invite/decline/{{ i.pk }}/">Decline</a><br/>
 {% endfor %}
-
 {% endblock %}
 
 

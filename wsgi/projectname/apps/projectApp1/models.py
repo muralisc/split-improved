@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import User
 from django import forms
 
 
@@ -12,12 +12,48 @@ class Group(models.Model):
     deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
-        return self.name
+        return Membership.objects.get(group=self, position='creator')
+
+    def invite(self, sender, recievers, msg=''):
+        for user in recievers:
+            # if the to_user is not already a member of group then only create invite
+            if (Membership.objects.filter(group=self).filter(user=user).count() == 0):
+                Invite.objects.create(
+                                    from_user=sender,
+                                    to_user=user,
+                                    group=self,
+                                    unread=True,
+                                    message=msg
+                                    )
+            else:
+                pass
+                # raise error| log
 
 
 class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
+
+
+class Invite(models.Model):
+    from_user = models.ForeignKey(User, related_name='from_invite_set')
+    to_user = models.ForeignKey(User, related_name='to_invite_set')
+    group = models.ForeignKey(Group)
+    unread = models.BooleanField(null=False, blank=True)
+    time = models.DateTimeField(auto_now_add=True)
+    message = models.CharField(max_length=256, null=True, blank=True)
+
+
+class Notifiacation(models.Model):
+    from_user = models.ForeignKey(User, related_name='from_notification_set')
+    to_user = models.ForeignKey(User, related_name='to_notification_set')
+    group = models.ForeignKey(Group)
+    created_time = models.DateTimeField(auto_now_add=True)
+    updated_time = models.DateTimeField(auto_now=True)
+    href = models.CharField(max_length=256, null=True, blank=True)
+    message = models.CharField(max_length=256, null=True, blank=True)
+    is_unread = models.BooleanField(null=False, blank=True)
+    is_hidden = models.BooleanField(null=False, blank=True)
 
 
 class Membership(models.Model):
@@ -32,5 +68,3 @@ class Membership(models.Model):
 
     def __unicode__(self):
         return "{0}|  {1}".format(self.group.name, self.user.username)
-
-
