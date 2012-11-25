@@ -5,14 +5,14 @@ from django import forms
 
 class Group(models.Model):
     name = models.CharField(max_length=64)
-    description = models.CharField(max_length=564)
+    description = models.CharField(max_length=564, blank=True)
     members = models.ManyToManyField(User, through='Membership', related_name='memberOfGroup')
-    update_time = models.DateTimeField(auto_now_add=True, null=False, blank=True)
+    update_time = models.DateTimeField(auto_now_add=True)
     privacy = models.CharField(max_length=64, null=False, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
-        return Membership.objects.get(group=self, position='creator')
+        return '{0}'.format(self.name)
 
     def invite(self, sender, recievers, msg=''):
         for user in recievers:
@@ -33,6 +33,7 @@ class Group(models.Model):
 class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
+        exclude = ('members',)
 
 
 class Invite(models.Model):
@@ -42,6 +43,9 @@ class Invite(models.Model):
     unread = models.BooleanField(null=False, blank=True)
     time = models.DateTimeField(auto_now_add=True)
     message = models.CharField(max_length=256, null=True, blank=True)
+
+    def __unicode__(self):
+        return '{0}|{1}'.format(self.group.name, self.to_user.username)
 
 
 class Notifiacation(models.Model):
@@ -67,4 +71,4 @@ class Membership(models.Model):
     amount_in_pool = models.IntegerField()
 
     def __unicode__(self):
-        return "{0}|  {1}".format(self.group.name, self.user.username)
+        return "{0}|{1}".format(self.group.name, self.user.username)

@@ -35,11 +35,11 @@ class UserManagementTestCase(TestCase):
         login with wrong password
         """
         response = self.client.post('/createUser/', follow=True)
-        self.assertEqual(response.request['PATH_INFO'], '/login/')
+        self.assertEqual(response.request['PATH_INFO'], '/createUser/')
         response = self.client.post('/createUser/', {'email': 'jayalalvgmail.com', 'password': 'solar'}, follow=True)
         self.assertEqual(response.context['form'].is_valid(), False)
         response = self.client.post('/createUser/', {'email': 'jayalalv@gmail.com', 'password': 'solar'}, follow=True)
-        self.assertEqual(response.request['PATH_INFO'], '/login/')
+        self.assertEqual(response.request['PATH_INFO'], '/createUser/')
         response = self.client.post('/login/', follow=True)
         self.assertEqual(response.request['PATH_INFO'], '/login/')
         response = self.client.post('/login/', {'email': 'jayalalv@gmail.com', 'password': 'solar'}, follow=True)
@@ -93,10 +93,10 @@ class UserManagementTestCase(TestCase):
 
         # crete a group and verify admin is the logged in user
         response = self.client.post('/createGroup/',
-                                    {'name': 'group1', 'description': 'group1_desc', 'members': [
+                                    {'name': 'group1', 'description': 'group1_desc', 'members': '{0},{1}'.format(
                                         User.objects.get(username='default1@default.com').id,
                                         User.objects.get(username='default2@default.com').id,
-                                        ]},
+                                        )},
                                     follow=True)
         self.assertEqual(Membership.objects.get(administrator=True).user.username, 'default@default.com')
         # check it creates a group with only creator as the member
@@ -126,10 +126,10 @@ class UserManagementTestCase(TestCase):
         self.client.login(username='default@default.com', password='default')
         # create a group with some invites
         response = self.client.post('/createGroup/',
-                                    {'name': 'group1', 'description': 'group1_desc', 'members': [
+                                    {'name': 'group1', 'description': 'group1_desc', 'members': '{0},{1}'.format(
                                         User.objects.get(username='default1@default.com').id,
                                         User.objects.get(username='default2@default.com').id,
-                                        ]},
+                                        )},
                                     follow=True)
         # a invalid user tries to change invite of another user
         invite_of_default1 = Invite.objects.get(to_user=User.objects.get(username='default1@default.com'))
@@ -142,3 +142,11 @@ class UserManagementTestCase(TestCase):
         response = self.client.post('/invite/decline/{0}/'.format(invite_of_default1.id))
         self.assertEqual(Invite.objects.filter(to_user=User.objects.get(username='default1@default.com')).count(), 0)
         # a valid user tries to accept the invite a membership row is created
+
+    def test_getJSON_users(self):
+        '''
+        invalid query / no query
+        valid query with incomlete dictionary keys in GET
+        valid query with complete GET dictionary
+        '''
+        pass

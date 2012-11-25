@@ -16,6 +16,7 @@ urlpatterns = patterns('',
     (r'^group/(\d+)/$', 'projectApp1.views.groupHome'),
     (r'^invite/(accept|decline)/(\d+)/$', 'projectApp1.views.changeInvite'),
     (r'^allInvites/$', 'projectApp1.views.showInvites'),
+    (r'^getJSON/users/$', 'projectApp1.views.getJSONusers'),
 
 
     (r'^logout/$', 'django.contrib.auth.views.logout_then_login', {'login_url': '/login/'}),

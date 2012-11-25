@@ -1,3 +1,4 @@
+import simplejson
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth.models import User, Permission
@@ -5,7 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from projectApp1.forms import LoginCreateForm
 from projectApp1.models import GroupForm, Membership, Group, Invite
-from django.http import Http404
+from django.http import Http404, HttpResponse
+from django.utils.safestring import SafeString
 
 
 def createUser(request):
@@ -24,8 +26,7 @@ def createUser(request):
             # form is invalid erros auto set
     else:
         pass
-        # redict to login
-    return redirect('/login/')
+    return render_to_response('loginCreate.html', locals(), context_instance=RequestContext(request))
 
 
 def siteLogin(request):
@@ -91,6 +92,8 @@ def createGroup(request):
         form = GroupForm(request.POST)
         if form.is_valid():
             groupRow = form.save(commit=False)
+            groupRow.privacy = ''
+            groupRow.deleted = False
             groupRow.save()
             Membership.objects.create(
                                     group=groupRow,
@@ -99,7 +102,8 @@ def createGroup(request):
                                     positions='creator',
                                     amount_in_pool=0
                                     )
-            groupRow.invite(request.user, form.cleaned_data['members'])
+            users_invited = [User.objects.get(pk=id) for id in request.POST['members'].split(',')]
+            groupRow.invite(request.user, users_invited)
         else:
             pass
     else:
@@ -115,6 +119,7 @@ def groupHome(request, gid):
         # log error 404
         raise Http404
     members = Membership.objects.filter(group=group)
+    invites = Invite.objects.filter(group=group)
     return render_to_response('groupHome.html', locals(), context_instance=RequestContext(request))
 
 
@@ -156,3 +161,10 @@ def changeInvite(request, accept_decline, row_id):
 def showInvites(request):
     all_invites = Invite.objects.filter(to_user=request.user).filter(unread=True)
     return render_to_response('allInvites.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def getJSONusers(request):
+    users_in_grp = [{'name': usr['username'], 'id': usr['pk']} for usr in User.objects.filter(username__contains=request.GET['q']).values('username', 'pk')]
+    response_json = SafeString(simplejson.dumps(users_in_grp))
+    return HttpResponse(response_json, mimetype='application/json')
