@@ -16,15 +16,18 @@ class Group(models.Model):
 
     def invite(self, sender, recievers, msg=''):
         for user in recievers:
-            # if the to_user is not already a member of group then only create invite
-            if (Membership.objects.filter(group=self).filter(user=user).count() == 0):
-                Invite.objects.create(
-                                    from_user=sender,
-                                    to_user=user,
-                                    group=self,
-                                    unread=True,
-                                    message=msg
-                                    )
+            # if the to_user is not already a member/invited of group then only create invite
+            if not Invite.objects.filter(group=self).filter(to_user=user).exists():
+                if not Membership.objects.filter(group=self).filter(user=user).exists():
+                    Invite.objects.create(
+                                        from_user=sender,
+                                        to_user=user,
+                                        group=self,
+                                        unread=True,
+                                        message=msg
+                                        )
+                else:
+                    pass
             else:
                 pass
                 # raise error| log

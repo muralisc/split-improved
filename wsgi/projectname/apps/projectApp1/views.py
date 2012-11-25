@@ -117,7 +117,7 @@ def createGroup(request):
 @login_required(login_url='/login/')
 def groupHome(request, gid):
     try:
-        group = Group.objects.get(id=gid)
+        group = Group.objects.get(id=gid, deleted=False)
     except Group.DoesNotExist:
         # log error 404
         raise Http404
@@ -142,13 +142,14 @@ def changeInvite(request, accept_decline, row_id):
     if invite.to_user.id == request.user.id:
         if accept_decline == 'accept':
             # membership alredy exixt problem[alredy taken care while making invite]
-            Membership.objects.create(
-                                    group=invite.group,
-                                    user=invite.to_user,
-                                    administrator=False,
-                                    positions='',
-                                    amount_in_pool=0
-                                    )
+            if not Membership.objects.filter(group=invite.group).filter(user=invite.to_user).exists():
+                Membership.objects.create(
+                                        group=invite.group,
+                                        user=invite.to_user,
+                                        administrator=False,
+                                        positions='',
+                                        amount_in_pool=0
+                                        )
             invite.delete()
             return redirect('/home/')
         elif accept_decline == 'decline':
@@ -176,14 +177,17 @@ def getJSONusers(request):
 @login_required(login_url='/login/')
 def deleteGroup(request, gid):
     # if administrator is True
-    if Membership.objects.get(group__id=gid, user=request.user).administrator:
-        try:
-            group = Group.objects.get(id=gid)
-        except Group.DoesNotExist:
-            # log error 404
-            raise Http404
-        group.deleted = True
-        group.save()
-    else:
-        pass
-        # log error 404
+    try:
+        if Membership.objects.get(group__id=gid, user=request.user).administrator:
+            try:
+                group = Group.objects.get(id=gid)
+            except Group.DoesNotExist:
+                # log error 404
+                raise Http404
+            group.deleted = True
+            group.save()
+        else:
+            pass
+    except:
+        raise Http404
+    return redirect('/home/')
