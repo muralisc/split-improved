@@ -11,6 +11,7 @@ groupinfo Page
 {% block body %}
 {{ group.name }}<br/>
 {{ group.description}}<br/>
+DELETED: {{ group.deleted}}<br/>
 Members:<br/>
 {% for i in members %}
 {{ i.user.username }}

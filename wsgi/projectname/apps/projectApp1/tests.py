@@ -49,6 +49,7 @@ class UserManagementTestCase(TestCase):
         response = self.client.logout()
         response = self.client.post('/login/', {'email': 'jayalalv@gmail.com', 'password': 'wrongpassword'}, follow=True)
         self.assertTrue(response.context['wrongUsernameOrPassword'])
+        #logout and check of an arbitary url after login site redirects to arbitary url
 
     def test_permissions(self):
         '''
@@ -99,6 +100,7 @@ class UserManagementTestCase(TestCase):
                                         )},
                                     follow=True)
         self.assertEqual(Membership.objects.get(administrator=True).user.username, 'default@default.com')
+        self.assertEqual(Membership.objects.get(positions='creator').user.username, 'default@default.com')
         # check it creates a group with only creator as the member
         self.assertEqual(1, Membership.objects.filter(group=Group.objects.get(name='group1')).count())
         # test the group has one and only one creator
@@ -148,5 +150,13 @@ class UserManagementTestCase(TestCase):
         invalid query / no query
         valid query with incomlete dictionary keys in GET
         valid query with complete GET dictionary
+        '''
+        pass
+
+    def test_deleteGroup(self):
+        '''
+        actual record is not deleted only a field changes
+        non admin user cant delete
+        admin user can delete
         '''
         pass

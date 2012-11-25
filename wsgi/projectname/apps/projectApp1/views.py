@@ -41,7 +41,10 @@ def siteLogin(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return redirect('/home/')
+                    if 'next' in request.GET:
+                        return redirect(request.GET['next'])
+                    else:
+                        return redirect('/home/')
                     #return redirect('http://google.com')
                     # redirect to success page
                 else:
@@ -60,7 +63,7 @@ def siteLogin(request):
 @login_required(login_url='/login/')
 def home(request):
     form = GroupForm()
-    member_of = Membership.objects.filter(user=request.user)
+    member_of = Membership.objects.filter(user=request.user).filter(group__deleted=False)
     no_of_invites = Invite.objects.filter(to_user=request.user).filter(unread=True).count()
     # get invites count
     return render_to_response('home.html', locals(), context_instance=RequestContext(request))
@@ -133,7 +136,7 @@ def settings(request):
 def changeInvite(request, accept_decline, row_id):
     '''
     creates membership from an invite
-    delets an invite
+    deletes an invite
     '''
     invite = Invite.objects.get(pk=row_id)
     if invite.to_user.id == request.user.id:
@@ -168,3 +171,19 @@ def getJSONusers(request):
     users_in_grp = [{'name': usr['username'], 'id': usr['pk']} for usr in User.objects.filter(username__contains=request.GET['q']).values('username', 'pk')]
     response_json = SafeString(simplejson.dumps(users_in_grp))
     return HttpResponse(response_json, mimetype='application/json')
+
+
+@login_required(login_url='/login/')
+def deleteGroup(request, gid):
+    # if administrator is True
+    if Membership.objects.get(group__id=gid, user=request.user).administrator:
+        try:
+            group = Group.objects.get(id=gid)
+        except Group.DoesNotExist:
+            # log error 404
+            raise Http404
+        group.deleted = True
+        group.save()
+    else:
+        pass
+        # log error 404
