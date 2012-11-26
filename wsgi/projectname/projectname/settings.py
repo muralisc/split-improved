@@ -154,7 +154,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    'django_extensions',
     'projectApp1',
     'TransactionApp',
 )
