@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     (r'^allInvites/$', 'projectApp1.views.showInvites'),
     (r'^getJSON/users/$', 'projectApp1.views.getJSONusers'),
     (r'^deleteGroup/(\d+)/$', 'projectApp1.views.deleteGroup'),
+    (r'^sentInvites/(\d+)/$', 'projectApp1.views.sentInvites'),
 
 
     (r'^logout/$', 'django.contrib.auth.views.logout_then_login', {'login_url': '/login/'}),

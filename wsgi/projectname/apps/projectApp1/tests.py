@@ -233,3 +233,9 @@ class UserManagementTestCase(TestCase):
         # try to invite an existing invite
         group.invite(response.context['user'], [User.objects.get(username='default1@default.com')])
         self.assertEqual(Invite.objects.all().count(), no_of_invites)
+
+    def test_sentInvite(self):
+        '''
+        only members can sent invite
+        '''
+        pass

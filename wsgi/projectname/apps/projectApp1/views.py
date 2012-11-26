@@ -191,3 +191,16 @@ def deleteGroup(request, gid):
     except:
         raise Http404
     return redirect('/home/')
+
+
+@login_required(login_url='/login/')
+def sentInvites(request, gid):
+    '''
+    '''
+    if request.method == 'POST':
+        groupRow = Group.objects.get(id=gid)
+        users_invited = [User.objects.get(pk=id) for id in request.POST['members'].split(',')]
+        groupRow.invite(request.user, users_invited)
+    else:
+        pass
+    return redirect('/group/{0}/'.format(gid))
