@@ -63,10 +63,10 @@ class UserManagementTestCase(TestCase):
         response = self.client.post('/permission/personal_transactions/diable/', follow=True)
         self.assertEqual(response.status_code, 404)
         # add a permission and remove a permision
-        #response = self.client.post('/permission/personal_transactions/enable/', follow=True)
-        #self.assertTrue(response.context['user'].has_perm('TransactionApp.personal_transactions'))
-        #response = self.client.post('/permission/personal_transactions/dissable/', follow=True)
-        #self.assertFalse(response.context['user'].has_perm('TransactionApp.personal_transactions'))
+        response = self.client.post('/permission/personal_transactions/enable/', follow=True)
+        self.assertTrue(response.context['user'].has_perm('TransactionApp.personal_transactions'))
+        response = self.client.post('/permission/personal_transactions/dissable/', follow=True)
+        self.assertFalse(response.context['user'].has_perm('TransactionApp.personal_transactions'))
 
     def test_settings(self):
         pass
