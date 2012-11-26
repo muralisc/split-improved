@@ -11,6 +11,7 @@ groupinfo Page
 {% block body %}
 {{ group.name }}<br/>
 {{ group.description}}<br/>
+DELETED: {{ group.deleted}}<br/>
 Members:<br/>
 {% for i in members %}
 {{ i.user.username }}
@@ -19,6 +20,17 @@ Members:<br/>
 {{ i.amount_in_pool }}
 <br/>
 {% endfor %}
+Invites sent to <br/>
+{% for i in invites %}
+{{ i }}
+<br/>
+{% endfor %}
+<h3>NEW INVITES</h3>
+<form class="form form-horizontal" action="/sentInvites/{{ group.pk }}/" method="post">{% csrf_token %}   
+	<label for="id_members">Invite new Members:</label> 
+	<input name="members" id="id_members"type="text" id="tokeninput-demo" />
+	<input class="btn" type="submit" name="SentInvite" value="Sent Invite"/>
+</form>
 
 {% endblock %}
 
@@ -28,4 +40,17 @@ Members:<br/>
 
 
 {% block afterbody%}
+<script>
+	$(document).ready(function() {
+		$("#id_members").tokenInput("/getJSON/users/", {
+			theme: "facebook",
+			hintText: "Search Friends",
+			noResultsText: "O results",
+			searchingText: "searching Friends",
+			preventDuplicates: true
+		});	
+	});
+</script>
+<link rel="stylesheet" href="http://loopj.com/jquery-tokeninput/styles/token-input-facebook.css" type="text/css" media="screen" charset="utf-8" />
+<script src="https://github.com/loopj/jquery-tokeninput/raw/master/src/jquery.tokeninput.js" type="text/javascript" charset="utf-8"></script>
 {% endblock %}
