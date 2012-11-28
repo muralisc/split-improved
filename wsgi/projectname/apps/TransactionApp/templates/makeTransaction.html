@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+
+{% block ngAppName %} ng-app="YourAppName" {% endblock %}
+
 {% block title %}
 {% endblock %}
 
@@ -13,7 +16,7 @@
 		{[{paid_user.username}]} Paid {[{amount}]} for <span ng-repeat="u in users_inv">{[{u}]},</span> 
 		from {[{selectedFromCategory.name}]} for{[{description}]} to {[{selectedToCategory.name}]} on {[{date}]}
         <div class="control-group">
-            <label class="control-label" for="inputEmail"></label>
+            <label class="control-label" for="paid_user"></label>
             <div class="controls">
                 <select ng-model="paid_user" ng-options="c.username for c in users_in_grp">
                     <option value="" selected="selected">---------</option>
@@ -22,7 +25,7 @@
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="inputEmail">paid</label>
+            <label class="control-label" for="amount">paid</label>
             <div class="controls">
                 <input ng-model="amount" name="amount" type="number" placeholder="Amount" id="id_amount">
             </div>
@@ -53,7 +56,7 @@
         {% endif %}
         {% if perms.TransactionApp.personal_transactions %}
         <div class="control-group">
-            <label class="control-label" for="inputEmail">From Cayegory </label>
+            <label class="control-label" for="from_category">From Cayegory </label>
             <div class="controls">
                 <select ng-model="selectedFromCategory" ng-options="c.name for c in category_user">
                     <option value="" selected="selected">---------</option>
@@ -64,23 +67,40 @@
         </div>
         {% endif %}
         <div class="control-group">
-            <label class="control-label" for="inputEmail">for</label>
+            <label class="control-label" for="description">for</label>
             <div class="controls">
                 <input name="description" ng-model="description" maxlength="705" placeholder="Description" type="text" class="" id="id_description" />
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="inputEmail">toCategory</label>
+            <label class="control-label" for="to_category">toCategory</label>
             <div class="controls">
                 <select ng-model="selectedToCategory" ng-options="c.name for c in category_user">
                     <option value="" selected="selected">---------</option>
                 </select>
                 <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
-                <a href="#">New Group</a><br/>
+                <div class="well">
+					<a href="#">New Group</a><br/>
+					<p><label for="id_name">Name:</label> <input id="id_name" type="text" name="name" ng-model="name" maxlength="256" /></p>
+					<p><label for="id_category_type">Category type:</label> <select name="category_type" ng-model="category_type" id="id_category_type">
+					<option value="" selected="selected">---------</option>
+					<option value="0">income</option>
+					<option value="1">expense</option>
+					<option value="2">credit</option>
+					</select></p>
+					<p><label for="id_description">Description:</label> <input id="id_description" type="text" ng-model="cat_description" name="description"  maxlength="564" /></p>
+					<p><label for="id_privacy">Privacy:</label> <select name="privacy" ng-model="privacy" sentCategory id="id_privacy">
+					<option value="" selected="selected">---------</option>
+					<option value="0">private</option>
+					<option value="1">public</option>
+					</select></p>
+					<input class="btn" type="submit" name="CreateCaetgory" ng-click="createCategory()" value="Create Caetgory"/>
+				</div>
+                
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="inputEmail">on</label>
+            <label class="control-label" for="date">on</label>
             <div class="controls">
                 <input id="id_date" type="date" placeholder="Datemm" class="" name="date" ng-model="date"/>
             </div>
@@ -92,7 +112,6 @@
         </div>
     </form>
 </div>
-
 {% endblock %}
 
 
@@ -119,6 +138,25 @@
                 $scope.users_inv.splice($scope.users_inv.indexOf(usr.username),1);	
             }
         };
+        $scope.createCategory = function() {
+			// Create the http post request
+			// the data holds the keywords
+			// The request is a JSON request.
+			$.get(
+				"/createCategory/0/",
+				{
+					"name":$scope.name,
+					"category_type":$scope.category_type,
+					"description":$scope.cat_description,
+					"privacy":$scope.privacy,
+				},
+				function(data) {
+					$scope.$apply(function() {
+						$scope.category_user.push(data);
+					});
+				}
+			);
+		};
     };
 </script>
 {% endblock %}

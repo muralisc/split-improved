@@ -155,6 +155,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'projectApp1',
+    'TransactionApp'
 )
 
 EMAIL_USE_TLS = True
