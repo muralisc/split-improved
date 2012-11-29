@@ -27,7 +27,7 @@ Login
 	</form>
 	<a href="/passwordReset/">Forgot Password</a>
 	<div class="row-fluid">
-		<a href="#myModal" class="" data-toggle="modal">New user</a>
+		<a href="#newUserModal" class="" data-toggle="modal">New user</a>
 	</div>
 </div>
 {% endblock %}
@@ -43,15 +43,15 @@ Login
 $(document).ready(function() {
 	// Initialize 
 	{% if newUserCreated %}
-	$("#myModal1").modal();
+	$("#userCreated").modal();
 	{% endif %}
 	{% if form.email.errors %}
-	$("#myModal2").modal();
+	$("#errormodel").modal();
 	{% endif %}
 	});
 </script>
 <!-- ============================================== -->
-<div id="myModal1" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="userCreated" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 		<h3 id="myModalLabel">user created</h3>
@@ -63,7 +63,7 @@ $(document).ready(function() {
 		<button class="btn" data-dismiss="modal" aria-hidden="true">Okay</button>
 	</div>
 </div>
-<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="newUserModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 		<h3 id="myModalLabel">user created</h3>
@@ -81,7 +81,7 @@ $(document).ready(function() {
 		<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
 	</div>
 </div>
-<div id="myModal2" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="errormodel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 		<h3 id="myModalLabel">Invalid email</h3>
