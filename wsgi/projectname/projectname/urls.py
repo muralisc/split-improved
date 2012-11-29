@@ -22,6 +22,9 @@ urlpatterns = patterns('',
     (r'^sentInvites/(\d+)/$', 'projectApp1.views.sentInvites'),
 
 
+    (r'^createCategory/(\d+)/$', 'TransactionApp.views.createCategory'),
+    (r'^getJSONcategories/$', 'TransactionApp.views.getJSONcategories'),
+
     (r'^logout/$', 'django.contrib.auth.views.logout_then_login', {'login_url': '/login/'}),
     (r'^passwordChange/', 'django.contrib.auth.views.password_change', {'template_name': 'password_change_form.html'}),
     (r'^passwordChangeDone/', 'django.contrib.auth.views.password_change_done', {'template_name': 'password_change_success.html'}),

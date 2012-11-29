@@ -9,8 +9,11 @@ from django.test import TestCase
 
 
 class SimpleTest(TestCase):
-    def test_basic_addition(self):
+    def test_create_category(self):
         """
-        Tests that 1 + 1 always equals 2.
+        no category of duplicate name is posrrble
+        wrong credentials issue
+        duplicate name issue
+
         """
         self.assertEqual(1 + 1, 2)

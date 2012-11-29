@@ -12,7 +12,7 @@
 
 {% block body %}
 <div class="offset4 span4">
-    <form class="form-horizontal" ng-controller="TransactionsFormController">	
+    <form action="" method="POST" class="form-horizontal" ng-controller="TransactionsFormController">	
 		{[{paid_user.username}]} Paid {[{amount}]} for <span ng-repeat="u in users_inv">{[{u}]},</span> 
 		from {[{selectedFromCategory.name}]} for{[{description}]} to {[{selectedToCategory.name}]} on {[{date}]}
         <div class="control-group">
@@ -34,13 +34,13 @@
         <div class="control-group">
             <label class="control-label">
                 {% if perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
-                <input type="checkbox" ng-model="display_value" ng-true-value="inline" ng-false-value="none">
+                <input type="checkbox" ng-model="display_value" ng-true-value="true" ng-false-value="false">
                 {% endif %}
                 Involving
             </label>
             <div class="controls">
                 <table class="table table-condensed table-striped">
-                    <tbody style="display:{[{display_value}]}">
+                    <tbody ng-show="display_value">
                         <tr ng-repeat="usr in users_in_grp">
                             <td>
                                 <label class="checkbox">
@@ -58,29 +58,12 @@
         <div class="control-group">
             <label class="control-label" for="from_category">From Cayegory </label>
             <div class="controls">
-                <select ng-model="selectedFromCategory" ng-options="c.name for c in category_user">
+                <select ng-model="selectedFromCategory" ng-options="c.name for c in fromCategory_user">
                     <option value="" selected="selected">---------</option>
                 </select>
                 <input id="id_from_category" class="" name="from_category" style="display: none" type="text" value={[{selectedFromCategory.id}]} >
-                <a href="#">New Group</a><br/>
-            </div>
-        </div>
-        {% endif %}
-        <div class="control-group">
-            <label class="control-label" for="description">for</label>
-            <div class="controls">
-                <input name="description" ng-model="description" maxlength="705" placeholder="Description" type="text" class="" id="id_description" />
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="to_category">toCategory</label>
-            <div class="controls">
-                <select ng-model="selectedToCategory" ng-options="c.name for c in category_user">
-                    <option value="" selected="selected">---------</option>
-                </select>
-                <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
-                <div class="well">
-					<a href="#">New Group</a><br/>
+                <a ng-click="displaycreateCategory()">New Group</a><br/>
+                <div class="well" ng-show="createUsrToggle" >
 					<p><label for="id_name">Name:</label> <input id="id_name" type="text" name="name" ng-model="name" maxlength="256" /></p>
 					<p><label for="id_category_type">Category type:</label> <select name="category_type" ng-model="category_type" id="id_category_type">
 					<option value="" selected="selected">---------</option>
@@ -96,7 +79,31 @@
 					</select></p>
 					<input class="btn" type="submit" name="CreateCaetgory" ng-click="createCategory()" value="Create Caetgory"/>
 				</div>
-                
+            </div>
+        </div>
+        {% endif %}
+        <div class="control-group">
+            <label class="control-label" for="description">for</label>
+            <div class="controls">
+                <input name="description" ng-model="description" maxlength="705" placeholder="Description" type="text" class="" id="id_description" />
+            </div>
+        </div>
+        <div class="control-group" ng-hide="display_value">
+            <label class="control-label" for="to_category">toCategoryUser</label>
+            <div class="controls">
+                <select ng-model="selectedToCategory" ng-options="c.name for c in toCategory_user">
+                    <option value="" selected="selected">---------</option>
+                </select>
+                <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
+            </div>
+        </div>
+        <div class="control-group" ng-show="display_value">
+            <label class="control-label" for="to_category">toCategoryGroup</label>
+            <div class="controls">
+                <select ng-model="selectedToCategory" ng-options="c.name for c in toCategory_group">
+                    <option value="" selected="selected">---------</option>
+                </select>
+                <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
             </div>
         </div>
         <div class="control-group">
@@ -123,12 +130,15 @@
 <script type="text/javascript">
 
     function TransactionsFormController($scope) {
+		$scope.createUsrToggle = false;
         $scope.users_in_grp={{ response_json.users_in_grp }};
-        $scope.category_user={{ response_json.category_user }};
+        $scope.fromCategory_user={{ response_json.fromCategory_user }};
+        $scope.toCategory_user={{ response_json.toCategory_user }};
+        $scope.toCategory_group={{ response_json.toCategory_group }};
         {% if perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
-        $scope.display_value="none";
+        $scope.display_value="false";
         {% else %}
-        $scope.display_value="inline";
+        $scope.display_value="true";
         {% endif %}
         $scope.users_inv = new Array();
         $scope.updateUsersInvolved = function(usr){
@@ -152,11 +162,19 @@
 				},
 				function(data) {
 					$scope.$apply(function() {
-						$scope.category_user.push(data);
+						delete data.category_type
+						$scope.fromCategory_user.push(data);
+						$scope.createUsrToggle = false;
+						$scope.selectedFromCategory = data;
+						$scope.selectedFromCategory = data;
 					});
 				}
 			);
 		};
+		$scope.displaycreateCategory = function(){
+			$scope.createUsrToggle = ($scope.createUsrToggle == true)?false:true;
+		};
     };
 </script>
+<!-- ============================================== -->
 {% endblock %}
