@@ -41,11 +41,12 @@ def siteLogin(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    if 'next' in request.GET:
-                        return redirect(request.GET['next'])
+                    request.session['memberships'] = Membership.objects.filter(user=request.user).filter(group__deleted=False)
+                    if 'next_url' in request.session:
+                        return redirect(request.session['next_url'])
                     else:
                         return redirect('/home/')
-                    #return redirect('http://google.com')
+                    # return redirect('http://google.com')
                     # redirect to success page
                 else:
                     pass
@@ -55,15 +56,15 @@ def siteLogin(request):
         else:
             pass
             # form is invalid erros auto set
-    else:
-        form = LoginCreateForm()
+    elif 'next' in request.GET:
+        request.session['next_url'] = request.GET['next']
+    form = LoginCreateForm()
     return render_to_response('loginCreate.html', locals(), context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')
 def home(request):
     form = GroupForm()
-    member_of = Membership.objects.filter(user=request.user).filter(group__deleted=False)
     no_of_invites = Invite.objects.filter(to_user=request.user).filter(unread=True).count()
     # get invites count
     return render_to_response('home.html', locals(), context_instance=RequestContext(request))
@@ -204,3 +205,16 @@ def sentInvites(request, gid):
     else:
         pass
     return redirect('/group/{0}/'.format(gid))
+
+
+@login_required(login_url='/login/')
+def changeGroup(request, gid):
+    '''
+    check if gid is valid
+    default to personal
+    '''
+    request.session['active_group'] = Group.objects.get(pk=gid)
+    if 'next' in request.GET:
+        return redirect(request.GET['next'])
+    else:
+        return redirect('/home/')

@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     (r'^getJSON/users/$', 'projectApp1.views.getJSONusers'),
     (r'^deleteGroup/(\d+)/$', 'projectApp1.views.deleteGroup'),
     (r'^sentInvites/(\d+)/$', 'projectApp1.views.sentInvites'),
+    (r'^changeGroup/(\d+)/$', 'projectApp1.views.changeGroup'),
 
 
     (r'^createCategory/(\d+)/$', 'TransactionApp.views.createCategory'),

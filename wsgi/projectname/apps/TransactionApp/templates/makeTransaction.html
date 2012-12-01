@@ -12,7 +12,11 @@
 
 {% block body %}
 <div class="offset4 span4">
-    <form action="" method="POST" class="form-horizontal" ng-controller="TransactionsFormController">	
+	{% for i in request.session.memberships%}
+	{{ i.group.name }}
+	{% endfor %}
+	{{ request.session.active_group }}
+	<form action="" method="POST" class="form-horizontal" ng-controller="TransactionsFormController">	
 		{[{paid_user.username}]} Paid {[{amount}]} for <span ng-repeat="u in users_inv">{[{u}]},</span> 
 		from {[{selectedFromCategory.name}]} for{[{description}]} to {[{selectedToCategory.name}]} on {[{date}]}
         <div class="control-group">

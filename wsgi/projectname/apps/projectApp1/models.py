@@ -67,7 +67,7 @@ class Membership(models.Model):
     '''
     Table releating User with Group
     '''
-    group = models.ForeignKey(Group)
+    group = models.ForeignKey(Group, related_name='getMemberships')
     user = models.ForeignKey(User)
     administrator = models.BooleanField(null=False, blank=True)
     positions = models.CharField(max_length=64)

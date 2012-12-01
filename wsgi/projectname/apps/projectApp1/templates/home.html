@@ -14,7 +14,7 @@
 	{{ user.username}}
 	<div class="row-fluid">
 		GROUPS :
-		{% for i in member_of %}
+		{% for i in request.session.memberships %}
 			<a href="/group/{{ i.group.pk }}">{{ i.group.name }}</a>
 			{{ i.administrator }}
 			<br/>
