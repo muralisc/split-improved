@@ -22,6 +22,17 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'category_type', 'description', 'created_by', 'create_time', 'privacy',)
     pass
 
+
+class GroupCategoryAdmin(admin.ModelAdmin):
+    list_display = ('group', 'category', 'initial_amount', 'current_amount', 'deleted',)
+    pass
+
+
+class UserCategoryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'category', 'initial_amount', 'current_amount', 'deleted',)
+    pass
+
+
 #class InviteAdmin(admin.ModelAdmin):
 #    list_display = ('', '', '', '', '',)
 #    pass
@@ -32,7 +43,7 @@ admin.site.register(Invite, InviteAdmin)
 admin.site.register(Notifiacation)
 
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(GroupCategory)
-admin.site.register(UserCategory)
+admin.site.register(GroupCategory, GroupCategoryAdmin)
+admin.site.register(UserCategory, UserCategoryAdmin)
 admin.site.register(Transaction)
 admin.site.register(Payee)
