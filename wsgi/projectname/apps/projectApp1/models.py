@@ -4,14 +4,16 @@ from django import forms
 
 
 class Group(models.Model):
+    PRIVATE = 0
+    PUBLIC = 1
     name = models.CharField(max_length=64)
     description = models.CharField(max_length=564, blank=True)
     members = models.ManyToManyField(User, through='Membership', related_name='memberOfGroup')
     create_time = models.DateTimeField(auto_now_add=True)
     privacy = models.IntegerField(
                                     choices=(
-                                            (0, 'private'),
-                                            (1, 'public'),
+                                            (PRIVATE, 'private'),
+                                            (PUBLIC, 'public'),
                                             ),
                                     )
     deleted = models.BooleanField(null=False, blank=True)

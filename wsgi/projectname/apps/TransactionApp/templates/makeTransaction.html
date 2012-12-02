@@ -7,7 +7,7 @@
 
 
 {% block header %}
-{% endblock %}
+{% endblock %}	
 
 
 {% block body %}
@@ -72,7 +72,7 @@
                     <option value="" selected="selected">---------</option>
                 </select>
                 <input id="id_from_category" class="" name="from_category" style="display: none" type="text" value={[{selectedFromCategory.id}]} >
-                <a ng-click="displaycreateCategory()">New Category</a><br/>
+                <a href="#createCategoryModal" class="" data-toggle="modal" ng-click="displaycreateCategory('/createCategory/0/','NewFromCategory')">NewFromCategory</a><br/>
             </div>
         </div>
         {% endif %}
@@ -89,6 +89,7 @@
                     <option value="" selected="selected">---------</option>
                 </select>
                 <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
+                <a href="#createCategoryModal" class="" data-toggle="modal" ng-click="displaycreateCategory('/createCategory/0/','NewToUserCategory')">NewToUserCategory</a><br/>
             </div>
         </div>
 		{% if perms.TransactionApp.group_transactions %}
@@ -99,6 +100,7 @@
                     <option value="" selected="selected">---------</option>
                 </select>
                 <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
+                <a href="#createCategoryModal" class="" data-toggle="modal" ng-click="displaycreateCategory('/createCategory/{{request.session.active_group.pk}}/','NewToGroupCategory')">NewToGroupCategory</a><br/>
             </div>
         </div>
 		{% endif %}
@@ -114,21 +116,50 @@
             </div>
         </div>
     </form>
-    <div class="well span6" ng-show="createUsrToggle">
-		<p><label for="id_name">Name:</label> <input id="id_name" type="text" name="name" ng-model="name" maxlength="256" /></p>
-		<p><label for="id_category_type">Category type:</label> <select name="category_type" ng-model="category_type" id="id_category_type">
-		<option value="" selected="selected">---------</option>
-		<option value="0">income</option>
-		<option value="1">expense</option>
-		<option value="2">credit</option>
-		</select></p>
-		<p><label for="id_description">Description:</label> <input id="id_description" type="text" ng-model="cat_description" name="description"  maxlength="564" /></p>
-		<p><label for="id_privacy">Privacy:</label> <select name="privacy" ng-model="privacy" sentCategory id="id_privacy">
-		<option value="" selected="selected">---------</option>
-		<option value="0">private</option>
-		<option value="1">public</option>
-		</select></p>
-		<input class="btn" type="submit" name="CreateCaetgory" ng-click="createCategory()" value="Create Caetgory"/>
+	<div id="createCategoryModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3 id="myModalLabel">user created</h3>
+		</div>
+        <div class="modal-body">
+            <p><label for="id_name">Name:</label> <input id="id_name" type="text" name="name" ng-model="name" maxlength="256" /></p>
+            <p>
+            <label for="id_category_type">Category type:</label> 
+            <select name="category_type" ng-model="category_type" id="id_category_type" ng-show="fromUserCategory">
+                <option value="" selected="selected">---------</option>
+                <option value="{{INCOME}}">income</option>
+                <option value="{{BANK}}">bank</option>
+                <option value="{{EXPENSE}}">expense</option>
+                <option value="{{CREDIT}}">credit</option>
+            </select>
+            <select name="category_type" ng-model="category_type" id="id_category_type" ng-show="toUserCategory">
+                <option value="" selected="selected">---------</option>
+                <option value="{{BANK}}">bank</option>
+                <option value="{{EXPENSE}}">expense</option>
+                <option value="{{CREDIT}}">credit</option>
+            </select>
+            <select name="category_type" ng-model="category_type" id="id_category_type" ng-show="toGroupCategory">
+                <option value="" selected="selected">---------</option>
+                <option value="{{EXPENSE}}">expense</option>
+            </select>
+            </p>
+            <p>
+            <label for="id_description">Description:</label> 
+            <input id="id_description" type="text" ng-model="cat_description" name="description"  maxlength="564" />
+            </p>
+            <p>
+            <label for="id_privacy">Privacy:</label> 
+            <select name="privacy" ng-model="privacy" sentCategory id="id_privacy">
+                <option value="" selected="selected">---------</option>
+                <option value="0">private</option>
+                <option value="1">public</option>
+            </select>
+            </p>
+            <input class="btn" type="submit" name="CreateCaetgory" data-dismiss="modal" aria-hidden="true" ng-click="createCategory()" value="Create Caetgory"/>
+        </div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+		</div>
 	</div>
 </div>
 
@@ -143,7 +174,6 @@
 <script type="text/javascript">
 
     function TransactionsFormController($scope) {
-		$scope.createUsrToggle = false;
 	{% if perms.TransactionApp.group_transactions %}
 		$scope.users_in_grp={{ response_json.users_in_grp }};
 		$scope.toCategory_group={{ response_json.toCategory_group }};
@@ -157,7 +187,11 @@
         {% else %}
         $scope.involving_checkbox="true";
         {% endif %}
+        //this array is used for displaying
         $scope.users_inv = new Array();
+        //funtion is used to update the array for diplaying the current 
+        // involved user selection
+        // called when each check box in "Involved user" table is clicked
         $scope.updateUsersInvolved = function(usr){
             if (usr.checked){
                 $scope.users_inv.push(usr.username);
@@ -166,30 +200,78 @@
             }
         };
         $scope.createCategory = function() {
-			// Create the http post request
-			// the data holds the keywords
-			// The request is a JSON request.
+			// sents get trquest to URl
+			// and fetches the JSON of group created
 			$.get(
-				"/createCategory/0/",
+				$scope.createCategoryURL,
 				{
 					"name":$scope.name,
 					"category_type":$scope.category_type,
 					"description":$scope.cat_description,
 					"privacy":$scope.privacy,
 				},
+				//success callack funtion operates on "data"-> the response JSON
 				function(data) {
 					$scope.$apply(function() {
-						delete data.category_type
-						$scope.fromCategory_user.push(data);
-						$scope.createUsrToggle = false;
-						$scope.selectedFromCategory = data;
-						$scope.selectedFromCategory = data;
+						if ( data.category_type == {{INCOME}} )	
+						{
+							delete data.category_type;
+							$scope.fromCategory_user.push(data);
+							$scope.selectedFromCategory = data;
+						}
+															
+						else if ( data.category_type == {{BANK}} || data.category_type == {{CREDIT}} )
+						{
+							delete data.category_type;
+							$scope.fromCategory_user.push(data);
+							$scope.toCategory_user.push(data);
+							if ($scope.fromUserCategory == true)
+							{
+								$scope.selectedFromCategory = data;
+							}
+							else
+							{
+								$scope.selectedToCategory = data;
+							}
+						}
+						else if ( data.category_type == {{EXPENSE}} )
+						{
+							delete data.category_type;
+							if ($scope.toGroupCategory == true)
+							{
+								$scope.toCategory_group.push(data);
+							}
+							else
+							{
+								$scope.toCategory_user.push(data);
+							}
+							$scope.selectedToCategory = data;
+						}
 					});
 				}
 			);
 		};
-		$scope.displaycreateCategory = function(){
-			$scope.createUsrToggle = ($scope.createUsrToggle == true)?false:true;
+		//this function is called when any new category link is clicked
+		$scope.displaycreateCategory = function(url,toggle){
+			$scope.createCategoryURL = url;
+			if (toggle == 'NewFromCategory')
+			{
+				$scope.fromUserCategory = true; 
+				$scope.toUserCategory = false;
+				$scope.toGroupCategory = false;
+			}
+			else if (toggle == 'NewToUserCategory')
+			{
+				$scope.fromUserCategory = false; 
+				$scope.toUserCategory = true;
+				$scope.toGroupCategory = false;
+			}
+			else if (toggle == 'NewToGroupCategory')
+			{
+				$scope.fromUserCategory = false; 
+				$scope.toUserCategory = false;
+				$scope.toGroupCategory = true;
+			}
 		};
     };
 </script>

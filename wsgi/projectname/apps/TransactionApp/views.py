@@ -15,6 +15,10 @@ def makeTransaction(request):
     '''
     ensure that the session 'grp' is popuklated
     '''
+    INCOME = Category.INCOME
+    BANK = Category.BANK
+    EXPENSE = Category.EXPENSE
+    CREDIT = Category.CREDIT
     categoryForm = CategoryForm()
     response_json = dict()
     if request.user.has_perm('TransactionApp.group_transactions'):
@@ -25,7 +29,7 @@ def makeTransaction(request):
                             'checked': False
                             }
                             for mem_ship in request.session['active_group'].getMemberships.all()]
-            toCategory_group = [{'name': i.name, 'id': i.id} for i in request.session['active_group'].usesCategories.filter(category_type=1)]
+            toCategory_group = [{'name': i.name, 'id': i.id} for i in request.session['active_group'].usesCategories.filter(category_type=Category.EXPENSE)]
         else:
             users_in_grp = []
             toCategory_group = []
@@ -33,8 +37,14 @@ def makeTransaction(request):
         response_json['toCategory_group'] = SafeString(json.dumps(toCategory_group))
     if request.user.has_perm('TransactionApp.personal_transactions'):
         pass
-    fromCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(Q(category_type=0) | Q(category_type=2))]
-    toCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(Q(category_type=1) | Q(category_type=2))]
+    fromCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
+                                                                                    Q(category_type=Category.INCOME) |
+                                                                                    Q(category_type=Category.BANK) |
+                                                                                    Q(category_type=Category.CREDIT))]
+    toCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
+                                                                                    Q(category_type=Category.EXPENSE) |
+                                                                                    Q(category_type=Category.BANK) |
+                                                                                    Q(category_type=Category.CREDIT))]
     response_json['fromCategory_user'] = SafeString(json.dumps(fromCategory_user))
     response_json['toCategory_user'] = SafeString(json.dumps(toCategory_user))
     return render_to_response('makeTransaction.html', locals(), context_instance=RequestContext(request))

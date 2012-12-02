@@ -5,19 +5,25 @@ from django import forms
 
 
 class Category(models.Model):
+    INCOME = 0
+    BANK = 1
+    EXPENSE = 2
+    CREDIT = 3
+    PRIVATE = 0
+    PUBLIC = 1
     ACCOUNT_TYPE = (
-                    (0, 'income'),
-                    (1, 'bank'),
-                    (2, 'expense'),
-                    (3, 'credit'),
+                    (INCOME, 'income'),
+                    (BANK, 'bank'),
+                    (EXPENSE, 'expense'),
+                    (CREDIT, 'credit'),
                     )
     name = models.CharField(max_length=255)
     category_type = models.IntegerField(choices=ACCOUNT_TYPE)
     description = models.CharField(max_length=564, null=True, blank=True)
     privacy = models.IntegerField(
                                     choices=(
-                                            (0, 'private'),
-                                            (1, 'public'),
+                                            (PRIVATE, 'private'),
+                                            (PUBLIC, 'public'),
                                             ),
                                     )
     created_by = models.ForeignKey(User)
