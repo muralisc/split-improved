@@ -69,8 +69,8 @@ class TransactionAppTestCase(TestCase):
         pass
 
     def test_displayTransactionForm(self):
-        #login
-        self.client.login(username="jayalalv@default.com", password="solar")
+        #login using url to update the session variable
+        response = self.client.post('/login/', {'email': 'jayalalv@default.com', 'password': 'solar'}, follow=True)
         response = self.client.post('/transactionForm/', follow=True)
         self.assertEqual(response.status_code, 200)
         pass
