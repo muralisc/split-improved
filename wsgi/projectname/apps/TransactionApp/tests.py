@@ -67,3 +67,10 @@ class TransactionAppTestCase(TestCase):
         self.assertEqual(1, UserCategory.objects.all().count())
         self.assertEqual(1, GroupCategory.objects.all().count())
         pass
+
+    def test_displayTransactionForm(self):
+        #login
+        self.client.login(username="jayalalv@default.com", password="solar")
+        response = self.client.post('/transactionForm/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        pass

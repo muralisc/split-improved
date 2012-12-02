@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory
+from TransactionApp.models import Category, CategoryForm, UserCategory, GroupCategory
 from projectApp1.models import Membership
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
@@ -11,7 +11,7 @@ from django.db.models import Q
 
 
 @login_required(login_url='/login/')
-def makeTransaction(request):
+def displayTransactionForm(request):
     '''
     ensure that the session 'grp' is popuklated
     '''
@@ -48,6 +48,19 @@ def makeTransaction(request):
     response_json['fromCategory_user'] = SafeString(json.dumps(fromCategory_user))
     response_json['toCategory_user'] = SafeString(json.dumps(toCategory_user))
     return render_to_response('makeTransaction.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def makeTransaction(request):
+    '''
+    create a transaction row in table if
+        asdf
+    create a notifications
+    update related fields
+    return back to the original site
+    '''
+    import pdb; pdb.set_trace() ### XXX BREAKPOINT
+    return redirect('/transactionForm/')
 
 
 @login_required(login_url='/login/')

@@ -95,19 +95,19 @@ class Transaction(models.Model):
             )
 
 
-class TransactionForm(forms.ModelForm):
-    class Meta:
-        model = Transaction
-        widgets = {
-                    'paid_user': forms.Select(attrs={'class': ''}),
-                    'amount': forms.TextInput(attrs={'placeholder': 'Amount', 'class': ''}),
-                    'description': forms.TextInput(attrs={'placeholder': 'Description', 'class': ''}),
-                    'users_involved': forms.CheckboxSelectMultiple(),
-                    'date': forms.TextInput(attrs={'placeholder': 'Date', 'class': ''}),
-                  }
-        exclude = ('created_by_user',
-                   'created_for_group',
-                   'deleted')
+#class TransactionForm(forms.ModelForm):
+#    class Meta:
+#        model = Transaction
+#        widgets = {
+#                    'paid_user': forms.Select(attrs={'class': ''}),
+#                    'amount': forms.TextInput(attrs={'placeholder': 'Amount', 'class': ''}),
+#                    'description': forms.TextInput(attrs={'placeholder': 'Description', 'class': ''}),
+#                    'users_involved': forms.CheckboxSelectMultiple(),
+#                    'date': forms.TextInput(attrs={'placeholder': 'Date', 'class': ''}),
+#                  }
+#        exclude = ('created_by_user',
+#                   'created_for_group',
+#                   'deleted')
 
 
 class Payee(models.Model):
