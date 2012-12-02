@@ -18,13 +18,17 @@ def makeTransaction(request):
     categoryForm = CategoryForm()
     response_json = dict()
     if request.user.has_perm('TransactionApp.group_transactions'):
-        users_in_grp = [{
-                        'username': mem_ship.user.username,
-                        'id': mem_ship.user.id,
-                        'checked': False
-                        }
-                        for mem_ship in request.session['active_group'].getMemberships.all()]
-        toCategory_group = [{'name': i.name, 'id': i.id} for i in request.session['active_group'].usesCategories.filter(category_type=1)]
+        if 'active_group' in request.session:
+            users_in_grp = [{
+                            'username': mem_ship.user.username,
+                            'id': mem_ship.user.id,
+                            'checked': False
+                            }
+                            for mem_ship in request.session['active_group'].getMemberships.all()]
+            toCategory_group = [{'name': i.name, 'id': i.id} for i in request.session['active_group'].usesCategories.filter(category_type=1)]
+        else:
+            users_in_grp = []
+            toCategory_group = []
         response_json['users_in_grp'] = SafeString(json.dumps(users_in_grp))
         response_json['toCategory_group'] = SafeString(json.dumps(toCategory_group))
     if request.user.has_perm('TransactionApp.personal_transactions'):
