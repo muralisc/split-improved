@@ -50,9 +50,12 @@ def createCategory(request, gid):
     if request.method == 'GET':
         form = CategoryForm(request.GET)
         if form.is_valid():
-            categoryRow = form.save(commit=False)
-            categoryRow.created_by = request.user
-            categoryRow.save()
+            if not Category.objects.filter(name__iexact=form.cleaned_data['name']).exists():
+                categoryRow = form.save(commit=False)
+                categoryRow.created_by = request.user
+                categoryRow.save()
+            else:
+                categoryRow = Category.objects.get(name__iexact=form.cleaned_data['name'])
             if gid == '0':
                 UserCategory.objects.create(
                                         user=request.user,
@@ -62,7 +65,7 @@ def createCategory(request, gid):
                                         deleted=False)
             else:
                 GroupCategory.objects.create(
-                                        group__id=gid,
+                                        group_id=gid,
                                         category=categoryRow,
                                         initial_amount=0,
                                         current_amount=0,

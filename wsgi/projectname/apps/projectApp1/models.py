@@ -8,7 +8,12 @@ class Group(models.Model):
     description = models.CharField(max_length=564, blank=True)
     members = models.ManyToManyField(User, through='Membership', related_name='memberOfGroup')
     create_time = models.DateTimeField(auto_now_add=True)
-    privacy = models.CharField(max_length=64, null=False, blank=True)
+    privacy = models.IntegerField(
+                                    choices=(
+                                            (0, 'private'),
+                                            (1, 'public'),
+                                            ),
+                                    )
     deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
@@ -48,7 +53,7 @@ class Invite(models.Model):
     message = models.CharField(max_length=256, null=True, blank=True)
 
     def __unicode__(self):
-        return '{0}|{1}'.format(self.group.name, self.to_user.username)
+        return '{1} for {0}'.format(self.group.name, self.to_user.username)
 
 
 class Notifiacation(models.Model):

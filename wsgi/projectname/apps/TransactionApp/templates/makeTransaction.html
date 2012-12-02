@@ -11,7 +11,7 @@
 
 
 {% block body %}
-<div class="offset4 span4">
+<div class="offset4 span8" ng-controller="TransactionsFormController">
 	{% for i in request.session.memberships%}
 		{% if request.session.active_group == i.group %}
 		{{ i.group.name }}*
@@ -19,7 +19,7 @@
 		<a href="/changeGroup/{{ i.group.pk }}/?next={{request.path}}">{{ i.group.name }}</a>
 		{% endif %}
 	{% endfor %}
-	<form action="/makeTransaction/" method="POST" class="form-horizontal" ng-controller="TransactionsFormController">{% csrf_token %}  
+	<form action="/makeTransaction/" method="POST" class="form-horizontal span6">{% csrf_token %}  
 		{[{paid_user.username}]} Paid {[{amount}]} for <span ng-repeat="u in users_inv">{[{u}]},</span> 
 		from {[{selectedFromCategory.name}]} for{[{description}]} to {[{selectedToCategory.name}]} on {[{date}]}
 		<div class="center" ng-hide="involving_checkbox">
@@ -114,23 +114,24 @@
             </div>
         </div>
     </form>
+    <div class="well span6" ng-show="createUsrToggle">
+		<p><label for="id_name">Name:</label> <input id="id_name" type="text" name="name" ng-model="name" maxlength="256" /></p>
+		<p><label for="id_category_type">Category type:</label> <select name="category_type" ng-model="category_type" id="id_category_type">
+		<option value="" selected="selected">---------</option>
+		<option value="0">income</option>
+		<option value="1">expense</option>
+		<option value="2">credit</option>
+		</select></p>
+		<p><label for="id_description">Description:</label> <input id="id_description" type="text" ng-model="cat_description" name="description"  maxlength="564" /></p>
+		<p><label for="id_privacy">Privacy:</label> <select name="privacy" ng-model="privacy" sentCategory id="id_privacy">
+		<option value="" selected="selected">---------</option>
+		<option value="0">private</option>
+		<option value="1">public</option>
+		</select></p>
+		<input class="btn" type="submit" name="CreateCaetgory" ng-click="createCategory()" value="Create Caetgory"/>
+	</div>
 </div>
-<div class="well span4" ng-show="createUsrToggle" >
-	<p><label for="id_name">Name:</label> <input id="id_name" type="text" name="name" ng-model="name" maxlength="256" /></p>
-	<p><label for="id_category_type">Category type:</label> <select name="category_type" ng-model="category_type" id="id_category_type">
-	<option value="" selected="selected">---------</option>
-	<option value="0">income</option>
-	<option value="1">expense</option>
-	<option value="2">credit</option>
-	</select></p>
-	<p><label for="id_description">Description:</label> <input id="id_description" type="text" ng-model="cat_description" name="description"  maxlength="564" /></p>
-	<p><label for="id_privacy">Privacy:</label> <select name="privacy" ng-model="privacy" sentCategory id="id_privacy">
-	<option value="" selected="selected">---------</option>
-	<option value="0">private</option>
-	<option value="1">public</option>
-	</select></p>
-	<input class="btn" type="submit" name="CreateCaetgory" ng-click="createCategory()" value="Create Caetgory"/>
-</div>
+
 {% endblock %}
 
 

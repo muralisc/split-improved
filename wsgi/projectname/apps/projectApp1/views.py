@@ -96,7 +96,7 @@ def createGroup(request):
         form = GroupForm(request.POST)
         if form.is_valid():
             groupRow = form.save(commit=False)
-            groupRow.privacy = ''
+            groupRow.privacy = 0
             groupRow.deleted = False
             groupRow.save()
             Membership.objects.create(
@@ -196,12 +196,13 @@ def deleteGroup(request, gid):
 
 @login_required(login_url='/login/')
 def sentInvites(request, gid):
-    '''
-    '''
     if request.method == 'POST':
         groupRow = Group.objects.get(id=gid)
-        users_invited = [User.objects.get(pk=id) for id in request.POST['members'].split(',')]
-        groupRow.invite(request.user, users_invited)
+        if Membership.objects.filter(group=groupRow).filter(user=request.user).exists():
+            users_invited = [User.objects.get(pk=id) for id in request.POST['members'].split(',')]
+            groupRow.invite(request.user, users_invited)
+        else:
+            raise Http404
     else:
         pass
     return redirect('/group/{0}/'.format(gid))
@@ -210,10 +211,15 @@ def sentInvites(request, gid):
 @login_required(login_url='/login/')
 def changeGroup(request, gid):
     '''
-    check if gid is valid
-    default to personal
     '''
-    request.session['active_group'] = Group.objects.get(pk=gid)
+    if Group.objects.filter(id=gid).exists():
+        groupRow = Group.objects.get(id=gid)
+    else:
+        raise Http404
+    if Membership.objects.filter(group=groupRow).filter(user=request.user).exists():
+        request.session['active_group'] = groupRow
+    else:
+        raise Http404
     if 'next' in request.GET:
         return redirect(request.GET['next'])
     else:

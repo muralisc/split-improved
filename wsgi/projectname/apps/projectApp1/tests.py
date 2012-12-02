@@ -13,6 +13,7 @@ class UserManagementTestCase(TestCase):
         User.objects.create_user(username="default@default.com", email="default@default.com", password="default")
         User.objects.create_user(username="default1@default.com", email="default1@default.com", password="default1")
         User.objects.create_user(username="default2@default.com", email="default2@default.com", password="default2")
+        User.objects.create_user(username="jayalalv@default.com", email="jayalalv@default.com", password="solar")
         # setup a default group
 
     def test_createUser_siteLogin(self):
@@ -86,10 +87,14 @@ class UserManagementTestCase(TestCase):
         self.client.login(username='default@default.com', password='default')
         # crete a group and verify admin is the logged in user
         response = self.client.post('/createGroup/',
-                                    {'name': 'group1', 'description': 'group1_desc', 'members': '{0},{1}'.format(
-                                        User.objects.get(username='default1@default.com').id,
-                                        User.objects.get(username='default2@default.com').id,
-                                        )},
+                                    {
+                                    'name': 'group1',
+                                    'description': 'group1_desc',
+                                    'privacy': '0',
+                                    'members': '{0},{1}'.format(
+                                    User.objects.get(username='default1@default.com').id,
+                                    User.objects.get(username='default2@default.com').id,
+                                    )},
                                     follow=True)
         self.assertEqual(Membership.objects.get(administrator=True).user.username, 'default@default.com')
         self.assertEqual(Membership.objects.get(positions='creator').user.username, 'default@default.com')
@@ -124,10 +129,14 @@ class UserManagementTestCase(TestCase):
         self.client.login(username='default@default.com', password='default')
         # create a group with some invites
         response = self.client.post('/createGroup/',
-                                    {'name': 'group1', 'description': 'group1_desc', 'members': '{0},{1}'.format(
-                                        User.objects.get(username='default1@default.com').id,
-                                        User.objects.get(username='default2@default.com').id,
-                                        )},
+                                    {
+                                    'name': 'group1',
+                                    'description': 'group1_desc',
+                                    'privacy': '0',
+                                    'members': '{0},{1}'.format(
+                                    User.objects.get(username='default1@default.com').id,
+                                    User.objects.get(username='default2@default.com').id,
+                                    )},
                                     follow=True)
         # a invalid user tries to change invite of another user
         invite_of_default1 = Invite.objects.get(to_user=User.objects.get(username='default1@default.com'))
@@ -178,7 +187,7 @@ class UserManagementTestCase(TestCase):
         group = Group.objects.create(
                                     name='default_group',
                                     description='default description',
-                                    privacy='',
+                                    privacy=0,
                                     deleted=False
                                     )
         Membership.objects.create(
@@ -218,7 +227,11 @@ class UserManagementTestCase(TestCase):
         # assert that no new invite is created
         self.client.login(username='default@default.com', password='default')
         response = self.client.post('/createGroup/',
-                                    {'name': 'group1', 'description': 'group1_desc', 'members': '{0},{1}'.format(
+                                    {
+                                        'name': 'group1',
+                                        'description': 'group1_desc',
+                                        'privacy': '0',
+                                        'members': '{0},{1}'.format(
                                         User.objects.get(username='default1@default.com').id,
                                         User.objects.get(username='default2@default.com').id,
                                         )},
@@ -236,6 +249,80 @@ class UserManagementTestCase(TestCase):
 
     def test_sentInvite(self):
         '''
-        only members can sent invite
+        only members of a group can sent invite\else http404
         '''
-        pass
+        # login user and create a group
+        self.client.login(username='default@default.com', password='default')
+        response = self.client.post('/createGroup/',
+                                    {
+                                        'name': 'group1',
+                                        'description': 'group1_desc',
+                                        'privacy': '0',
+                                        'members': '{0}'.format(
+                                        User.objects.get(username='default1@default.com').id,
+                                        )},
+                                    follow=True)
+        group = Group.objects.get(name='group1')
+        self.assertEqual(1, Invite.objects.filter(group=Group.objects.get(name='group1')).count())
+        # a invalid user tries to invite
+        response = self.client.logout()
+        self.client.login(username='jayalalv@default.com', password='solar')
+        response = self.client.post(
+                                    '/sentInvites/{0}/'.format(group.id),
+                                    {'members': '{0}'.format(
+                                                                User.objects.get(username='default2@default.com').id,
+                                                                )},
+                                    )
+        self.assertEqual(response.status_code, 404)
+        # a valid user tries to invite
+        self.client.login(username='default@default.com', password='default')
+        response = self.client.post(
+                                    '/sentInvites/{0}/'.format(group.id),
+                                    {'members': '{0},{1}'.format(
+                                                                User.objects.get(username='default1@default.com').id,
+                                                                User.objects.get(username='default2@default.com').id,
+                                                                )},
+                                    )
+        self.assertEqual(2, Invite.objects.filter(group=Group.objects.get(name='group1')).count())
+
+    def test_changeGroup(self):
+        '''
+        check if gid is valid
+        the user is a member
+        check in get query redirects properly
+        '''
+        # login user and create a group
+        self.client.login(username='default@default.com', password='default')
+        response = self.client.post('/createGroup/',
+                                    {
+                                    'name': 'group1',
+                                    'description': 'group1_desc',
+                                    'privacy': '0',
+                                    'members': '{0}'.format(
+                                    User.objects.get(username='default1@default.com').id,
+                                    )},
+                                    )
+        response = self.client.post('/createGroup/',
+                                    {
+                                        'name': 'group2',
+                                        'description': 'group2_desc',
+                                        'privacy': '0',
+                                        'members': '{0}'.format(
+                                        User.objects.get(username='default1@default.com').id,
+                                        )},
+                                    )
+        # invalid gid
+        response = self.client.get('/changeGroup/100/')
+        self.assertEqual(response.status_code, 404)
+        # invalid logged in user
+        group = Group.objects.get(name='group1')
+        response = self.client.logout()
+        self.client.login(username='jayalalv@default.com', password='solar')
+        response = self.client.get('/changeGroup/{0}/'.format(group.id))
+        self.assertEqual(response.status_code, 404)
+        # valid user
+        response = self.client.logout()
+        self.client.login(username='default@default.com', password='default')
+        self.assertFalse('active_group' in self.client.session)
+        response = self.client.get('/changeGroup/{0}/'.format(group.id))
+        self.assertTrue('active_group' in self.client.session)

@@ -7,10 +7,11 @@ from django import forms
 class Category(models.Model):
     ACCOUNT_TYPE = (
                     (0, 'income'),
-                    (1, 'expense'),
-                    (2, 'credit'),
+                    (1, 'bank'),
+                    (2, 'expense'),
+                    (3, 'credit'),
                     )
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=255)
     category_type = models.IntegerField(choices=ACCOUNT_TYPE)
     description = models.CharField(max_length=564, null=True, blank=True)
     privacy = models.IntegerField(
