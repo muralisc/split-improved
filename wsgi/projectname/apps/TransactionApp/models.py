@@ -20,7 +20,7 @@ class Category(models.Model):
                                             ),
                                     )
     created_by = models.ForeignKey(User)
-    date = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField(auto_now_add=True)
     users = models.ManyToManyField(User, through='UserCategory', related_name='usesCategories')     # all the users who use this category
     groups = models.ManyToManyField(Group, through='GroupCategory', related_name='usesCategories')  # all the groups that use this this catgory
 

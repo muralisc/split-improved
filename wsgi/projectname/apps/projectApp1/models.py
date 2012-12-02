@@ -7,7 +7,7 @@ class Group(models.Model):
     name = models.CharField(max_length=64)
     description = models.CharField(max_length=564, blank=True)
     members = models.ManyToManyField(User, through='Membership', related_name='memberOfGroup')
-    update_time = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField(auto_now_add=True)
     privacy = models.CharField(max_length=64, null=False, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
 
@@ -44,7 +44,7 @@ class Invite(models.Model):
     to_user = models.ForeignKey(User, related_name='to_invite_set')
     group = models.ForeignKey(Group)
     unread = models.BooleanField(null=False, blank=True)
-    time = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField(auto_now_add=True)
     message = models.CharField(max_length=256, null=True, blank=True)
 
     def __unicode__(self):
