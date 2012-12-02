@@ -4,6 +4,7 @@ from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory
+from projectApp1.models import Membership
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
 from django.db.models import Q
@@ -11,16 +12,27 @@ from django.db.models import Q
 
 @login_required(login_url='/login/')
 def makeTransaction(request):
+    '''
+    ensure that the session 'grp' is popuklated
+    '''
     categoryForm = CategoryForm()
-    users_in_grp = [{'username': usr.username, 'id': usr.id, 'checked': False} for usr in User.objects.all()]
+    response_json = dict()
+    if request.user.has_perm('TransactionApp.group_transactions'):
+        users_in_grp = [{
+                        'username': mem_ship.user.username,
+                        'id': mem_ship.user.id,
+                        'checked': False
+                        }
+                        for mem_ship in request.session['active_group'].getMemberships.all()]
+        toCategory_group = [{'name': i.name, 'id': i.id} for i in request.session['active_group'].usesCategories.filter(category_type=1)]
+        response_json['users_in_grp'] = SafeString(json.dumps(users_in_grp))
+        response_json['toCategory_group'] = SafeString(json.dumps(toCategory_group))
+    if request.user.has_perm('TransactionApp.personal_transactions'):
+        pass
     fromCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(Q(category_type=0) | Q(category_type=2))]
     toCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(Q(category_type=1) | Q(category_type=2))]
-    toCategory_group = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(category_type=1)]
-    response_json = dict()
-    response_json['users_in_grp'] = SafeString(json.dumps(users_in_grp))
     response_json['fromCategory_user'] = SafeString(json.dumps(fromCategory_user))
     response_json['toCategory_user'] = SafeString(json.dumps(toCategory_user))
-    response_json['toCategory_group'] = SafeString(json.dumps(toCategory_group))
     return render_to_response('makeTransaction.html', locals(), context_instance=RequestContext(request))
 
 

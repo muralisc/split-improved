@@ -13,21 +13,27 @@
 {% block body %}
 <div class="offset4 span4">
 	{% for i in request.session.memberships%}
-	{{ i.group.name }}
+		{% if request.session.active_group == i.group %}
+		{{ i.group.name }}*
+		{% else %}
+		<a href="/changeGroup/{{ i.group.pk }}/?next={{request.path}}">{{ i.group.name }}</a>
+		{% endif %}
 	{% endfor %}
-	{{ request.session.active_group }}
-	<form action="" method="POST" class="form-horizontal" ng-controller="TransactionsFormController">	
+	<form action="/makeTransaction/" method="POST" class="form-horizontal" ng-controller="TransactionsFormController">{% csrf_token %}  
 		{[{paid_user.username}]} Paid {[{amount}]} for <span ng-repeat="u in users_inv">{[{u}]},</span> 
 		from {[{selectedFromCategory.name}]} for{[{description}]} to {[{selectedToCategory.name}]} on {[{date}]}
-        <div class="control-group">
-            <label class="control-label" for="paid_user"></label>
+		<div class="center" ng-hide="involving_checkbox">
+			You
+		</div>
+		<div class="control-group" ng-show="involving_checkbox">
+            <label class="control-label" for="paid_user">User Paid</label>
             <div class="controls">
                 <select ng-model="paid_user" ng-options="c.username for c in users_in_grp">
                     <option value="" selected="selected">---------</option>
                 </select>
-                <input id="id_paid_user" class="" name="paid_user" style="display: none" type="text" value={[{paid_user.id}]} >
             </div>
         </div>
+        <input id="id_paid_user" class="" name="paid_user" style="display: none" type="text" value={[{paid_user.id}]} >
         <div class="control-group">
             <label class="control-label" for="amount">paid</label>
             <div class="controls">
@@ -38,13 +44,13 @@
         <div class="control-group">
             <label class="control-label">
                 {% if perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
-                <input type="checkbox" ng-model="display_value" ng-true-value="true" ng-false-value="false">
+                <input type="checkbox" ng-model="involving_checkbox" ng-true-value="true" ng-false-value="false" ng-click="paid_user.id={{ request.user.id }}">
                 {% endif %}
                 Involving
             </label>
             <div class="controls">
                 <table class="table table-condensed table-striped">
-                    <tbody ng-show="display_value">
+                    <tbody ng-show="involving_checkbox">
                         <tr ng-repeat="usr in users_in_grp">
                             <td>
                                 <label class="checkbox">
@@ -66,23 +72,7 @@
                     <option value="" selected="selected">---------</option>
                 </select>
                 <input id="id_from_category" class="" name="from_category" style="display: none" type="text" value={[{selectedFromCategory.id}]} >
-                <a ng-click="displaycreateCategory()">New Group</a><br/>
-                <div class="well" ng-show="createUsrToggle" >
-					<p><label for="id_name">Name:</label> <input id="id_name" type="text" name="name" ng-model="name" maxlength="256" /></p>
-					<p><label for="id_category_type">Category type:</label> <select name="category_type" ng-model="category_type" id="id_category_type">
-					<option value="" selected="selected">---------</option>
-					<option value="0">income</option>
-					<option value="1">expense</option>
-					<option value="2">credit</option>
-					</select></p>
-					<p><label for="id_description">Description:</label> <input id="id_description" type="text" ng-model="cat_description" name="description"  maxlength="564" /></p>
-					<p><label for="id_privacy">Privacy:</label> <select name="privacy" ng-model="privacy" sentCategory id="id_privacy">
-					<option value="" selected="selected">---------</option>
-					<option value="0">private</option>
-					<option value="1">public</option>
-					</select></p>
-					<input class="btn" type="submit" name="CreateCaetgory" ng-click="createCategory()" value="Create Caetgory"/>
-				</div>
+                <a ng-click="displaycreateCategory()">New Category</a><br/>
             </div>
         </div>
         {% endif %}
@@ -92,7 +82,7 @@
                 <input name="description" ng-model="description" maxlength="705" placeholder="Description" type="text" class="" id="id_description" />
             </div>
         </div>
-        <div class="control-group" ng-hide="display_value">
+        <div class="control-group" ng-hide="involving_checkbox">
             <label class="control-label" for="to_category">toCategoryUser</label>
             <div class="controls">
                 <select ng-model="selectedToCategory" ng-options="c.name for c in toCategory_user">
@@ -101,7 +91,8 @@
                 <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
             </div>
         </div>
-        <div class="control-group" ng-show="display_value">
+		{% if perms.TransactionApp.group_transactions %}
+        <div class="control-group" ng-show="involving_checkbox">
             <label class="control-label" for="to_category">toCategoryGroup</label>
             <div class="controls">
                 <select ng-model="selectedToCategory" ng-options="c.name for c in toCategory_group">
@@ -110,6 +101,7 @@
                 <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
             </div>
         </div>
+		{% endif %}
         <div class="control-group">
             <label class="control-label" for="date">on</label>
             <div class="controls">
@@ -123,6 +115,22 @@
         </div>
     </form>
 </div>
+<div class="well span4" ng-show="createUsrToggle" >
+	<p><label for="id_name">Name:</label> <input id="id_name" type="text" name="name" ng-model="name" maxlength="256" /></p>
+	<p><label for="id_category_type">Category type:</label> <select name="category_type" ng-model="category_type" id="id_category_type">
+	<option value="" selected="selected">---------</option>
+	<option value="0">income</option>
+	<option value="1">expense</option>
+	<option value="2">credit</option>
+	</select></p>
+	<p><label for="id_description">Description:</label> <input id="id_description" type="text" ng-model="cat_description" name="description"  maxlength="564" /></p>
+	<p><label for="id_privacy">Privacy:</label> <select name="privacy" ng-model="privacy" sentCategory id="id_privacy">
+	<option value="" selected="selected">---------</option>
+	<option value="0">private</option>
+	<option value="1">public</option>
+	</select></p>
+	<input class="btn" type="submit" name="CreateCaetgory" ng-click="createCategory()" value="Create Caetgory"/>
+</div>
 {% endblock %}
 
 
@@ -135,14 +143,18 @@
 
     function TransactionsFormController($scope) {
 		$scope.createUsrToggle = false;
-        $scope.users_in_grp={{ response_json.users_in_grp }};
-        $scope.fromCategory_user={{ response_json.fromCategory_user }};
+	{% if perms.TransactionApp.group_transactions %}
+		$scope.users_in_grp={{ response_json.users_in_grp }};
+		$scope.toCategory_group={{ response_json.toCategory_group }};
+    {% endif %}
+		$scope.fromCategory_user={{ response_json.fromCategory_user }};
         $scope.toCategory_user={{ response_json.toCategory_user }};
-        $scope.toCategory_group={{ response_json.toCategory_group }};
         {% if perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
-        $scope.display_value="false";
+        $scope.involving_checkbox="false";
+        {% elif not perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
+        $scope.involving_checkbox="false";
         {% else %}
-        $scope.display_value="true";
+        $scope.involving_checkbox="true";
         {% endif %}
         $scope.users_inv = new Array();
         $scope.updateUsersInvolved = function(usr){
