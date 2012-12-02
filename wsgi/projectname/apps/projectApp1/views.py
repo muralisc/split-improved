@@ -41,7 +41,7 @@ def siteLogin(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    request.session['memberships'] = Membership.objects.filter(user=request.user).filter(group__deleted=False)
+                    updateSession(request)
                     if 'next_url' in request.session:
                         return redirect(request.session['next_url'])
                     else:
@@ -106,6 +106,7 @@ def createGroup(request):
                                     positions='creator',
                                     amount_in_pool=0
                                     )
+            updateSession(request)
             users_invited = [User.objects.get(pk=id) for id in request.POST['members'].split(',')]
             groupRow.invite(request.user, users_invited)
         else:
@@ -151,6 +152,7 @@ def changeInvite(request, accept_decline, row_id):
                                         positions='',
                                         amount_in_pool=0
                                         )
+                updateSession(request)
             invite.delete()
             return redirect('/home/')
         elif accept_decline == 'decline':
@@ -224,3 +226,7 @@ def changeGroup(request, gid):
         return redirect(request.GET['next'])
     else:
         return redirect('/home/')
+
+
+def updateSession(request):
+    request.session['memberships'] = Membership.objects.filter(user=request.user).filter(group__deleted=False)
