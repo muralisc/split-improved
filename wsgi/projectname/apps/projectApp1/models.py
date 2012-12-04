@@ -62,7 +62,7 @@ class Notifiacation(models.Model):
     from_user = models.ForeignKey(User, related_name='from_notification_set')
     to_user = models.ForeignKey(User, related_name='to_notification_set')
     group = models.ForeignKey(Group)
-    created_time = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField(auto_now_add=True)
     updated_time = models.DateTimeField(auto_now=True)
     href = models.CharField(max_length=256, null=True, blank=True)
     message = models.CharField(max_length=256, null=True, blank=True)
@@ -79,6 +79,7 @@ class Membership(models.Model):
     administrator = models.BooleanField(null=False, blank=True)
     positions = models.CharField(max_length=64)
     amount_in_pool = models.IntegerField()
+    create_time = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
         return "{0}|{1}".format(self.group.name, self.user.username)

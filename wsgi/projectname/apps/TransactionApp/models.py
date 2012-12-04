@@ -56,10 +56,12 @@ class GroupCategory(models.Model):
     category = models.ForeignKey(Category)
     initial_amount = models.IntegerField(null=False, blank=True)
     current_amount = models.IntegerField(null=False, blank=True)
+    create_time = models.DateTimeField(auto_now_add=True, null=False, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
         return '{0}|{1}'.format(self.group.name, self.category.name)
+
 
 class UserCategory(models.Model):
     '''
@@ -69,6 +71,7 @@ class UserCategory(models.Model):
     category = models.ForeignKey(Category)
     initial_amount = models.IntegerField(null=False, blank=True)
     current_amount = models.IntegerField(null=False, blank=True)
+    create_time = models.DateTimeField(auto_now_add=True, null=False, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
@@ -81,11 +84,12 @@ class Transaction(models.Model):
     from_category = models.ForeignKey(Category, related_name='inFromfield', null=False, blank=True)
     description = models.CharField(max_length=256, null=True, blank=True)
     to_category = models.ForeignKey(Category, related_name='inToField', null=False, blank=True)
-    users_involved = models.ManyToManyField(User, through='Payee', related_name='involvedInTransactions')
+    users_involved = models.ManyToManyField(User, through='Payee', related_name='involvedInTransactions', blank=True)
     transaction_time = models.DateTimeField(null=False, blank=True)
-    date = models.DateTimeField(auto_now_add=True, null=False, blank=True)
+    create_time = models.DateTimeField(auto_now_add=True, null=False, blank=True)
     created_by_user = models.ForeignKey(User, related_name='ceatedTransaction', null=False, blank=True)
     created_for_group = models.ForeignKey(Group, null=True, blank=True)
+    history = models.OneToOneField('Transaction',null=True, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
 
     class Meta:
@@ -94,20 +98,22 @@ class Transaction(models.Model):
                 ("personal_transactions", "Can make personal transactions"),
             )
 
+    def associatePayees()
 
-#class TransactionForm(forms.ModelForm):
-#    class Meta:
-#        model = Transaction
-#        widgets = {
-#                    'paid_user': forms.Select(attrs={'class': ''}),
-#                    'amount': forms.TextInput(attrs={'placeholder': 'Amount', 'class': ''}),
-#                    'description': forms.TextInput(attrs={'placeholder': 'Description', 'class': ''}),
-#                    'users_involved': forms.CheckboxSelectMultiple(),
-#                    'date': forms.TextInput(attrs={'placeholder': 'Date', 'class': ''}),
-#                  }
-#        exclude = ('created_by_user',
-#                   'created_for_group',
-#                   'deleted')
+
+class TransactionForm(forms.ModelForm):
+    class Meta:
+        model = Transaction
+        widgets = {
+                    'paid_user': forms.Select(attrs={'class': ''}),
+                    'amount': forms.TextInput(attrs={'placeholder': 'Amount', 'class': ''}),
+                    'description': forms.TextInput(attrs={'placeholder': 'Description', 'class': ''}),
+                    'users_involved': forms.CheckboxSelectMultiple(),
+                    'date': forms.TextInput(attrs={'placeholder': 'Date', 'class': ''}),
+                  }
+        exclude = ('created_by_user',
+                   'created_for_group',
+                   'deleted')
 
 
 class Payee(models.Model):
