@@ -33,7 +33,14 @@ class UserCategoryAdmin(admin.ModelAdmin):
     pass
 
 
-#class InviteAdmin(admin.ModelAdmin):
+class TransactionAdmin(admin.ModelAdmin):
+    list_display = ('paid_user', 'amount', 'from_category', 'description', 'to_category',
+            'transaction_time', 'create_time', 'created_by_user', 'created_for_group',
+            'history', 'deleted')
+    pass
+
+
+#class Admin(admin.ModelAdmin):
 #    list_display = ('', '', '', '', '',)
 #    pass
 
@@ -45,5 +52,5 @@ admin.site.register(Notifiacation)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(GroupCategory, GroupCategoryAdmin)
 admin.site.register(UserCategory, UserCategoryAdmin)
-admin.site.register(Transaction)
+admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Payee)
