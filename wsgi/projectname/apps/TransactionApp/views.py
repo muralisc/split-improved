@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory
+from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Payee, Transaction
 from projectApp1.models import Membership
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
@@ -135,3 +135,15 @@ def getJSONcategories(request):
     fromCategory_user = [{'name': i.name, 'id': i.id} for i in Category.objects.all()]
     response_json = SafeString(json.dumps(fromCategory_user))
     return HttpResponse(response_json, mimetype='application/json')
+
+
+@login_required(login_url='/login/')
+def statistics(request):
+    #filter_user = request.user
+    #filter_group = <> | None
+    #Q(users_involved__in=filter_user)|Q(paid_user_id=filter_user.id)       #all transactoin involving filter_user
+    #Q(created_for_group=filter_group)                                          #all transactoin involving filter_group
+    transaction_filters = Q(deleted=False)
+    transaction_list = Transaction.objects.filter(transaction_filters)
+    transaction_list_with_payee_list = [[temp, Payee.objects.filter(txn=temp)] for temp in transaction_list]
+    return render_to_response('statistics.html', locals(), context_instance=RequestContext(request))

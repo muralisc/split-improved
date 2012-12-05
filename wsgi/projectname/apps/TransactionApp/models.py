@@ -136,3 +136,6 @@ class Payee(models.Model):
     txn = models.ForeignKey(Transaction)
     user = models.ForeignKey(User)
     outstanding_amount = models.FloatField()
+
+    def __unicode__(self):
+        return '{0} | {1}'.format(self.user, self.outstanding_amount)
