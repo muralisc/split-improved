@@ -35,8 +35,13 @@ class UserCategoryAdmin(admin.ModelAdmin):
 
 class TransactionAdmin(admin.ModelAdmin):
     list_display = ('paid_user', 'amount', 'from_category', 'description', 'to_category',
-            'transaction_time', 'create_time', 'created_by_user', 'created_for_group',
-            'history', 'deleted')
+                    'transaction_time', 'create_time', 'created_by_user', 'created_for_group',
+                    'history', 'deleted')
+    pass
+
+
+class PayeeAdmin(admin.ModelAdmin):
+    list_display = ('txn', 'user', 'outstanding_amount')
     pass
 
 
@@ -53,4 +58,4 @@ admin.site.register(Category, CategoryAdmin)
 admin.site.register(GroupCategory, GroupCategoryAdmin)
 admin.site.register(UserCategory, UserCategoryAdmin)
 admin.site.register(Transaction, TransactionAdmin)
-admin.site.register(Payee)
+admin.site.register(Payee, PayeeAdmin)

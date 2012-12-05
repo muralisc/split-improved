@@ -20,12 +20,14 @@
 		{% endif %}
 	{% endfor %}
 	<form action="/makeTransaction/" method="POST" class="form-horizontal span6">{% csrf_token %}  
-		{[{paid_user.username}]} Paid {[{amount}]} for <span ng-repeat="u in users_inv">{[{u}]},</span> 
+		<span ng-hide="involving_checkbox">YOU</span><span ng-show="involving_checkbox">{[{paid_user.username}]}</span> Paid {[{amount}]} for <span ng-repeat="u in users_inv">{[{u}]},</span> 
 		from {[{selectedFromCategory.name}]} for{[{description}]} to {[{selectedToCategory.name}]} on {[{date}]}
-		<div class="center" ng-hide="involving_checkbox">
-			You
-		</div>
-		<div class="control-group" ng-show="involving_checkbox">
+		<div class="control-group" ng-hide="involving_checkbox">
+			<label class="control-label" for="paid_user">You</label>
+            <div class="controls">
+            </div>
+        </div>
+        <div class="control-group" ng-show="involving_checkbox">
             <label class="control-label" for="paid_user">User Paid</label>
             <div class="controls">
                 <select ng-model="paid_user" ng-options="c.username for c in users_in_grp">
@@ -44,7 +46,7 @@
         <div class="control-group">
             <label class="control-label">
                 {% if perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
-                <input type="checkbox" ng-model="involving_checkbox" ng-true-value="true" ng-false-value="false" ng-click="paid_user.id={{ request.user.id }}">
+                <input type="checkbox" name="group_checkbox" ng-model="involving_checkbox" ng-true-value="true" ng-false-value="false" ng-click="paid_user.id={{ request.user.id }}">
                 {% endif %}
                 Involving
             </label>
@@ -55,7 +57,7 @@
                             <td>
                                 <label class="checkbox">
                                     <input type="checkbox" name="users_involved" value="{[{ usr.id}]}" ng-model="usr.checked" ng-click="updateUsersInvolved(usr)">
-                                    {[{ usr.username }]} {[{amount/users_inv.length}]}
+                                    {[{ usr.username }]} <span ng-show="usr.checked">{[{amount/users_inv.length}]}</span>
                                 </label>
                             </td>
                         </tr>
@@ -65,7 +67,7 @@
         </div>
         {% endif %}
         {% if perms.TransactionApp.personal_transactions %}
-        <div class="control-group">
+        <div class="control-group" ng-show="paid_user.id=={{request.user.id }}">
             <label class="control-label" for="from_category">From Cayegory </label>
             <div class="controls">
                 <select ng-model="selectedFromCategory" ng-options="c.name for c in fromCategory_user">
@@ -99,7 +101,6 @@
                 <select ng-model="selectedToCategory" ng-options="c.name for c in toCategory_group">
                     <option value="" selected="selected">---------</option>
                 </select>
-                <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
                 <a href="#createCategoryModal" class="" data-toggle="modal" ng-click="displaycreateCategory('/createCategory/{{request.session.active_group.pk}}/','NewToGroupCategory')">NewToGroupCategory</a><br/>
             </div>
         </div>
@@ -107,7 +108,7 @@
         <div class="control-group">
             <label class="control-label" for="date">on</label>
             <div class="controls">
-                <input id="id_date" type="date" placeholder="Datemm" class="" name="date" ng-model="date"/>
+                <input id="id_date" type="date" placeholder="Datemm" class="" name="transaction_time" ng-model="date"/>
             </div>
         </div>
         <div class="control-group">
@@ -182,8 +183,10 @@
         $scope.toCategory_user={{ response_json.toCategory_user }};
         {% if perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
         $scope.involving_checkbox="false";
+        $scope.paid_user={"username": "{{ request.user.username }}", "id": {{ request.user.id }} };
         {% elif not perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
         $scope.involving_checkbox="false";
+        $scope.paid_user={"username": "{{ request.user.username }}", "id": {{ request.user.id }} };
         {% else %}
         $scope.involving_checkbox="true";
         {% endif %}
@@ -199,9 +202,10 @@
                 $scope.users_inv.splice($scope.users_inv.indexOf(usr.username),1);	
             }
         };
-        $scope.createCategory = function() {
-			// sents get trquest to URl
-			// and fetches the JSON of group created
+        // is called when createCategory button is clicked in model
+		// sents get trquest to URl
+		// and fetches the JSON of group created
+		$scope.createCategory = function() {
 			$.get(
 				$scope.createCategoryURL,
 				{

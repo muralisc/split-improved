@@ -66,7 +66,8 @@ class TransactionAppTestCase(TestCase):
         self.assertTrue(1, Category.objects.filter(name='SBI').count())
         self.assertEqual(1, UserCategory.objects.all().count())
         self.assertEqual(1, GroupCategory.objects.all().count())
-        pass
+        # if a Usercategory exist do not create again
+        # if a Groupcategory exist do not create again
 
     def test_displayTransactionForm(self):
         #login using url to update the session variable

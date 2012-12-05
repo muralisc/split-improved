@@ -116,6 +116,7 @@ class UserManagementTestCase(TestCase):
         group.save()
         response = self.client.post('/group/{0}/'.format(group.id))
         self.assertEqual(response.status_code, 404)
+        # the check box should sent only valid group members
 
     def test_changeInvite(self):
         '''

@@ -1,4 +1,5 @@
-import simplejson
+try: import simplejson as json
+except ImportError: import json
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth.models import User, Permission
@@ -90,7 +91,7 @@ def enableDissablePermissions(request, codename, enableDissable):
 @login_required(login_url='/login/')
 def createGroup(request):
     '''
-    creates a group with one member; the creator as admin
+    creates a group with one member; the creator is made admin
     '''
     if request.method == 'POST':
         form = GroupForm(request.POST)
@@ -110,7 +111,10 @@ def createGroup(request):
             users_invited = [User.objects.get(pk=id) for id in request.POST['members'].split(',')]
             groupRow.invite(request.user, users_invited)
         else:
-            pass
+            '''
+            form error code
+            '''
+            raise Http404
     else:
         pass
     return redirect('/group/{0}/'.format(groupRow.id))
@@ -173,7 +177,7 @@ def showInvites(request):
 @login_required(login_url='/login/')
 def getJSONusers(request):
     users_in_grp = [{'name': usr['username'], 'id': usr['pk']} for usr in User.objects.filter(username__contains=request.GET['q']).values('username', 'pk')]
-    response_json = SafeString(simplejson.dumps(users_in_grp))
+    response_json = SafeString(json.dumps(users_in_grp))
     return HttpResponse(response_json, mimetype='application/json')
 
 

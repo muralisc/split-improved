@@ -80,8 +80,8 @@ class UserCategory(models.Model):
 
 class Transaction(models.Model):
     paid_user = models.ForeignKey(User, related_name='paidForTransaction')
-    amount = models.IntegerField()
-    from_category = models.ForeignKey(Category, related_name='inFromfield', null=False, blank=True)
+    amount = models.FloatField()
+    from_category = models.ForeignKey(Category, related_name='inFromfield', null=True, blank=True)
     description = models.CharField(max_length=256, null=True, blank=True)
     to_category = models.ForeignKey(Category, related_name='inToField', null=False, blank=True)
     users_involved = models.ManyToManyField(User, through='Payee', related_name='involvedInTransactions', blank=True)
@@ -89,7 +89,7 @@ class Transaction(models.Model):
     create_time = models.DateTimeField(auto_now_add=True, null=False, blank=True)
     created_by_user = models.ForeignKey(User, related_name='ceatedTransaction', null=False, blank=True)
     created_for_group = models.ForeignKey(Group, null=True, blank=True)
-    history = models.OneToOneField('Transaction',null=True, blank=True)
+    history = models.OneToOneField('Transaction', null=True, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
 
     class Meta:
@@ -98,7 +98,18 @@ class Transaction(models.Model):
                 ("personal_transactions", "Can make personal transactions"),
             )
 
-    def associatePayees()
+    def __unicode__(self):
+        pass
+        return '{0} | {1} | {2}'.format(self.paid_user, self.amount, self.created_for_group)
+
+    def associatePayees(self, payee_list):
+        no_of_payees = len(payee_list)
+        for temp_payee in payee_list:
+            # if it doestnt already exist
+            temp_cost = -self.amount / no_of_payees
+            if(temp_payee.id == self.paid_user.id):
+                temp_cost = self.amount + temp_cost
+            Payee.objects.create(txn_id=self.id, user_id=temp_payee.id, outstanding_amount=temp_cost)
 
 
 class TransactionForm(forms.ModelForm):
@@ -119,7 +130,9 @@ class TransactionForm(forms.ModelForm):
 class Payee(models.Model):
     '''
     Table relating User table with Transaction table
+    contains all the users involved in the transaction[not the paid user]
+    with the respective amount outstanding
     '''
     txn = models.ForeignKey(Transaction)
     user = models.ForeignKey(User)
-    cost = models.IntegerField()
+    outstanding_amount = models.FloatField()

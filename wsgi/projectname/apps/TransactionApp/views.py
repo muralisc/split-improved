@@ -1,9 +1,14 @@
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
+import datetime
+from django.utils.timezone import utc
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from TransactionApp.models import Category, CategoryForm, UserCategory, GroupCategory
+from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory
 from projectApp1.models import Membership
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
@@ -54,12 +59,30 @@ def displayTransactionForm(request):
 def makeTransaction(request):
     '''
     create a transaction row in table if
-        asdf
+    payee table row for group
     create a notifications
     update related fields
     return back to the original site
     '''
-    import pdb; pdb.set_trace() ### XXX BREAKPOINT
+    form = TransactionForm(request.POST)
+    if form.is_valid():
+        transactionRow = form.save(commit=False)
+        if transactionRow.transaction_time is None:
+            transactionRow.transaction_time = datetime.datetime.utcnow().replace(tzinfo=utc)
+        # if the paid user is not the logged in user then ensure that the
+        # from_category is None
+        if transactionRow.paid_user_id != request.user.id and transactionRow.from_category is not None:
+            transactionRow.from_category = None
+        transactionRow.created_by_user_id = request.user.id
+        transactionRow.created_for_group = request.session['active_group']
+        transactionRow.deleted = False
+        # ensure fron category belogs to pid user
+        transactionRow.save()
+        if 'group_checkbox' in request.POST:
+            if form.cleaned_data['users_involved'] is not None:
+                transactionRow.associatePayees(form.cleaned_data['users_involved'])
+    else:
+        raise Http404
     return redirect('/transactionForm/')
 
 
@@ -70,6 +93,7 @@ def createCategory(request, gid):
     gid decised weather user-category or group-category needs to be created
     gid creates a group-category relation if not 0
     '''
+    ############# prevent multiple usercategory objects
     if request.method == 'GET':
         form = CategoryForm(request.GET)
         if form.is_valid():
@@ -99,7 +123,7 @@ def createCategory(request, gid):
                                                     'category_type': categoryRow.category_type})),
                                 mimetype='application/json')
         else:
-            pass
+            raise Http404
             # form not valid exception
     else:
         pass
