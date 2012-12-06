@@ -9,17 +9,17 @@ class GroupAdmin(admin.ModelAdmin):
 
 
 class MembershipAdmin(admin.ModelAdmin):
-    list_display = ('group', 'user', 'administrator', 'amount_in_pool', 'positions',)
+    list_display = ('group', 'user', 'administrator', 'amount_in_pool', 'positions', 'deleted',)
     pass
 
 
 class InviteAdmin(admin.ModelAdmin):
-    list_display = ('from_user', 'to_user', 'group', 'unread', 'create_time', 'message',)
+    list_display = ('from_user', 'to_user', 'group', 'unread', 'create_time', 'message', 'deleted',)
     pass
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category_type', 'description', 'created_by', 'create_time', 'privacy',)
+    list_display = ('name', 'category_type', 'description', 'created_by', 'create_time', 'privacy', 'deleted',)
     pass
 
 
@@ -41,7 +41,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
 
 class PayeeAdmin(admin.ModelAdmin):
-    list_display = ('txn', 'user', 'outstanding_amount')
+    list_display = ('txn', 'user', 'outstanding_amount', 'deleted',)
     pass
 
 

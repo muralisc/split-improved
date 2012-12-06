@@ -6,16 +6,15 @@ from django import forms
 class Group(models.Model):
     PRIVATE = 0
     PUBLIC = 1
+    PRIVACY_CHOICES = (
+                        (PRIVATE, 'private'),
+                        (PUBLIC, 'public'),
+                        )
     name = models.CharField(max_length=64)
     description = models.CharField(max_length=564, blank=True)
     members = models.ManyToManyField(User, through='Membership', related_name='memberOfGroup')
     create_time = models.DateTimeField(auto_now_add=True)
-    privacy = models.IntegerField(
-                                    choices=(
-                                            (PRIVATE, 'private'),
-                                            (PUBLIC, 'public'),
-                                            ),
-                                    )
+    privacy = models.IntegerField(choices=PRIVACY_CHOICES)
     deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
@@ -53,6 +52,7 @@ class Invite(models.Model):
     unread = models.BooleanField(null=False, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
     message = models.CharField(max_length=256, null=True, blank=True)
+    deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
         return '{1} for {0}'.format(self.group.name, self.to_user.username)
@@ -68,6 +68,7 @@ class Notifiacation(models.Model):
     message = models.CharField(max_length=256, null=True, blank=True)
     is_unread = models.BooleanField(null=False, blank=True)
     is_hidden = models.BooleanField(null=False, blank=True)
+    deleted = models.BooleanField(null=False, blank=True)
 
 
 class Membership(models.Model):
@@ -80,6 +81,7 @@ class Membership(models.Model):
     positions = models.CharField(max_length=64)
     amount_in_pool = models.IntegerField()
     create_time = models.DateTimeField(auto_now_add=True)
+    deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
         return "{0}|{1}".format(self.group.name, self.user.username)

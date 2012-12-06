@@ -30,6 +30,7 @@ class Category(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     users = models.ManyToManyField(User, through='UserCategory', related_name='usesCategories')     # all the users who use this category
     groups = models.ManyToManyField(Group, through='GroupCategory', related_name='usesCategories')  # all the groups that use this this catgory
+    deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
         return '{0} | {1}'.format(self.name, self.ACCOUNT_TYPE[self.category_type][1])
@@ -83,7 +84,7 @@ class Transaction(models.Model):
     amount = models.FloatField()
     from_category = models.ForeignKey(Category, related_name='inFromfield', null=True, blank=True)
     description = models.CharField(max_length=256, null=True, blank=True)
-    to_category = models.ForeignKey(Category, related_name='inToField', null=False, blank=True)
+    to_category = models.ForeignKey(Category, related_name='inToField', null=True, blank=True)
     users_involved = models.ManyToManyField(User, through='Payee', related_name='involvedInTransactions', blank=True)
     transaction_time = models.DateTimeField(null=False, blank=True)
     create_time = models.DateTimeField(auto_now_add=True, null=False, blank=True)
@@ -100,7 +101,7 @@ class Transaction(models.Model):
 
     def __unicode__(self):
         pass
-        return '{0} | {1} | {2}'.format(self.paid_user, self.amount, self.created_for_group)
+        return '{0} | {1} | {2}|{3}'.format(self.paid_user, self.amount, self.created_for_group, self.description)
 
     def associatePayees(self, payee_list):
         no_of_payees = len(payee_list)
@@ -136,6 +137,7 @@ class Payee(models.Model):
     txn = models.ForeignKey(Transaction)
     user = models.ForeignKey(User)
     outstanding_amount = models.FloatField()
+    deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
         return '{0} | {1}'.format(self.user, self.outstanding_amount)
