@@ -3,6 +3,14 @@ from django.contrib.auth.models import User
 from django import forms
 
 
+class MyUser(User):
+    class Meta:
+        proxy = True
+
+    def do_something(self):
+        pass
+
+
 class Group(models.Model):
     PRIVATE = 0
     PUBLIC = 1
