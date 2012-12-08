@@ -104,6 +104,9 @@ def import_from_snapshot():
 
 
 def get_outstanding_amount(group, user):
+    '''
+    get the net outstanding amount of the user for all the transaction
+    '''
     s1 = Transaction.objects.filter(
                         created_for_group=group
                     ).filter(
@@ -127,7 +130,17 @@ def get_outstanding_amount(group, user):
     return s1 + s2
 
 
+def get_outstanding_amount(group, user, time):
+    '''
+    get the outstandin amount till the timestamp specified
+    '''
+    pass
+
+
 def get_expense(group_id, user_id, start_time, end_time):
+    '''
+    Helper function to get the expense in the given time frame
+    '''
     s2t = sum([temp.get_expense(user_id) for temp in Transaction.objects.filter(
                     Q(created_for_group_id=group_id) &                                  # filter the group
                     Q(deleted=False) &                                                  # filter deleted
@@ -138,6 +151,12 @@ def get_expense(group_id, user_id, start_time, end_time):
 
 
 def parseGET_initialise(request):
+    '''
+    Helper function to parse the requestGET to
+    populate variables
+    start_time
+    end_time
+    '''
     current_time = datetime.now()
     month_start = datetime(year=current_time.year, month=current_time.month, day=1)
     start_time = month_start
@@ -155,8 +174,10 @@ def parseGET_initialise(request):
                         day=1)
                         #day=calendar.monthrange(current_time.year, current_time.month - 1)[1])
     elif 'ts' in request.GET or 'te' in request.GET:
+        # time start
         if 'ts' in request.GET:
             start_time = parser.parse(request.GET['ts'])
+        # time end
         if 'te' in request.GET:
             end_time = parser.parse(request.GET['te'])
     return (start_time, end_time)

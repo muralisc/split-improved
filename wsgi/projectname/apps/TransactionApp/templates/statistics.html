@@ -1,23 +1,17 @@
 {% extends 'base.html' %}
-{% block title %}
+{% block title %} does it come
 {% endblock %}
 
+{% block ngAppName %}{% endblock %}
 
 {% block header %}
 {% endblock %}
 
 
 {% block body %}
-
-{% for i in transaction_list_with_payee_list%}
-	{{i.0.paid_user}}
-	{{i.0.amount}}
-	{{i.0.description}}
-	<br/>
-	{% for j in i.1 %}
-		<small>{{j}}</small>
-	{% endfor %}
-{% endfor %}
+<div class="offset1 span10">
+imported
+</div>
 
 {% endblock %}
 

@@ -3,14 +3,12 @@ try:
 except ImportError:
     import json
 from datetime import datetime
-from dateutil import parser
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Payee, Transaction
 from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise
-from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE
 from projectApp1.models import Membership, Group
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
@@ -66,6 +64,7 @@ def makeTransaction(request):
     update related fields
     return back to the original site
     '''
+    import pdb; pdb.set_trace() ### XXX BREAKPOINT
     form = TransactionForm(request.POST)
     if form.is_valid():
         transactionRow = form.save(commit=False)
@@ -148,6 +147,9 @@ def statistics(request):
 
 @login_required(login_url='/login/')
 def groupStatistics(request):
+    '''
+    displays outstnding amount and expense
+    '''
     (start_time, end_time) = parseGET_initialise(request)
     members = Membership.objects.filter(group=request.session['active_group'])
     members1 = list()

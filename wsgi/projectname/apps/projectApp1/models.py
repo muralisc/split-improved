@@ -29,6 +29,9 @@ class Group(models.Model):
         return '{0}'.format(self.name)
 
     def invite(self, sender, recievers, msg=''):
+        '''
+        Sent invites to the recievers specified from the sender for "this" group
+        '''
         for user in recievers:
             # if the to_user is not already a member/invited of group then only create invite
             if not Invite.objects.filter(group=self).filter(to_user=user).exists():
@@ -87,7 +90,7 @@ class Membership(models.Model):
     user = models.ForeignKey(User)
     administrator = models.BooleanField(null=False, blank=True)
     positions = models.CharField(max_length=64)
-    amount_in_pool = models.IntegerField()
+    amount_in_pool = models.FloatField()
     create_time = models.DateTimeField(auto_now_add=True)
     deleted = models.BooleanField(null=False, blank=True)
 

@@ -1,5 +1,5 @@
     function TimeFilterController($scope) {
-		
+		//function called to call prefefined timeranges
 		$scope.showExpenseList = function() {
 			switch($scope.timeRange){
 				case "1":
@@ -12,6 +12,7 @@
 					return;
 			};
 		};
+		//append query string 
 		$scope.sentTimeRange = function() {
 			$scope.queryString = "?"
 			$scope.tsExist = ((new Date($scope.t_s)).toString() != "Invalid Date")

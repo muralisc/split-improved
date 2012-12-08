@@ -176,6 +176,9 @@ def showInvites(request):
 
 @login_required(login_url='/login/')
 def getJSONusers(request):
+    '''
+    return all users whose name matches the query string as json
+    '''
     users_in_grp = [{'name': usr['username'], 'id': usr['pk']} for usr in User.objects.filter(username__contains=request.GET['q']).values('username', 'pk')]
     response_json = SafeString(json.dumps(users_in_grp))
     return HttpResponse(response_json, mimetype='application/json')
@@ -233,4 +236,5 @@ def changeGroup(request, gid):
 
 
 def updateSession(request):
+    # list of all groups the user is a member of
     request.session['memberships'] = Membership.objects.filter(user=request.user).filter(group__deleted=False)

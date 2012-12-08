@@ -41,6 +41,7 @@
 {% block afterbody%}
 <script>
 	$(document).ready(function() {
+		//token input function to get the users for dropdown to create group
 		$("#id_members").tokenInput("/getJSON/users/", {
 			theme: "facebook",
 			hintText: "Search Friends",

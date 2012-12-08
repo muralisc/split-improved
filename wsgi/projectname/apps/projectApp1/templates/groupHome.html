@@ -42,6 +42,7 @@ Invites sent to <br/>
 {% block afterbody%}
 <script>
 	$(document).ready(function() {
+		//dropdown for invite
 		$("#id_members").tokenInput("/getJSON/users/", {
 			theme: "facebook",
 			hintText: "Search Friends",

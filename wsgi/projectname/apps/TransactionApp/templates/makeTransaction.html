@@ -46,7 +46,7 @@
         <div class="control-group">
             <label class="control-label">
                 {% if perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
-                <input type="checkbox" name="group_checkbox" ng-model="involving_checkbox" ng-true-value="true" ng-false-value="false" ng-click="paid_user.id={{ request.user.id }}">
+                <input type="checkbox" name="group_checkbox" ng-model="involving_checkbox" ng-true-value="true" ng-false-value="false" ng-click="payeeCheckboxClikced()">
                 {% endif %}
                 Involving
             </label>
@@ -175,37 +175,43 @@
 <script type="text/javascript">
 
     function TransactionsFormController($scope) {
-	{% if perms.TransactionApp.group_transactions %}
+//put the JSON's in Django variable to respective angular models
+{% if perms.TransactionApp.group_transactions %}
 		$scope.users_in_grp={{ response_json.users_in_grp }};
 		$scope.toCategory_group={{ response_json.toCategory_group }};
-    {% endif %}
+{% endif %}
 		$scope.fromCategory_user={{ response_json.fromCategory_user }};
         $scope.toCategory_user={{ response_json.toCategory_user }};
-        {% if perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
+// Initialise the "checkbox" state and initialise the paid_user
+{% if perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
         $scope.involving_checkbox="false";
         $scope.paid_user={"username": "{{ request.user.username }}", "id": {{ request.user.id }} };
-        {% elif not perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
+{% elif not perms.TransactionApp.group_transactions and perms.TransactionApp.personal_transactions %}
         $scope.involving_checkbox="false";
         $scope.paid_user={"username": "{{ request.user.username }}", "id": {{ request.user.id }} };
-        {% else %}
+{% else %}
         $scope.involving_checkbox="true";
-        {% endif %}
-        //this array is used for displaying
+{% endif %}
+        //this array is used for displaying the Payees
         $scope.users_inv = new Array();
-        //funtion is used to update the array for diplaying the current 
-        // involved user selection
-        // called when each check box in "Involved user" table is clicked
         $scope.updateUsersInvolved = function(usr){
+			/*
+			funtion is used to update the array for diplaying the current 
+			Payees.
+			This function is tirgged by checkbox check event for each payees
+			*/
             if (usr.checked){
                 $scope.users_inv.push(usr.username);
             }else{
                 $scope.users_inv.splice($scope.users_inv.indexOf(usr.username),1);	
             }
         };
-        // is called when createCategory button is clicked in model
-		// sents get trquest to URl
-		// and fetches the JSON of group created
 		$scope.createCategory = function() {
+			/* 
+			Function is called when createCategory button in bootstrap model is clicked,
+			sents get request to URL to create group
+			and fetches the JSON of group created 
+			*/
 			$.get(
 				$scope.createCategoryURL,
 				{
@@ -214,8 +220,12 @@
 					"description":$scope.cat_description,
 					"privacy":$scope.privacy,
 				},
-				//success callack funtion operates on "data"-> the response JSON
 				function(data) {
+					/*
+					success callack funtion operates on "data"-> the response JSON
+					Populated one or more of the three category select boxes with data
+					$apply is required to update the html select box on updating ng-model
+					*/
 					$scope.$apply(function() {
 						if ( data.category_type == {{INCOME}} )	
 						{
@@ -255,7 +265,15 @@
 				}
 			);
 		};
-		//this function is called when any new category link is clicked
+		/*
+		this function is called when any new category link is clicked
+		This will modify the bootstrap model displayed
+		the bootstrp model has three select boxes to specify the ctegory type
+		this funtion will set one of the select boxes as "true" i.e display it
+		url -> is the url to which the get request is sent to create Category
+		category is passed in url rather than GET because it saves the overhead of
+		converting to int Django will parse it and provide 
+		*/
 		$scope.displaycreateCategory = function(url,toggle){
 			$scope.createCategoryURL = url;
 			if (toggle == 'NewFromCategory')
@@ -276,6 +294,9 @@
 				$scope.toUserCategory = false;
 				$scope.toGroupCategory = true;
 			}
+		};
+		$scope.payeeCheckboxClikced = function(){
+			$scope.paid_user.id={{ request.user.id }};
 		};
     };
 </script>
