@@ -80,6 +80,12 @@ class UserCategory(models.Model):
 
 
 class Transaction(models.Model):
+    # DEFINITIONS
+    # involved user: may be a payee or paid_user
+    # payees
+    # paid : zero or positive only , actual money given, for all users involved
+    # outstanding: postove or negative, non zero for all users
+    # expense: zero or positive for all users involved
     paid_user = models.ForeignKey(User, related_name='paidForTransaction')
     amount = models.FloatField()
     from_category = models.ForeignKey(Category, related_name='inFromfield', null=True, blank=True)
@@ -103,7 +109,33 @@ class Transaction(models.Model):
         pass
         return '{0} | {1} | {2}|{3}'.format(self.paid_user, self.amount, self.created_for_group, self.description)
 
+    def get_outstanding_amount(self, user_id):
+        '''
+        get the outstanding amouth of the "user" in "this" txn
+        '''
+        user_cost = 0
+        try:
+            temp_payee = Payee.objects.get(txn=self, user_id=user_id)
+            user_cost = temp_payee.outstanding_amount
+        except Payee.DoesNotExist:
+            if self.paid_user_id == user_id:
+                user_cost = self.amount
+            else:
+                # log it that an invalid user tried to
+                pass
+        return user_cost
+
+    def get_expense(self, user_id):
+        if Payee.objects.filter(txn=self).filter(user_id=user_id).exists():
+            ost_amt = Payee.objects.get(txn=self, user_id=user_id).outstanding_amount
+            return (self.amount - ost_amt) if (ost_amt > 0) else abs(ost_amt)
+        else:
+            return 0
+
     def associatePayees(self, payee_list):
+        '''
+        To create Payee objects for the transaction
+        '''
         no_of_payees = len(payee_list)
         for temp_payee in payee_list:
             # if it doestnt already exist

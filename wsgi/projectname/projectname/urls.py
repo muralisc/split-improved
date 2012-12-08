@@ -26,6 +26,11 @@ urlpatterns = patterns('',
     (r'^makeTransaction/$', 'TransactionApp.views.makeTransaction'),
     (r'^createCategory/(\d+)/$', 'TransactionApp.views.createCategory'),
     (r'^getJSONcategories/$', 'TransactionApp.views.getJSONcategories'),
+    (r'^group/statistics/$', 'TransactionApp.views.groupStatistics'),
+    (r'^group/transactionList/$', 'TransactionApp.views.groupTransactionList'),
+    (r'^group/expenseList/$', 'TransactionApp.views.groupExpenseList'),
+    (r'^group/outstandingList/$', 'TransactionApp.views.groupOutstandingList'),
+
     (r'^statistics/$', 'TransactionApp.views.statistics'),
 
     (r'^logout/$', 'django.contrib.auth.views.logout_then_login', {'login_url': '/login/'}),

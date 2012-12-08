@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}
+{% endblock %}
+
+{% block ngAppName %} ng-app="YourAppName" {% endblock %}
+
+{% block header %}
+{% endblock %}
+
+
+{% block body %}
+<div class="offset1 span10" ng-controller="TimeFilterController">
+{{request.user}}<br/>
+<table class="table table-hover table-condensed">
+	<thead>
+		<tr>
+		  <th>name</th>
+		  <th>Amount in Pool</th>
+		  <th>Expense</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+		  <td></td>
+		  <td></td>
+		  <td>
+			<select ng-model="timeRange" ng-change="showExpenseList()">
+				<option value="" selected="selected">---------</option>
+				<option value="{{THIS_MONTH}}">This Month</option>
+				<option value="{{LAST_MONTH}}">Last Month</option>
+				<option value="{{CUSTOM_RANGE}}">Enter custom timerange</option>
+			</select>
+			<div ng-show="timeRange=={{CUSTOM_RANGE}}">
+				<input id="id_t_st" type="date" ng-model="t_s" class="input-small" name="t_st"/> to
+				<input id="id_t_et" type="date" ng-model="t_e" class="input-small" name="t_et"/>
+				<a ng-click="sentTimeRange()">Filter</a><br/>
+			</div>
+			<div>{{start_time}} to {{end_time}}</div>
+		  </td>
+		</tr>
+	{%for i in members1%}
+		<tr>
+			<td><a href="?u={{i.0.user.id}}">{{i.0.user}}</a></td>
+			<td><a href="/group/outstandingList/?u={{i.0.user.id}}">{{i.0.amount_in_pool}}</a></td>
+			<td class=""><a href="/group/expenseList/?u={{i.0.user.id}}&ts={{start_time.isoformat}}&te={{end_time.isoformat}}">{{i.1|floatformat}}</a></td>
+		</tr>
+	{%endfor%}
+	</tbody>
+</table>
+</div>
+{% endblock %}
+
+
+{% block footer%}
+{% endblock %}
+
+
+{% block afterbody%}
+<script src="{{ STATIC_URL }}timeFilterController.js"></script>
+{% endblock %}

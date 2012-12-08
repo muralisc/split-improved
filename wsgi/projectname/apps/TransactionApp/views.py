@@ -2,17 +2,19 @@ try:
     import simplejson as json
 except ImportError:
     import json
-import datetime
-from django.utils.timezone import utc
+from datetime import datetime
+from dateutil import parser
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Payee, Transaction
-from projectApp1.models import Membership
+from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise
+from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE
+from projectApp1.models import Membership, Group
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 
 @login_required(login_url='/login/')
@@ -68,7 +70,7 @@ def makeTransaction(request):
     if form.is_valid():
         transactionRow = form.save(commit=False)
         if transactionRow.transaction_time is None:
-            transactionRow.transaction_time = datetime.datetime.utcnow().replace(tzinfo=utc)
+            transactionRow.transaction_time = datetime.datetime.now()
         # if the paid user is not the logged in user then ensure that the
         # from_category is None
         if transactionRow.paid_user_id != request.user.id and transactionRow.from_category is not None:
@@ -137,13 +139,82 @@ def getJSONcategories(request):
     return HttpResponse(response_json, mimetype='application/json')
 
 
-@login_required(login_url='/login/')
+#@login_required(login_url='/login/')
 def statistics(request):
-    #filter_user = request.user
-    #filter_group = <> | None
-    #Q(users_involved__in=filter_user)|Q(paid_user_id=filter_user.id)       #all transactoin involving filter_user
-    #Q(created_for_group=filter_group)                                          #all transactoin involving filter_group
-    transaction_filters = Q(deleted=False)
-    transaction_list = Transaction.objects.filter(transaction_filters)
-    transaction_list_with_payee_list = [[temp, Payee.objects.filter(txn=temp)] for temp in transaction_list]
+    import_from_snapshot()
+   #transaction_list_with_payee_list = [[temp, Payee.objects.filter(txn=temp)] for temp in transaction_list]
     return render_to_response('statistics.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def groupStatistics(request):
+    (start_time, end_time) = parseGET_initialise(request)
+    members = Membership.objects.filter(group=request.session['active_group'])
+    members1 = list()
+    for temp in members:
+        members1.append([temp, get_expense(temp.group.id, temp.user.id, start_time, end_time)])
+    return render_to_response('groupStatistics.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def groupExpenseList(request):
+    (start_time, end_time) = parseGET_initialise(request)
+    if 'u' in request.GET:
+        filter_user_id = int(request.GET['u'])
+    else:
+        filter_user_id = request.user.pk
+    transaction_list = Transaction.objects.filter(
+                        Q(created_for_group=request.session['active_group']) &                          # filter the group
+                        Q(deleted=False) &                                                              # filter deleted
+                        Q(transaction_time__range=(start_time, end_time)) &
+                        (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
+                        ).distinct().order_by('transaction_time')
+    transaction_list_with_expense = list()
+    cumulative_exp = 0
+    for temp in transaction_list:
+        usrexp = temp.get_expense(filter_user_id)
+        cumulative_exp = cumulative_exp + usrexp
+        transaction_list_with_expense.append([temp, usrexp, cumulative_exp])
+    transaction_list_with_expense.reverse()
+    return render_to_response('groupExpenseList.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def groupOutstandingList(request):
+    if 'u' in request.GET:
+        filter_user_id = int(request.GET['u'])
+    else:
+        filter_user_id = request.user.pk
+    transaction_list = Transaction.objects.filter(
+                        Q(created_for_group=request.session['active_group']) &                          # filter the group
+                        Q(deleted=False) &                                                              # filter deleted
+                        (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
+                        ).distinct().order_by('transaction_time')
+    transaction_list_with_outstanding = list()
+    cumulative_sum = 0
+    for temp in transaction_list:
+        usrcost = temp.get_outstanding_amount(filter_user_id)
+        cumulative_sum = cumulative_sum + usrcost
+        transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])
+    transaction_list_with_outstanding.reverse()
+    return render_to_response('groupOutstandingList.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def groupTransactionList(request):
+    if 'u' in request.GET:
+        filter_user_id = int(request.GET['u'])
+    else:
+        filter_user_id = request.user.pk
+    transaction_list = Transaction.objects.filter(
+                        Q(created_for_group=request.session['active_group']) &                          # filter the group
+                        Q(deleted=False) &                                                              # filter deleted
+                        (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
+                        ).distinct().order_by('-transaction_time')[220:230]
+    transaction_list_with_outstanding = list()
+    cumulative_sum = Membership.objects.get(group=request.session['active_group'], user_id=filter_user_id).amount_in_pool
+    for temp in transaction_list:
+        usrcost = temp.get_outstanding_amount(filter_user_id)
+        transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])
+        cumulative_sum = cumulative_sum - usrcost
+    return render_to_response('groupTransactionList.html', locals(), context_instance=RequestContext(request))
