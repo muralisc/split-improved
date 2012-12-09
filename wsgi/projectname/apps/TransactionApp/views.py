@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction  # , Payee
 from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise
 from projectApp1.models import Membership  # , Group
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
 from django.db.models import Q  # , Sum
@@ -150,27 +151,38 @@ def groupStatistics(request):
     '''
     displays outstnding amount and expense
     '''
-    (start_time, end_time) = parseGET_initialise(request)
+    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     members = Membership.objects.filter(group=request.session['active_group'])
     members1 = list()
     for temp in members:
         members1.append([temp, get_expense(temp.group.id, temp.user.id, start_time, end_time)])
+    no_of_pages = 1   # for angularjs
     return render_to_response('groupStatistics.html', locals(), context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')
 def groupExpenseList(request):
-    (start_time, end_time) = parseGET_initialise(request)
-    if 'u' in request.GET:
-        filter_user_id = int(request.GET['u'])
-    else:
-        filter_user_id = request.user.pk
+    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group=request.session['active_group']) &                          # filter the group
                         Q(deleted=False) &                                                              # filter deleted
                         Q(transaction_time__range=(start_time, end_time)) &
                         (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
                         ).distinct().order_by('transaction_time')
+    # Pagination stuff
+    paginator_obj = Paginator(transaction_list, txn_per_page)
+    try:
+        current_page = paginator_obj.page(page_no)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        current_page = paginator_obj.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        current_page = paginator_obj.page(paginator_obj.num_pages)
+    transaction_list = current_page.object_list
+    no_of_pages = paginator_obj.num_pages
+
+    # populating the template array
     transaction_list_with_expense = list()
     cumulative_exp = 0
     for temp in transaction_list:
@@ -184,7 +196,9 @@ def groupExpenseList(request):
 @login_required(login_url='/login/')
 def groupOutstandingList(request):
     '''
-    Displays the entire list no Pagination for debugging
+    Displays the entire list
+    no Pagination
+    mainly for debugging
     '''
     if 'u' in request.GET:
         filter_user_id = int(request.GET['u'])
@@ -208,31 +222,36 @@ def groupOutstandingList(request):
 @login_required(login_url='/login/')
 def groupTransactionList(request):
     '''
-    Display 10 trnsactions perpage
+    Display x trnsactions perpage based on time range
     '''
+    # TODO modifi
+    # Trandsctoin is for supporint reorder and sort
+    # Ourstndi is milyf or  cumulstive outstnding
+    # Expense is for cumulstive exoense
     # XXX check for invalid 'page no' in GETS
-    if 'u' in request.GET:
-        filter_user_id = int(request.GET['u'])
-    else:
-        filter_user_id = request.user.pk
-    if 'page' in request.GET:
-        page_no = int(request.GET['page'])
-    else:
-        page_no = 1
-    if 'rpp' in request.GET:
-        txn_per_page = int(request.GET['rpp'])
-    else:
-        txn_per_page = 5
+    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group_id=request.session['active_group'].id) &                    # filter the group
                         Q(deleted=False) &                                                              # filter deleted
+                        Q(transaction_time__range=(start_time, end_time)) &
                         (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
                         ).distinct().order_by('-transaction_time')
-    no_of_pages = math.ceil(float(transaction_list.count()) / txn_per_page)
-    start_index = (page_no - 1) * txn_per_page
-    end_index = page_no * txn_per_page
-    transaction_list = transaction_list[start_index:end_index]
+    # Pagination stuff
+    paginator_obj = Paginator(transaction_list, txn_per_page)
+    try:
+        current_page = paginator_obj.page(page_no)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        current_page = paginator_obj.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        current_page = paginator_obj.page(paginator_obj.num_pages)
+    transaction_list = current_page.object_list
+    no_of_pages = paginator_obj.num_pages
+
+    # populating the template array
     transaction_list_with_outstanding = list()
+    # XXX in get is empty use cache withi=out calculating
     # cumulative_sum = Membership.objects.get(group=request.session['active_group'], user_id=filter_user_id).amount_in_pool
     cumulative_sum = get_outstanding_amount(request.session['active_group'], filter_user_id, transaction_list[0].transaction_time)
     for temp in transaction_list:

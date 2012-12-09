@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load customfilters %}
 {% block title %}
 {% endblock %}
 
@@ -9,25 +10,15 @@
 
 
 {% block body%}
-<div class="offset1 span10" ng-controller="TimeFilterController">
-	<div>
-		<select ng-model="timeRange" ng-change="showExpenseList()">
-			<option value="" selected="selected">---------</option>
-			<option value="{{THIS_MONTH}}">This Month</option>
-			<option value="{{LAST_MONTH}}">Last Month</option>
-			<option value="{{CUSTOM_RANGE}}">Enter custom timerange</option>
-		</select>
-		<div ng-show="timeRange=={{CUSTOM_RANGE}}">
-			<input id="id_t_st" type="date" ng-model="t_s" class="input-small" name="t_st"/> to
-			<input id="id_t_et" type="date" ng-model="t_e" class="input-small" name="t_et"/>
-			<a ng-click="sentTimeRange()">Filter</a><br/>
-		</div>
-		<div>{{start_time}} to {{end_time}}</div>
-	</div>
 {%if transaction_list_with_expense%}
+<div class="offset1 span10">
+{% include "filterController.html" %}
+{% include "pageFilter.html" %}
+{% include "timeFilter.html" %}
 	<table class="table table-hover table-condensed">
 			<thead>
 				<tr>
+				  <th></th>
 				  <th>name</th>
 				  <th>Amount</th>
 				  <th>Description</th>
@@ -40,6 +31,7 @@
 {% for i in transaction_list_with_expense%}
 			<tbody>
 				<tr>
+				  <td class="span1">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</td>
 				  <td class="span1">{{i.0.paid_user}}</td>
 				  <td class="span1">{{i.0.amount}}</td>
 				  <td class="span1">{{i.0.description}}</td>
@@ -65,5 +57,4 @@
 
 
 {% block afterbody%}
-<script src="{{ STATIC_URL }}timeFilterController.js"></script>
 {% endblock %}

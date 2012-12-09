@@ -1,0 +1,102 @@
+<!-- 
+Requires 
+{{page_no}}
+{{txn_per_page}}
+{{no_of_pages}}
+{{timeRange}}
+{{start_time}} 	only in html
+{{end_time}}	only in html
+and ng-app in <html> tag
+--->
+<script type="text/javascript">
+function filterController($scope) {
+	//initialise selectboxes
+	$scope.page_no={{page_no}};
+	$scope.txn_per_page={{txn_per_page}};
+	$scope.no_of_pages={{no_of_pages}};
+	$scope.timeRange="{{timeRange}}";
+	
+	if($scope.timeRange=="3"){
+		/*
+		initialise these only if custom range is alredy selected 
+		otherwise it will trigger the switch case"3"
+		*/
+		$scope.t_s="{{start_time|date:'Y-m-d'}}";
+		$scope.t_e="{{end_time|date:'Y-m-d'}}";
+	};
+	
+	//Populate the array with available page nos
+	$scope.page_array = Array();
+	for (temp=1;temp<=$scope.no_of_pages;temp++)
+	{ 
+		$scope.page_array.push(temp);
+	}
+	
+	$scope.frameGETquery = function() {
+		$scope.queryString = "?";
+		/*
+		start framing "tr=" queries
+		*/
+		switch($scope.timeRange){
+			case "1":
+				$scope.queryString = $scope.queryString.concat("tr=1");
+				$scope.queryString = $scope.queryString.concat("&");
+				break;
+			case "2":
+				$scope.queryString = $scope.queryString.concat("tr=2");
+				$scope.queryString = $scope.queryString.concat("&");
+				break;
+			case "3":
+				if(undefined == $scope.t_s && undefined == $scope.t_e){
+					return;
+				}
+				else{
+					break;
+				}
+			default:
+				break;
+		};
+		if($scope.timeRange=="3" && undefined != $scope.t_s && undefined != $scope.t_e){
+			/*
+			start framing "ts=" and "te=" queries
+			*/
+			$scope.tsExist = ((new Date($scope.t_s)).toString() != "Invalid Date");
+			$scope.teExist = ((new Date($scope.t_e)).toString() != "Invalid Date");
+			if(!$scope.tsExist && !$scope.teExist){
+				alert("enter valid date");
+				return;
+			}
+			//If both has vaid date check startDate<EndDate
+			if($scope.tsExist && $scope.teExist){
+				if((new Date($scope.t_s)) > (new Date($scope.t_e))){
+					alert("start date is after the end date duffer");
+					return;
+				}
+			}
+			if($scope.tsExist){  
+				$scope.queryString = $scope.queryString.concat("ts=");
+				$scope.queryString = $scope.queryString.concat($scope.t_s);
+				$scope.queryString = $scope.queryString.concat("&");
+			}
+			if($scope.teExist){  
+				$scope.queryString = $scope.queryString.concat("te=");
+				$scope.queryString = $scope.queryString.concat($scope.t_e);
+				$scope.queryString = $scope.queryString.concat("&");
+			}
+		}
+		/*
+		start framing "page=" and "rpp=" queries
+		*/
+		//sent pageno
+		$scope.queryString = $scope.queryString.concat("page=");
+		$scope.queryString = $scope.queryString.concat($scope.page_no);
+		$scope.queryString = $scope.queryString.concat("&");
+		//sent rowperpage
+		$scope.queryString = $scope.queryString.concat("rpp=");
+		$scope.queryString = $scope.queryString.concat($scope.txn_per_page);
+		$scope.queryString = $scope.queryString.concat("&");
+		
+		window.location.href = $scope.queryString;
+	};
+};
+</script>

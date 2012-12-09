@@ -160,27 +160,43 @@ def parseGET_initialise(request):
     start_time
     end_time
     '''
+    # Defaults
     current_time = datetime.now()
     month_start = datetime(year=current_time.year, month=current_time.month, day=1)
     start_time = month_start
     end_time = current_time
+    timeRange = THIS_MONTH                                                                      # for angularjs
     # time range
     if 'tr' in request.GET:
         if int(request.GET['tr']) == THIS_MONTH:
-            start_time = datetime(year=current_time.year, month=current_time.month, day=1)
-            # end_time is alredy initialised
+            start_time = datetime(year=current_time.year, month=current_time.month, day=1)      # end_time is alredy initialised
+            timeRange = THIS_MONTH                                                              # for angularjs
         elif int(request.GET['tr']) == LAST_MONTH:
             start_time = datetime(year=current_time.year, month=current_time.month - 1, day=1)
+            timeRange = LAST_MONTH                                                              # for angularjs
             end_time = datetime(
                         year=current_time.year,
                         month=current_time.month,
                         day=1)
                         #day=calendar.monthrange(current_time.year, current_time.month - 1)[1])
     elif 'ts' in request.GET or 'te' in request.GET:
+        timeRange = CUSTOM_RANGE                                                                # for angularjs
         # time start
         if 'ts' in request.GET:
             start_time = parser.parse(request.GET['ts'])
         # time end
         if 'te' in request.GET:
             end_time = parser.parse(request.GET['te'])
-    return (start_time, end_time)
+    if 'u' in request.GET:
+        filter_user_id = int(request.GET['u'])
+    else:
+        filter_user_id = request.user.pk
+    if 'page' in request.GET:
+        page_no = int(request.GET['page'])
+    else:
+        page_no = 1
+    if 'rpp' in request.GET:
+        txn_per_page = int(request.GET['rpp'])
+    else:
+        txn_per_page = 5
+    return (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page)

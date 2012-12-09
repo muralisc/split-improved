@@ -1,0 +1,19 @@
+<!-- 
+Requires 
+{-% include "filterController.html" %-}
+and ng-app in <html> tag
+--->
+<div ng-controller="filterController">
+	<select ng-model="timeRange" ng-change="frameGETquery()">
+		<option value="" selected="selected">---------</option>
+		<option value="{{THIS_MONTH}}">This Month</option>
+		<option value="{{LAST_MONTH}}">Last Month</option>
+		<option value="{{CUSTOM_RANGE}}">Custom timerange</option>
+	</select>
+	<div ng-show="timeRange=={{CUSTOM_RANGE}}">
+		<input id="id_t_st" type="date" ng-model="t_s" class="input-small" name="t_st"/> to
+		<input id="id_t_et" type="date" ng-model="t_e" class="input-small" name="t_et"/>
+		<a ng-click="frameGETquery()">Filter</a><br/>
+	</div>
+	<div>{{start_time}} to {{end_time}}</div>
+</div>
