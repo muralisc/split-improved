@@ -2,7 +2,7 @@
 {% block title %}
 {% endblock %}
 
-{% block ngAppName %}{% endblock %}
+{% block ngAppName %} ng-app="YourAppName" {% endblock %}
 
 {% block header %}
 {% endblock %}
@@ -10,7 +10,11 @@
 
 {% block body%}
 {%if transaction_list_with_outstanding%}
-<div class="offset1 span10">
+<div class="offset1 span10" ng-controller="PaginatorController">
+<select ng-model="page_no" ng-options="c for c in page_array" ng-change="getPage()">
+	<option value="" selected="selected">---------</option>
+</select>
+
 <table class="table table-hover table-condensed">
 		<thead>
 			<tr>
@@ -53,4 +57,24 @@
 
 
 {% block afterbody%}
+<script type="text/javascript">
+    function PaginatorController($scope) {
+		//Populate the select box for page_nos
+		$scope.page_array = Array();
+		for (temp=1;temp<={{no_of_pages}};temp++)
+		{ 
+			$scope.page_array.push(temp);
+		}
+		//initialise select box page_no
+		$scope.page_no={{page_no}};
+		
+		$scope.getPage = function() {
+			$scope.queryString = "?";
+			$scope.queryString = $scope.queryString.concat("page=");
+			$scope.queryString = $scope.queryString.concat($scope.page_no);
+			$scope.queryString = $scope.queryString.concat("&");
+			window.location.href = $scope.queryString.concat($scope.queryString);
+		};
+	};
+</script>
 {% endblock %}

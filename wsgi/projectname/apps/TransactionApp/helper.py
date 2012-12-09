@@ -103,38 +103,41 @@ def import_from_snapshot():
     json_file.close()
 
 
-def get_outstanding_amount(group, user):
+def get_outstanding_amount(group_id, user_id, end_time=None):
     '''
-    get the net outstanding amount of the user for all the transaction
+    get the net outstandin amount in a group till the timestamp specified
     '''
+    if end_time is not None:
+        time_filter = Q(transaction_time__lte=end_time)
+    else:
+        time_filter = Q()
+    txn_filters = (
+                Q(created_for_group_id=group_id) &          # filter the group
+                Q(deleted=False) &                          # filter deleted
+                Q(time_filter)                              # filter time
+                )
+    # Get the net of all the transaction in which user was not a Payee
+    # i.e user just paid but did not have any expense towards the txn
     s1 = Transaction.objects.filter(
-                        created_for_group=group
+                        txn_filters
                     ).filter(
-                        deleted=False
-                    ).filter(
-                        paid_user=user
+                        paid_user_id=user_id
                     ).exclude(
-                        users_involved=user
+                        users_involved=user_id
                     ).aggregate(
                         Sum('amount')
                     )['amount__sum']
+    # Get the net sum of all the expenses the user was a Payee
     s2 = Payee.objects.filter(
                         deleted=False
                     ).filter(
-                        user=user
+                        user_id=user_id
                     ).filter(
-                        txn__in=list(Transaction.objects.filter(created_for_group=group).filter(deleted=False))
+                        txn__id__in=list(Transaction.objects.values_list('id', flat=True).filter(txn_filters))
                     ).aggregate(
                         Sum('outstanding_amount')
                     )['outstanding_amount__sum']
     return s1 + s2
-
-
-def get_outstanding_amount(group, user, time):
-    '''
-    get the outstandin amount till the timestamp specified
-    '''
-    pass
 
 
 def get_expense(group_id, user_id, start_time, end_time):

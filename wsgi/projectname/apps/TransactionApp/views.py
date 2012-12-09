@@ -2,17 +2,18 @@ try:
     import simplejson as json
 except ImportError:
     import json
+import math
 from datetime import datetime
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Payee, Transaction
+from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction  # , Payee
 from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise
-from projectApp1.models import Membership, Group
+from projectApp1.models import Membership  # , Group
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
-from django.db.models import Q, Sum
+from django.db.models import Q  # , Sum
 
 
 @login_required(login_url='/login/')
@@ -64,7 +65,6 @@ def makeTransaction(request):
     update related fields
     return back to the original site
     '''
-    import pdb; pdb.set_trace() ### XXX BREAKPOINT
     form = TransactionForm(request.POST)
     if form.is_valid():
         transactionRow = form.save(commit=False)
@@ -183,6 +183,9 @@ def groupExpenseList(request):
 
 @login_required(login_url='/login/')
 def groupOutstandingList(request):
+    '''
+    Displays the entire list no Pagination for debugging
+    '''
     if 'u' in request.GET:
         filter_user_id = int(request.GET['u'])
     else:
@@ -204,17 +207,31 @@ def groupOutstandingList(request):
 
 @login_required(login_url='/login/')
 def groupTransactionList(request):
+    '''
+    Display 10 trnsactions perpage
+    '''
+    # XXX check for invalid 'page' GETS
+    txn_per_page = 5
     if 'u' in request.GET:
         filter_user_id = int(request.GET['u'])
     else:
         filter_user_id = request.user.pk
+    if 'page' in request.GET:
+        page_no = int(request.GET['page'])
+    else:
+        page_no = 1
     transaction_list = Transaction.objects.filter(
-                        Q(created_for_group=request.session['active_group']) &                          # filter the group
+                        Q(created_for_group_id=request.session['active_group'].id) &                    # filter the group
                         Q(deleted=False) &                                                              # filter deleted
                         (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
-                        ).distinct().order_by('-transaction_time')[220:230]
+                        ).distinct().order_by('-transaction_time')
+    no_of_pages = math.ceil(float(transaction_list.count()) / txn_per_page)
+    start_index = (page_no - 1) * txn_per_page
+    end_index = page_no * txn_per_page
+    transaction_list = transaction_list[start_index:end_index]
     transaction_list_with_outstanding = list()
-    cumulative_sum = Membership.objects.get(group=request.session['active_group'], user_id=filter_user_id).amount_in_pool
+    # cumulative_sum = Membership.objects.get(group=request.session['active_group'], user_id=filter_user_id).amount_in_pool
+    cumulative_sum = get_outstanding_amount(request.session['active_group'], filter_user_id, transaction_list[0].transaction_time)
     for temp in transaction_list:
         usrcost = temp.get_outstanding_amount(filter_user_id)
         transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])
