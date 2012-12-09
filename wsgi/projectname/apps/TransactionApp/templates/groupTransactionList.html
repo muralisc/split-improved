@@ -11,10 +11,20 @@
 {% block body%}
 {%if transaction_list_with_outstanding%}
 <div class="offset1 span10" ng-controller="PaginatorController">
-<select ng-model="page_no" ng-options="c for c in page_array" ng-change="getPage()">
-	<option value="" selected="selected">---------</option>
-</select>
-
+<div>
+	pageno
+	<select ng-model="page_no" ng-options="c for c in page_array" ng-change="getPage()">
+		<option value="" selected="selected">---------</option>
+	</select>
+	txn_per_page
+	<select ng-model="txn_per_page" ng-change="getPage()">
+		<option value="" selected="selected">---------</option>
+		<option value="5" selected="selected">5</option>
+		<option value="10" selected="selected">10</option>
+		<option value="50" selected="selected">50</option>
+		<option value="100" selected="selected">100</option>
+	</select>
+</div>
 <table class="table table-hover table-condensed">
 		<thead>
 			<tr>
@@ -65,15 +75,22 @@
 		{ 
 			$scope.page_array.push(temp);
 		}
-		//initialise select box page_no
+		//initialise selectboxes
 		$scope.page_no={{page_no}};
-		
+		$scope.txn_per_page={{txn_per_page}};
+			
 		$scope.getPage = function() {
 			$scope.queryString = "?";
+			//sent pageno
 			$scope.queryString = $scope.queryString.concat("page=");
 			$scope.queryString = $scope.queryString.concat($scope.page_no);
 			$scope.queryString = $scope.queryString.concat("&");
-			window.location.href = $scope.queryString.concat($scope.queryString);
+			//sent rowperpage
+			$scope.queryString = $scope.queryString.concat("rpp=");
+			$scope.queryString = $scope.queryString.concat($scope.txn_per_page);
+			$scope.queryString = $scope.queryString.concat("&");
+			
+			window.location.href = $scope.queryString;
 		};
 	};
 </script>

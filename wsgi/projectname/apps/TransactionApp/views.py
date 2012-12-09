@@ -210,8 +210,7 @@ def groupTransactionList(request):
     '''
     Display 10 trnsactions perpage
     '''
-    # XXX check for invalid 'page' GETS
-    txn_per_page = 5
+    # XXX check for invalid 'page no' in GETS
     if 'u' in request.GET:
         filter_user_id = int(request.GET['u'])
     else:
@@ -220,6 +219,10 @@ def groupTransactionList(request):
         page_no = int(request.GET['page'])
     else:
         page_no = 1
+    if 'rpp' in request.GET:
+        txn_per_page = int(request.GET['rpp'])
+    else:
+        txn_per_page = 5
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group_id=request.session['active_group'].id) &                    # filter the group
                         Q(deleted=False) &                                                              # filter deleted
