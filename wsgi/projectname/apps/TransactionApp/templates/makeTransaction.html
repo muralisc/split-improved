@@ -57,8 +57,13 @@
                             <td>
                                 <label class="checkbox">
                                     <input type="checkbox" name="users_involved" value="{[{ usr.id}]}" ng-model="usr.checked" ng-click="updateUsersInvolved(usr)">
-                                    {[{ usr.username }]} <span ng-show="usr.checked">{[{amount/users_inv.length}]}</span>
+                                    {[{ usr.username }]} 
                                 </label>
+                            </td>
+                            <td>
+								<span ng-show="usr.checked">
+									{[{amount/users_inv.length | number:2}]}
+								</span>
                             </td>
                         </tr>
                     </tbody>
