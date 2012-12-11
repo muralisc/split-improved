@@ -10,10 +10,10 @@ class UserManagementTestCase(TestCase):
         # This function is automatically called in the beginig
         # setup 3 default users
         self.factory = RequestFactory()
-        User.objects.create_user(username="default@default.com", email="default@default.com", password="default")
-        User.objects.create_user(username="default1@default.com", email="default1@default.com", password="default1")
-        User.objects.create_user(username="default2@default.com", email="default2@default.com", password="default2")
-        User.objects.create_user(username="jayalalv@default.com", email="jayalalv@default.com", password="solar")
+        self.u = User.objects.create_user(username="default@default.com", email="default@default.com", password="default")
+        self.u1 = User.objects.create_user(username="default1@default.com", email="default1@default.com", password="default1")
+        self.u2 = User.objects.create_user(username="default2@default.com", email="default2@default.com", password="default2")
+        self.u3 = User.objects.create_user(username="jayalalv@default.com", email="jayalalv@default.com", password="solar")
         # setup a default group
 
     def test_createUser_siteLogin(self):
@@ -92,8 +92,8 @@ class UserManagementTestCase(TestCase):
                                     'description': 'group1_desc',
                                     'privacy': '0',
                                     'members': '{0},{1}'.format(
-                                    User.objects.get(username='default1@default.com').id,
-                                    User.objects.get(username='default2@default.com').id,
+                                    self.u1.id, # User.objects.get(username='default1@default.com').id,
+                                    self.u2.id, # User.objects.get(username='default2@default.com').id,
                                     )},
                                     follow=True)
         self.assertEqual(Membership.objects.get(administrator=True).user.username, 'default@default.com')
@@ -135,12 +135,12 @@ class UserManagementTestCase(TestCase):
                                     'description': 'group1_desc',
                                     'privacy': '0',
                                     'members': '{0},{1}'.format(
-                                    User.objects.get(username='default1@default.com').id,
-                                    User.objects.get(username='default2@default.com').id,
+                                    self.u1.id,
+                                    self.u2.id,
                                     )},
                                     follow=True)
         # a invalid user tries to change invite of another user
-        invite_of_default1 = Invite.objects.get(to_user=User.objects.get(username='default1@default.com'))
+        invite_of_default1 = Invite.objects.get(to_user=self.u1)                        # User.objects.get(username='default1@default.com'))
         response = self.client.post('/invite/accept/{0}/'.format(invite_of_default1.id))
         self.assertEqual(response.status_code, 404)
         # a valid user tries to delete invite invite deleted
@@ -148,19 +148,19 @@ class UserManagementTestCase(TestCase):
         self.client.login(username='default1@default.com', password='default1')
         # chumma request = self.factory.get('/home/')
         response = self.client.post('/invite/decline/{0}/'.format(invite_of_default1.id))
-        self.assertEqual(Invite.objects.filter(to_user=User.objects.get(username='default1@default.com')).count(), 0)
+        self.assertEqual(Invite.objects.filter(to_user=self.u1).count(), 0)
         # a valid user tries to accept the invite a membership row is created
         response = self.client.logout()
         self.client.login(username='default2@default.com', password='default2')
-        invite_of_default2 = Invite.objects.get(to_user=User.objects.get(username='default2@default.com'))
+        invite_of_default2 = Invite.objects.get(to_user=self.u2)
         no_of_membership = Membership.objects.all().count()
         response = self.client.post('/invite/accept/{0}/'.format(invite_of_default2.id))
         self.assertEqual(Membership.objects.all().count(), no_of_membership + 1)
         # manually create an invite for a membership that already exist and then
         # try to change[accept] it to a membership using /changeInvite/ [should fail]
         temp_invite = Invite.objects.create(
-                                        from_user=User.objects.get(username='default1@default.com'),
-                                        to_user=User.objects.get(username='default2@default.com'),
+                                        from_user=self.u1,                              # User.objects.get(username='default1@default.com'),
+                                        to_user=self.u2,                                # User.objects.get(username='default2@default.com'),
                                         group=Group.objects.get(name='group1'),
                                         unread=True,
                                         message=''

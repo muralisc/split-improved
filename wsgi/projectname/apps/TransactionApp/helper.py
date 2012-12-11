@@ -2,7 +2,7 @@ import calendar
 from datetime import datetime
 from dateutil import parser
 from TransactionApp.models import Category, Payee, Transaction
-from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE
+from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, DEFAULT_START_PAGE, DEFAULT_RPP
 from django.db.models import Sum
 from django.db.models import Q
 
@@ -159,44 +159,56 @@ def parseGET_initialise(request):
     populate variables
     start_time
     end_time
+    timeRange,
+    filter_user_id,
+    page_no,
+    txn_per_page
     '''
     # Defaults
     current_time = datetime.now()
     month_start = datetime(year=current_time.year, month=current_time.month, day=1)
     start_time = month_start
     end_time = current_time
-    timeRange = THIS_MONTH                                                                      # for angularjs
+    timeRange = THIS_MONTH                                                                          # for angularjs
     # time range
     if 'tr' in request.GET:
-        if int(request.GET['tr']) == THIS_MONTH:
-            start_time = datetime(year=current_time.year, month=current_time.month, day=1)      # end_time is alredy initialised
-            timeRange = THIS_MONTH                                                              # for angularjs
-        elif int(request.GET['tr']) == LAST_MONTH:
-            start_time = datetime(year=current_time.year, month=current_time.month - 1, day=1)
-            timeRange = LAST_MONTH                                                              # for angularjs
-            end_time = datetime(
-                        year=current_time.year,
-                        month=current_time.month,
-                        day=1)
-                        #day=calendar.monthrange(current_time.year, current_time.month - 1)[1])
+        try:
+            if int(request.GET['tr']) == THIS_MONTH:
+                start_time = datetime(year=current_time.year, month=current_time.month, day=1)      # end_time is alredy initialised
+                timeRange = THIS_MONTH                                                              # for angularjs
+            elif int(request.GET['tr']) == LAST_MONTH:
+                start_time = datetime(year=current_time.year, month=current_time.month - 1, day=1)
+                timeRange = LAST_MONTH                                                              # for angularjs
+                end_time = datetime(
+                            year=current_time.year,
+                            month=current_time.month,
+                            day=1)
+                            #day=calendar.monthrange(current_time.year, current_time.month - 1)[1])
+        except:
+            # default values alredy filled
+            pass
     elif 'ts' in request.GET or 'te' in request.GET:
-        timeRange = CUSTOM_RANGE                                                                # for angularjs
-        # time start
-        if 'ts' in request.GET:
-            start_time = parser.parse(request.GET['ts'])
-        # time end
-        if 'te' in request.GET:
-            end_time = parser.parse(request.GET['te'])
-    if 'u' in request.GET:
+        try:
+            timeRange = CUSTOM_RANGE                                                                    # for angularjs
+            # time start
+            if 'ts' in request.GET:
+                start_time = parser.parse(request.GET['ts'])
+            # time end
+            if 'te' in request.GET:
+                end_time = parser.parse(request.GET['te'])
+        except:
+            # default values alredy filled
+            pass
+    try:
         filter_user_id = int(request.GET['u'])
-    else:
+    except:
         filter_user_id = request.user.pk
-    if 'page' in request.GET:
+    try:
         page_no = int(request.GET['page'])
-    else:
-        page_no = 1
-    if 'rpp' in request.GET:
+    except:
+        page_no = DEFAULT_START_PAGE
+    try:
         txn_per_page = int(request.GET['rpp'])
-    else:
-        txn_per_page = 5
+    except:
+        txn_per_page = DEFAULT_RPP
     return (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page)
