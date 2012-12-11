@@ -66,6 +66,7 @@ def makeTransaction(request):
     update related fields
     return back to the original site
     '''
+    # TODO verify in test theatr the row is creaTED;
     form = TransactionForm(request.POST)
     if form.is_valid():
         transactionRow = form.save(commit=False)
@@ -194,7 +195,7 @@ def groupExpenseList(request):
 
 
 @login_required(login_url='/login/')
-def groupOutstandingList(request):
+def groupTransactionList(request):
     '''
     Displays the entire list
     no Pagination
@@ -216,14 +217,16 @@ def groupOutstandingList(request):
         cumulative_sum = cumulative_sum + usrcost
         transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])
     transaction_list_with_outstanding.reverse()
-    return render_to_response('groupOutstandingList.html', locals(), context_instance=RequestContext(request))
+    return render_to_response('groupTransactionList.html', locals(), context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')
-def groupTransactionList(request):
+def groupOutstandingList(request):
     '''
     Display x trnsactions perpage based on time range
     '''
+    # TODO test for the varivles sent for rendering are proper in value and type
+    # verify the calculations in TODO all helper functions
     # TODO modifi
     # Trandsctoin is for supporint reorder and sort
     # Ourstndi is milyf or  cumulstive outstnding
@@ -258,4 +261,4 @@ def groupTransactionList(request):
         usrcost = temp.get_outstanding_amount(filter_user_id)
         transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])
         cumulative_sum = cumulative_sum - usrcost
-    return render_to_response('groupTransactionList.html', locals(), context_instance=RequestContext(request))
+    return render_to_response('groupOutstandingList.html', locals(), context_instance=RequestContext(request))
