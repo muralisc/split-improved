@@ -3,6 +3,7 @@ try:
 except ImportError:
     import json
 import math
+from copy import deepcopy
 from datetime import datetime
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
@@ -66,26 +67,54 @@ def makeTransaction(request):
     update related fields
     return back to the original site
     '''
-    # TODO verify in test theatr the row is creaTED;
-    form = TransactionForm(request.POST)
-    if form.is_valid():
-        transactionRow = form.save(commit=False)
-        if transactionRow.transaction_time is None:
-            transactionRow.transaction_time = datetime.datetime.now()
-        # if the paid user is not the logged in user then ensure that the
-        # from_category is None
-        if transactionRow.paid_user_id != request.user.id and transactionRow.from_category is not None:
-            transactionRow.from_category = None
-        transactionRow.created_by_user_id = request.user.id
-        transactionRow.created_for_group = request.session['active_group']
-        transactionRow.deleted = False
-        # ensure fron category belogs to pid user
-        transactionRow.save()
-        if 'group_checkbox' in request.POST:
-            if form.cleaned_data['users_involved'] is not None:
-                transactionRow.associatePayees(form.cleaned_data['users_involved'])
-    else:
-        raise Http404
+    if request.method == 'POST':
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            transactionRow = form.save(commit=False)
+            if transactionRow.transaction_time is None:
+                transactionRow.transaction_time = datetime.now()
+            # if the paid user is not the logged in user then ensure that the from_category is None
+            if transactionRow.paid_user_id != request.user.id and transactionRow.from_category is not None:
+                transactionRow.from_category = None
+            transactionRow.created_by_user_id = request.user.id
+            transactionRow.created_for_group = request.session['active_group']
+            transactionRow.deleted = False
+            # if user has both permission, 'group_checkbox' should be checked for group txn
+            if request.user.has_perms(['TransactionApp.group_transactions', 'TransactionApp.personal_transactions']) and 'group_checkbox' in request.POST:
+                # if txn has from cateory and it belongs to request.user and paiduser = request.user then we need to duplicate the transaction
+                if (transactionRow.from_category is not None and
+                        UserCategory.objects.filter(user_id=request.user.id, category_id=transactionRow.from_category_id).exists() and
+                        request.user.id == transactionRow.paid_user_id):
+                    # 1 personal
+                    temp_cfg = transactionRow.created_for_group
+                    temp_tc = transactionRow.to_category
+                    transactionRow.created_for_group = None
+                    transactionRow.to_category = None
+                    # ensure fron category belogs to pid user TODO
+                    transactionRow.save()
+                    # 2 group
+                    newtransactionRow = deepcopy(transactionRow)
+                    newtransactionRow.id = None
+                    newtransactionRow.from_category = None
+                    newtransactionRow.created_for_group = temp_cfg
+                    newtransactionRow.to_category = temp_tc
+                    newtransactionRow.save()
+                else:
+                    transactionRow.save()
+                if form.cleaned_data['users_involved'] is not None:
+                    transactionRow.associatePayees(form.cleaned_data['users_involved'])
+            # if user had group permission alone meke group txn alone[checkbox wont be displayed]
+            elif request.user.has_perm('TransactionApp.group_transactions'):
+                transactionRow.save()
+                if form.cleaned_data['users_involved'] is not None:
+                    transactionRow.associatePayees(form.cleaned_data['users_involved'])
+            # case user is making a personal transaction
+            elif request.user.has_perm('TransactionApp.personal_transactions') and 'group_checkbox' not in request.POST:
+                transactionRow.save()
+                # TODO make sure tat both categories are enabled
+                pass
+        else:
+            raise Http404
     return redirect('/transactionForm/')
 
 
@@ -158,7 +187,14 @@ def groupStatistics(request):
     for temp in members:
         members1.append([temp, get_expense(temp.group.id, temp.user.id, start_time, end_time)])
     no_of_pages = 1   # for angularjs
-    return render_to_response('groupStatistics.html', locals(), context_instance=RequestContext(request))
+    dict_for_html = {
+            'members1': members1,
+            'start_time': start_time,
+            'end_time': end_time,
+            'timeRange': timeRange,
+            'request': request
+            }
+    return render_to_response('groupStatistics.html', dict_for_html, context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')
@@ -191,7 +227,21 @@ def groupExpenseList(request):
         cumulative_exp = cumulative_exp + usrexp
         transaction_list_with_expense.append([temp, usrexp, cumulative_exp])
     transaction_list_with_expense.reverse()
-    return render_to_response('groupExpenseList.html', locals(), context_instance=RequestContext(request))
+    dict_for_html = {
+            'page_no': page_no,
+            'txn_per_page': txn_per_page,
+            'no_of_pages': no_of_pages,
+            'start_time': start_time,
+            'current_page': current_page,
+            'end_time': end_time,
+            'timeRange': timeRange,
+            'transaction_list_with_expense': transaction_list_with_expense,
+            'paginator_obj': paginator_obj,
+            #'THIS_MONTH': THIS_MONTH,
+            #'LAST_MONTH': LAST_MONTH,
+            #'CUSTOM_RANGE': CUSTOM_RANGE
+            }
+    return render_to_response('groupExpenseList.html', dict_for_html, context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')
@@ -210,14 +260,17 @@ def groupTransactionList(request):
                         Q(deleted=False) &                                                              # filter deleted
                         (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
                         ).distinct().order_by('transaction_time')
-    transaction_list_with_outstanding = list()
+    transaction_list_for_sorting = list()
     cumulative_sum = 0
     for temp in transaction_list:
         usrcost = temp.get_outstanding_amount(filter_user_id)
         cumulative_sum = cumulative_sum + usrcost
-        transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])
-    transaction_list_with_outstanding.reverse()
-    return render_to_response('groupTransactionList.html', locals(), context_instance=RequestContext(request))
+        transaction_list_for_sorting.append([temp, usrcost, cumulative_sum])
+    transaction_list_for_sorting.reverse()
+    dict_for_html = {
+            'transaction_list_for_sorting': transaction_list_for_sorting,
+            }
+    return render_to_response('groupTransactionList.html', dict_for_html, context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')
@@ -261,4 +314,18 @@ def groupOutstandingList(request):
         usrcost = temp.get_outstanding_amount(filter_user_id)
         transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])
         cumulative_sum = cumulative_sum - usrcost
-    return render_to_response('groupOutstandingList.html', locals(), context_instance=RequestContext(request))
+    dict_for_html = {
+            'page_no': page_no,
+            'txn_per_page': txn_per_page,
+            'no_of_pages': no_of_pages,
+            'start_time': start_time,
+            'current_page': current_page,
+            'end_time': end_time,
+            'timeRange': timeRange,
+            'transaction_list_with_outstanding': transaction_list_with_outstanding,
+            'paginator_obj': paginator_obj,
+            #'THIS_MONTH': THIS_MONTH,
+            #'LAST_MONTH': LAST_MONTH,
+            #'CUSTOM_RANGE': CUSTOM_RANGE
+            }
+    return render_to_response('groupOutstandingList.html', dict_for_html, context_instance=RequestContext(request))

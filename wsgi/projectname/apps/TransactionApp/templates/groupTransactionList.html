@@ -9,7 +9,7 @@
 
 
 {% block body%}
-{%if transaction_list_with_outstanding%}
+{%if transaction_list_for_sorting%}
 <div class="offset1 span10">
 <table class="table table-hover table-condensed">
 		<thead>
@@ -24,7 +24,7 @@
 			  <th>CumOutstanding</th>
 			</tr>
 		</thead>
-{% for i in transaction_list_with_outstanding%}
+{% for i in transaction_list_for_sorting%}
 		<tbody>
 			<tr>
 			  <td class="span1">{{forloop.revcounter}}</td>

@@ -131,5 +131,12 @@ class TransactionAppTestCase(TestCase):
                                                                 })
         (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
 
-    def test_allTransactionCases(TestCase):
+    def test_makeTransaction_group(TestCase):
+        # TODO asser tat a direct acces to this ink redirets  to formlink
+        # TODO verify in test the atr the row is creaTED;
+        # TODO verify that if the <useris making a group txn> the category belogs to group
+        # TODO personal transactio should have both categories
+        # perform a valid and invalid txn with personal oerm alone TODO
+        # perfoem a vlaid and invalid txn with group perm alone TODO
+        # perfoem a valid adn invalid txn with both perm TODO
         pass
