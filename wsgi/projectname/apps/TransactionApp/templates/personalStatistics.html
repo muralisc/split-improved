@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}
+{% endblock %}
+
+{% block ngAppName %}{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+
+{% block body %}
+{% for i in category_outstanding_list%}
+<a href="/personal/transactionList/?atofc={{i.0.id}}">{{i.0}}</a> --- {{i.1}}<br/>
+{% endfor %}
+{% endblock %}
+
+
+{% block footer%}
+{% endblock %}
+
+
+{% block afterbody%}
+{% endblock %}
+	

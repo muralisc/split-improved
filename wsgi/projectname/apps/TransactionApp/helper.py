@@ -1,7 +1,7 @@
 import calendar
 from datetime import datetime
 from dateutil import parser
-from TransactionApp.models import Category, Payee, Transaction
+from TransactionApp.models import Category, Payee, Transaction, UserCategory
 from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, DEFAULT_START_PAGE, DEFAULT_RPP
 from django.db.models import Sum
 from django.db.models import Q
@@ -82,6 +82,13 @@ def import_from_snapshot():
                     created_by_id=user_dict[str(7)],
                     )
         category_dict[str(temp['pk'])] = asd.id    # assign the new id here
+        UserCategory.objects.create(
+                                    user_id=user_dict[str(temp['fields']['userID'])],
+                                    category_id=asd.id,
+                                    initial_amount=temp['fields']['initial_amt'],
+                                    current_amount=0,
+                                    deleted=False
+                                    )
     # transfers
     for temp in model_dict[model_strings[4]]:
         Transaction.objects.create(

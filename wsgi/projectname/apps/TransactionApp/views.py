@@ -3,6 +3,7 @@ try:
 except ImportError:
     import json
 import math
+import itertools
 from copy import deepcopy
 from datetime import datetime
 from django.shortcuts import render_to_response, redirect
@@ -15,7 +16,7 @@ from projectApp1.models import Membership  # , Group
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
-from django.db.models import Q  # , Sum
+from django.db.models import Q, Sum
 
 
 @login_required(login_url='/login/')
@@ -170,10 +171,10 @@ def getJSONcategories(request):
 
 
 #@login_required(login_url='/login/')
-def statistics(request):
+def import_from_json(request):
     import_from_snapshot()
    #transaction_list_with_payee_list = [[temp, Payee.objects.filter(txn=temp)] for temp in transaction_list]
-    return render_to_response('statistics.html', locals(), context_instance=RequestContext(request))
+    return render_to_response('import.html', locals(), context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')
@@ -329,3 +330,85 @@ def groupOutstandingList(request):
             #'CUSTOM_RANGE': CUSTOM_RANGE
             }
     return render_to_response('groupOutstandingList.html', dict_for_html, context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def personalStatistics(request):
+    asd = UserCategory.objects.filter(user_id=request.user.id).order_by('category__category_type')
+    category_outstanding_list = list()
+    for temp in asd:
+        category_lost = Transaction.objects.filter(
+                                        from_category_id=temp.id,
+                                    ).aggregate(
+                                        Sum('amount')
+                                    )['amount__sum']
+        category_lost = category_lost if category_lost else 0
+        category_gained = Transaction.objects.filter(
+                                        to_category_id=temp.id,
+                                    ).aggregate(
+                                        Sum('amount')
+                                    )['amount__sum']
+        category_gained = category_gained if category_gained else 0
+        category_outstanding_list.append([temp, category_gained - category_lost + temp.initial_amount])
+    category_outstanding_list = sorted(category_outstanding_list, key=lambda x: x[0].category.category_type)
+    dict_for_html = {
+            'category_outstanding_list': category_outstanding_list,
+            }
+    return render_to_response('personalStatistics.html', dict_for_html, context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def personalTransactionList(request):
+    transacton_filters = Q()
+    # all transactions of category
+    if('atofc' in request.GET):
+        try:
+            transacton_filters = transacton_filters & (
+                                    Q(from_category_id=int(request.GET['atofc'])) |
+                                    Q(to_category_id=int(request.GET['atofc']))
+                                    )
+        except:
+            pass
+    else:
+        try:
+            transacton_filters = transacton_filters & Q(from_category_id=int(request.GET['fc']))
+        except:
+            pass
+        try:
+            transacton_filters = transacton_filters & Q(to_category_id=int(request.GET['tc']))
+        except:
+            pass
+    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+    transaction_list = Transaction.objects.filter(
+                        Q(created_for_group=None) &
+                        Q(deleted=False) &
+                        Q(transaction_time__range=(start_time, end_time)) &
+                        Q(paid_user_id=filter_user_id) &
+                        Q(users_involved__id=None)
+                        ).filter(
+                            transacton_filters
+                        ).distinct().order_by('-transaction_time')
+    # Pagination stuff
+    paginator_obj = Paginator(transaction_list, txn_per_page)
+    try:
+        current_page = paginator_obj.page(page_no)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        current_page = paginator_obj.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        current_page = paginator_obj.page(paginator_obj.num_pages)
+    transaction_list = current_page.object_list
+    no_of_pages = paginator_obj.num_pages
+
+    dict_for_html = {
+            'page_no': page_no,
+            'txn_per_page': txn_per_page,
+            'no_of_pages': no_of_pages,
+            'start_time': start_time,
+            'current_page': current_page,
+            'end_time': end_time,
+            'timeRange': timeRange,
+            'transaction_list': transaction_list,
+            }
+    return render_to_response('personalTransactionList.html', dict_for_html, context_instance=RequestContext(request))

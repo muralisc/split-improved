@@ -76,7 +76,7 @@ class UserCategory(models.Model):
     deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
-        return '{0}|{1}'.format(self.user.username, self.category.name)
+        return '{0}'.format(self.category.name)
 
 
 class Transaction(models.Model):
