@@ -3,6 +3,7 @@ from datetime import datetime
 from dateutil import parser
 from TransactionApp.models import Category, Payee, Transaction, UserCategory
 from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, DEFAULT_START_PAGE, DEFAULT_RPP
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
 from django.db.models import Q
 
@@ -219,3 +220,17 @@ def parseGET_initialise(request):
     except:
         txn_per_page = DEFAULT_RPP
     return (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page)
+
+
+def getPageInfo(transaction_list, txn_per_page, page_no):
+    # Pagination stuff
+    paginator_obj = Paginator(transaction_list, txn_per_page)
+    try:
+        current_page = paginator_obj.page(page_no)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        current_page = paginator_obj.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        current_page = paginator_obj.page(paginator_obj.num_pages)
+    return (paginator_obj, current_page)

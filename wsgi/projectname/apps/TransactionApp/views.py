@@ -2,8 +2,6 @@ try:
     import simplejson as json
 except ImportError:
     import json
-import math
-import itertools
 from copy import deepcopy
 from datetime import datetime
 from django.shortcuts import render_to_response, redirect
@@ -11,9 +9,8 @@ from django.template import RequestContext
 #from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction  # , Payee
-from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise
+from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise, getPageInfo
 from projectApp1.models import Membership  # , Group
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
 from django.db.models import Q, Sum
@@ -207,18 +204,8 @@ def groupExpenseList(request):
                         Q(transaction_time__range=(start_time, end_time)) &
                         (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
                         ).distinct().order_by('transaction_time')
-    # Pagination stuff
-    paginator_obj = Paginator(transaction_list, txn_per_page)
-    try:
-        current_page = paginator_obj.page(page_no)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        current_page = paginator_obj.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        current_page = paginator_obj.page(paginator_obj.num_pages)
+    (paginator_obj, current_page) = getPageInfo(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
-    no_of_pages = paginator_obj.num_pages
 
     # populating the template array
     transaction_list_with_expense = list()
@@ -231,7 +218,7 @@ def groupExpenseList(request):
     dict_for_html = {
             'page_no': page_no,
             'txn_per_page': txn_per_page,
-            'no_of_pages': no_of_pages,
+            'no_of_pages': paginator_obj.num_pages,
             'start_time': start_time,
             'current_page': current_page,
             'end_time': end_time,
@@ -293,18 +280,8 @@ def groupOutstandingList(request):
                         Q(transaction_time__range=(start_time, end_time)) &
                         (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
                         ).distinct().order_by('-transaction_time')
-    # Pagination stuff
-    paginator_obj = Paginator(transaction_list, txn_per_page)
-    try:
-        current_page = paginator_obj.page(page_no)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        current_page = paginator_obj.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        current_page = paginator_obj.page(paginator_obj.num_pages)
+    (paginator_obj, current_page) = getPageInfo(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
-    no_of_pages = paginator_obj.num_pages
 
     # populating the template array
     transaction_list_with_outstanding = list()
@@ -318,7 +295,7 @@ def groupOutstandingList(request):
     dict_for_html = {
             'page_no': page_no,
             'txn_per_page': txn_per_page,
-            'no_of_pages': no_of_pages,
+            'no_of_pages': paginator_obj.num_pages,
             'start_time': start_time,
             'current_page': current_page,
             'end_time': end_time,
@@ -388,23 +365,13 @@ def personalTransactionList(request):
                         ).filter(
                             transacton_filters
                         ).distinct().order_by('-transaction_time')
-    # Pagination stuff
-    paginator_obj = Paginator(transaction_list, txn_per_page)
-    try:
-        current_page = paginator_obj.page(page_no)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        current_page = paginator_obj.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        current_page = paginator_obj.page(paginator_obj.num_pages)
+    (paginator_obj, current_page) = getPageInfo(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
-    no_of_pages = paginator_obj.num_pages
 
     dict_for_html = {
             'page_no': page_no,
             'txn_per_page': txn_per_page,
-            'no_of_pages': no_of_pages,
+            'no_of_pages': paginator_obj.num_pages,
             'start_time': start_time,
             'current_page': current_page,
             'end_time': end_time,

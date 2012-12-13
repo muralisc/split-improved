@@ -2,7 +2,6 @@
 Requires 
 {{page_no}}
 {{txn_per_page}}
-{{no_of_pages}}
 {{timeRange}}
 {{start_time}} 	only in html
 {{end_time}}	only in html
@@ -13,7 +12,6 @@ function filterController($scope) {
 	//initialise selectboxes
 	$scope.page_no={{page_no}};
 	$scope.txn_per_page={{txn_per_page}};
-	$scope.no_of_pages={{no_of_pages}};
 	$scope.timeRange="{{timeRange}}";
 	
 	if($scope.timeRange=="3"){
@@ -26,12 +24,8 @@ function filterController($scope) {
 	};
 	
 	//Populate the array with available page nos
-	$scope.page_array = Array();
-	for (temp=1;temp<=$scope.no_of_pages;temp++)
-	{ 
-		$scope.page_array.push(temp);
-	}
-	
+	$scope.page_array = {{paginator_obj.page_range}};
+		
 	$scope.frameGETquery = function() {
 		$scope.queryString = "?";
 		/*
