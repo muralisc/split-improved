@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load customfilters %}
 {% block title %}
 {% endblock %}
 
@@ -13,6 +14,8 @@
 {% include "filterController.html" %}
 {% include "pageFilter.html" %}
 {% include "timeFilter.html" %}
+{% include "categoryFilter.html" %}
+
 <table class="table table-hover table-condensed">
 		<thead>
 			<tr>
@@ -28,7 +31,7 @@
 {% for i in transaction_list%}
 		<tbody>
 			<tr>
-			  <td class="span1">{{forloop.revcounter}}</td>
+			  <td class="span1">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</td>
 			  <td class="span1">{{i.paid_user}}</td>
 			  <td class="span1">{{i.from_category}}</td>
 			  <td class="span1">{{i.to_category}}</td>

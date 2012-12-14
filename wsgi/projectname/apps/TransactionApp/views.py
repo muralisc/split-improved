@@ -10,6 +10,7 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction  # , Payee
 from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise, getPageInfo
+from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE
 from projectApp1.models import Membership  # , Group
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
@@ -21,10 +22,6 @@ def displayTransactionForm(request):
     '''
     ensure that the session 'grp' is popuklated
     '''
-    INCOME = Category.INCOME
-    BANK = Category.BANK
-    EXPENSE = Category.EXPENSE
-    CREDIT = Category.CREDIT
     categoryForm = CategoryForm()
     response_json = dict()
     if request.user.has_perm('TransactionApp.group_transactions'):
@@ -44,13 +41,13 @@ def displayTransactionForm(request):
     if request.user.has_perm('TransactionApp.personal_transactions'):
         pass
     fromCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
-                                                                                    Q(category_type=Category.INCOME) |
-                                                                                    Q(category_type=Category.BANK) |
-                                                                                    Q(category_type=Category.CREDIT))]
+                                                                                    Q(category_type=INCOME) |
+                                                                                    Q(category_type=BANK) |
+                                                                                    Q(category_type=CREDIT))]
     toCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
-                                                                                    Q(category_type=Category.EXPENSE) |
-                                                                                    Q(category_type=Category.BANK) |
-                                                                                    Q(category_type=Category.CREDIT))]
+                                                                                    Q(category_type=EXPENSE) |
+                                                                                    Q(category_type=BANK) |
+                                                                                    Q(category_type=CREDIT))]
     response_json['fromCategory_user'] = SafeString(json.dumps(fromCategory_user))
     response_json['toCategory_user'] = SafeString(json.dumps(toCategory_user))
     return render_to_response('makeTransaction.html', locals(), context_instance=RequestContext(request))
@@ -184,13 +181,15 @@ def groupStatistics(request):
     members1 = list()
     for temp in members:
         members1.append([temp, get_expense(temp.group.id, temp.user.id, start_time, end_time)])
-    no_of_pages = 1   # for angularjs
     dict_for_html = {
             'members1': members1,
             'start_time': start_time,
             'end_time': end_time,
             'timeRange': timeRange,
-            'request': request
+            'request': request,
+            'THIS_MONTH': THIS_MONTH,
+            'LAST_MONTH': LAST_MONTH,
+            'CUSTOM_RANGE': CUSTOM_RANGE,
             }
     return render_to_response('groupStatistics.html', dict_for_html, context_instance=RequestContext(request))
 
@@ -203,7 +202,7 @@ def groupExpenseList(request):
                         Q(deleted=False) &                                                              # filter deleted
                         Q(transaction_time__range=(start_time, end_time)) &
                         (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
-                        ).distinct().order_by('transaction_time')
+                        ).distinct().order_by('-transaction_time')
     (paginator_obj, current_page) = getPageInfo(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
 
@@ -214,20 +213,18 @@ def groupExpenseList(request):
         usrexp = temp.get_expense(filter_user_id)
         cumulative_exp = cumulative_exp + usrexp
         transaction_list_with_expense.append([temp, usrexp, cumulative_exp])
-    transaction_list_with_expense.reverse()
     dict_for_html = {
             'page_no': page_no,
             'txn_per_page': txn_per_page,
-            'no_of_pages': paginator_obj.num_pages,
             'start_time': start_time,
             'current_page': current_page,
             'end_time': end_time,
             'timeRange': timeRange,
             'transaction_list_with_expense': transaction_list_with_expense,
             'paginator_obj': paginator_obj,
-            #'THIS_MONTH': THIS_MONTH,
-            #'LAST_MONTH': LAST_MONTH,
-            #'CUSTOM_RANGE': CUSTOM_RANGE
+            'THIS_MONTH': THIS_MONTH,
+            'LAST_MONTH': LAST_MONTH,
+            'CUSTOM_RANGE': CUSTOM_RANGE
             }
     return render_to_response('groupExpenseList.html', dict_for_html, context_instance=RequestContext(request))
 
@@ -295,16 +292,15 @@ def groupOutstandingList(request):
     dict_for_html = {
             'page_no': page_no,
             'txn_per_page': txn_per_page,
-            'no_of_pages': paginator_obj.num_pages,
             'start_time': start_time,
             'current_page': current_page,
             'end_time': end_time,
             'timeRange': timeRange,
             'transaction_list_with_outstanding': transaction_list_with_outstanding,
             'paginator_obj': paginator_obj,
-            #'THIS_MONTH': THIS_MONTH,
-            #'LAST_MONTH': LAST_MONTH,
-            #'CUSTOM_RANGE': CUSTOM_RANGE
+            'THIS_MONTH': THIS_MONTH,
+            'LAST_MONTH': LAST_MONTH,
+            'CUSTOM_RANGE': CUSTOM_RANGE
             }
     return render_to_response('groupOutstandingList.html', dict_for_html, context_instance=RequestContext(request))
 
@@ -340,20 +336,28 @@ def personalTransactionList(request):
     # all transactions of category
     if('atofc' in request.GET):
         try:
+            fc = int(request.GET['atofc'])
+            tc = fc
             transacton_filters = transacton_filters & (
-                                    Q(from_category_id=int(request.GET['atofc'])) |
-                                    Q(to_category_id=int(request.GET['atofc']))
+                                    Q(from_category_id=fc) |
+                                    Q(to_category_id=tc)
                                     )
         except:
+            fc = None
+            tc = None
             pass
     else:
         try:
-            transacton_filters = transacton_filters & Q(from_category_id=int(request.GET['fc']))
+            fc = int(request.GET['fc'])
+            transacton_filters = transacton_filters & Q(from_category_id=fc)
         except:
+            fc = None
             pass
         try:
-            transacton_filters = transacton_filters & Q(to_category_id=int(request.GET['tc']))
+            tc = int(request.GET['tc'])
+            transacton_filters = transacton_filters & Q(to_category_id=tc)
         except:
+            tc = None
             pass
     (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
@@ -368,14 +372,33 @@ def personalTransactionList(request):
     (paginator_obj, current_page) = getPageInfo(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
 
+    response_json = dict()
+    category = [{
+                'name': row.category.name,
+                'id': row.category.id,
+                'type': row.category.category_type,
+                }
+                for row in UserCategory.objects.filter(user_id=request.user.id)]
+    response_json['category'] = SafeString(json.dumps(category))
+
     dict_for_html = {
             'page_no': page_no,
             'txn_per_page': txn_per_page,
-            'no_of_pages': paginator_obj.num_pages,
             'start_time': start_time,
             'current_page': current_page,
             'end_time': end_time,
             'timeRange': timeRange,
             'transaction_list': transaction_list,
+            'paginator_obj': paginator_obj,
+            'response_json': response_json,
+            'fc': fc,
+            'tc': tc,
+            'THIS_MONTH': THIS_MONTH,
+            'LAST_MONTH': LAST_MONTH,
+            'CUSTOM_RANGE': CUSTOM_RANGE,
+            'INCOME': INCOME,
+            'BANK':  BANK,
+            'EXPENSE': EXPENSE,
+            'CREDIT': CREDIT,
             }
     return render_to_response('personalTransactionList.html', dict_for_html, context_instance=RequestContext(request))

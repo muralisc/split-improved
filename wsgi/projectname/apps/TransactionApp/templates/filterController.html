@@ -6,12 +6,10 @@ Requires
 {{start_time}} 	only in html
 {{end_time}}	only in html
 and ng-app in <html> tag
---->
+-->
 <script type="text/javascript">
 function filterController($scope) {
 	//initialise selectboxes
-	$scope.page_no={{page_no}};
-	$scope.txn_per_page={{txn_per_page}};
 	$scope.timeRange="{{timeRange}}";
 	
 	if($scope.timeRange=="3"){
@@ -23,8 +21,37 @@ function filterController($scope) {
 		$scope.t_e="{{end_time|date:'Y-m-d'}}";
 	};
 	
-	//Populate the array with available page nos
+{% if paginator_obj %}<!--{{{-->
+	//Initialise variables
+	$scope.page_no={{page_no}};
+	$scope.txn_per_page={{txn_per_page}};
 	$scope.page_array = {{paginator_obj.page_range}};
+{% endif %}<!--}}}-->
+
+{% if response_json.category %}//<!--{{{-->
+	$scope.category_list = {{ response_json.category }};
+	//Construct object type insted of Array types as angularJS generates auto values for default arrays
+    $scope.from_list = new Array();
+    $scope.to_list = new Array();
+	for (temp=0;temp<$scope.category_list.length;temp++)
+	{ 
+        if($scope.category_list[temp].type == {{ BANK }}){
+            $scope.category_list[temp].type = "BANK"
+            $scope.from_list.push($scope.category_list[temp]);
+            $scope.to_list.splice(0,0,$scope.category_list[temp]);
+        }
+        else if($scope.category_list[temp].type == {{ EXPENSE }}){
+            $scope.category_list[temp].type = "EXPENSE"
+            $scope.to_list.push($scope.category_list[temp]);
+        }
+    }
+{% if fc %}
+    $scope.fc = {{fc}};
+{% endif %}
+{% if tc %}
+    $scope.tc = {{tc}};
+{% endif %}
+{% endif %}<!--}}}-->
 		
 	$scope.frameGETquery = function() {
 		$scope.queryString = "?";
@@ -77,7 +104,8 @@ function filterController($scope) {
 				$scope.queryString = $scope.queryString.concat($scope.t_e);
 				$scope.queryString = $scope.queryString.concat("&");
 			}
-		}
+		};
+{% if paginator_obj %}
 		/*
 		start framing "page=" and "rpp=" queries
 		*/
@@ -89,7 +117,23 @@ function filterController($scope) {
 		$scope.queryString = $scope.queryString.concat("rpp=");
 		$scope.queryString = $scope.queryString.concat($scope.txn_per_page);
 		$scope.queryString = $scope.queryString.concat("&");
-		
+{% endif %}
+
+{% if response_json.category %}
+		/*
+		start framing "fc=" and "tc=" queries
+		*/
+        if (undefined != $scope.fc){
+            $scope.queryString = $scope.queryString.concat("fc=");
+            $scope.queryString = $scope.queryString.concat($scope.fc);
+            $scope.queryString = $scope.queryString.concat("&");
+        }
+        if (undefined != $scope.tc){
+            $scope.queryString = $scope.queryString.concat("tc=");
+            $scope.queryString = $scope.queryString.concat($scope.tc);
+            $scope.queryString = $scope.queryString.concat("&");
+        }
+{% endif %}
 		window.location.href = $scope.queryString;
 	};
 };

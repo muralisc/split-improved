@@ -1,0 +1,12 @@
+<div ng-controller="filterController">
+    fromcategory 
+    <select ng-model="fc" ng-change="frameGETquery()">
+        <option value="" selected="selected">---------</option>
+        <option  ng-repeat="obj in from_list" value="{[{obj.id}]}" ng-selected="fc==obj.id">{[{obj.name}]}</option>
+    </select>
+    tocategory
+    <select ng-model="tc" ng-change="frameGETquery()">
+        <option value="" selected="selected">---------</option>
+        <option  ng-repeat="obj in to_list" value="{[{obj.id}]}" ng-selected="tc==obj.id">{[{obj.name}]}</option>
+    </select>
+</div>

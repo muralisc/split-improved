@@ -1,16 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
+from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, PRIVATE, PUBLIC
 from projectApp1.models import Group
 from django import forms
 
 
 class Category(models.Model):
-    INCOME = 0
-    BANK = 1
-    EXPENSE = 2
-    CREDIT = 3
-    PRIVATE = 0
-    PUBLIC = 1
     ACCOUNT_TYPE = (
                     (INCOME, 'income'),
                     (BANK, 'bank'),
