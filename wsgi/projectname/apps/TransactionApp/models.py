@@ -23,8 +23,10 @@ class Category(models.Model):
                                     )
     created_by = models.ForeignKey(User)
     create_time = models.DateTimeField(auto_now_add=True)
-    users = models.ManyToManyField(User, through='UserCategory', related_name='usesCategories')     # all the users who use this category
-    groups = models.ManyToManyField(Group, through='GroupCategory', related_name='usesCategories')  # all the groups that use this this catgory
+    # all the users who use this category
+    users = models.ManyToManyField(User, through='UserCategory', related_name='usesCategories')
+    # all the groups that use this this catgory
+    groups = models.ManyToManyField(Group, through='GroupCategory', related_name='usesCategories')
     deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):

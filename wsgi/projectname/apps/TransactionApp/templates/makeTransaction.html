@@ -75,6 +75,7 @@
         <div class="control-group" ng-show="paid_user.id=={{request.user.id }}">
             <label class="control-label" for="from_category">From Cayegory </label>
             <div class="controls">
+                <!-- Seperate input elemet is attached to pass values to Django-->
                 <select ng-model="selectedFromCategory" ng-options="c.name for c in fromCategory_user">
                     <option value="" selected="selected">---------</option>
                 </select>
@@ -92,6 +93,7 @@
         <div class="control-group" ng-hide="involving_checkbox">
             <label class="control-label" for="to_category">toCategoryUser</label>
             <div class="controls">
+                <!-- Seperate input elemet is attached to pass values to Django-->
                 <select ng-model="selectedToCategory" ng-options="c.name for c in toCategory_user">
                     <option value="" selected="selected">---------</option>
                 </select>
@@ -103,6 +105,7 @@
         <div class="control-group" ng-show="involving_checkbox">
             <label class="control-label" for="to_category">toCategoryGroup</label>
             <div class="controls">
+                <!-- Seperate input elemet is attached to pass values to Django-->
                 <select ng-model="selectedToCategory" ng-options="c.name for c in toCategory_group">
                     <option value="" selected="selected">---------</option>
                 </select>

@@ -32,7 +32,7 @@ def displayTransactionForm(request):
                             'checked': False
                             }
                             for mem_ship in request.session['active_group'].getMemberships.all()]
-            toCategory_group = [{'name': i.name, 'id': i.id} for i in request.session['active_group'].usesCategories.filter(category_type=Category.EXPENSE)]
+            toCategory_group = [{'name': i.name, 'id': i.id} for i in request.session['active_group'].usesCategories.filter(category_type=EXPENSE)]
         else:
             users_in_grp = []
             toCategory_group = []
@@ -50,20 +50,44 @@ def displayTransactionForm(request):
                                                                                     Q(category_type=CREDIT))]
     response_json['fromCategory_user'] = SafeString(json.dumps(fromCategory_user))
     response_json['toCategory_user'] = SafeString(json.dumps(toCategory_user))
-    return render_to_response('makeTransaction.html', locals(), context_instance=RequestContext(request))
+
+    dict_for_html = {
+            'categoryForm': CategoryForm,
+            'response_json': response_json,
+            'request': request,
+            'INCOME': INCOME,
+            'BANK':  BANK,
+            'EXPENSE': EXPENSE,
+            'CREDIT': CREDIT,
+            }
+    return render_to_response('makeTransaction.html', dict_for_html, context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')
 def makeTransaction(request):
     '''
     create a transaction row in table if
-    payee table row for group
+    payee table rows for transaction
     create a notifications
-    update related fields
     return back to the original site
+    base cases
+    case1: user making txn with payee as user
+    case2: user making txn with payee not contatinig user
+    case3: somebody maing txn with user as a payee
+    Error checks
+    the user can check users involved and then dissable the group checkbox
+    Update membership for group transactions amount inpool for each group txn
+    Update user category model after a personal transaction
     '''
+    # TODO send conflicting data
+    # 1 check box dissabled but usersInvolved non empty
+    # checkbox dissabled but non logged in user as user paid
+    # checkbox enabled but non logged in user as user paid and fromCategory of logged in user
+    # invalid to category value
+    #checkbox enabled with empty users involved list
     if request.method == 'POST':
         form = TransactionForm(request.POST)
+        import pdb; pdb.set_trace() ### XXX BREAKPOINT
         if form.is_valid():
             transactionRow = form.save(commit=False)
             if transactionRow.transaction_time is None:
@@ -72,42 +96,47 @@ def makeTransaction(request):
             if transactionRow.paid_user_id != request.user.id and transactionRow.from_category is not None:
                 transactionRow.from_category = None
             transactionRow.created_by_user_id = request.user.id
-            transactionRow.created_for_group = request.session['active_group']
             transactionRow.deleted = False
-            # if user has both permission, 'group_checkbox' should be checked for group txn
-            if request.user.has_perms(['TransactionApp.group_transactions', 'TransactionApp.personal_transactions']) and 'group_checkbox' in request.POST:
-                # if txn has from cateory and it belongs to request.user and paiduser = request.user then we need to duplicate the transaction
-                if (transactionRow.from_category is not None and
-                        UserCategory.objects.filter(user_id=request.user.id, category_id=transactionRow.from_category_id).exists() and
-                        request.user.id == transactionRow.paid_user_id):
-                    # 1 personal
-                    temp_cfg = transactionRow.created_for_group
-                    temp_tc = transactionRow.to_category
-                    transactionRow.created_for_group = None
-                    transactionRow.to_category = None
-                    # ensure fron category belogs to pid user TODO
-                    transactionRow.save()
-                    # 2 group
-                    newtransactionRow = deepcopy(transactionRow)
-                    newtransactionRow.id = None
-                    newtransactionRow.from_category = None
-                    newtransactionRow.created_for_group = temp_cfg
-                    newtransactionRow.to_category = temp_tc
-                    newtransactionRow.save()
+            # making actual database entries
+            # condition to check the type of txn user is trying to make
+            if(
+                    'group_checkbox' in request.POST or
+                    'TransactionApp.personal_transactions' not in request.user.get_all_permissions()
+                    ):
+                # user is trying to make a group txn
+                # check if the from category belongs to the user
+                if(request.user.usesCategories.filter(pk=transactionRow.from_category_id).exists()):
+                    pass
                 else:
-                    transactionRow.save()
-                if form.cleaned_data['users_involved'] is not None:
-                    transactionRow.associatePayees(form.cleaned_data['users_involved'])
-            # if user had group permission alone meke group txn alone[checkbox wont be displayed]
-            elif request.user.has_perm('TransactionApp.group_transactions'):
+                    transactionRow.from_category_id = None
+                # check if the to category belongs to the group
+                if (request.session['active_group'].usesCategories.filter(pk=transactionRow.to_category_id).exists()):
+                    pass
+                else:
+                    transactionRow.to_category_id = None
+                if len(form.cleaned_data['users_involved']) == 0:
+                    raise Http404
+                transactionRow.created_for_group_id = request.session['active_group'].id
                 transactionRow.save()
                 if form.cleaned_data['users_involved'] is not None:
                     transactionRow.associatePayees(form.cleaned_data['users_involved'])
-            # case user is making a personal transaction
-            elif request.user.has_perm('TransactionApp.personal_transactions') and 'group_checkbox' not in request.POST:
+                # NOw make the corrsponding personal entry
+                newtransactionRow = deepcopy(transactionRow)
+                newtransactionRow.id = None
+                newtransactionRow.created_for_group = None
+                newtransactionRow.to_category_id = request.user.usesCategories.get(name=request.session['active_group'].name).id
+                newtransactionRow.save()
+            else:
+                if(request.user.usesCategories.filter(pk=transactionRow.from_category_id).exists()):
+                    pass
+                else:
+                    transactionRow.from_category_id = None
+                # check if the to category belongs to the group
+                if (request.user.usesCategories.filter(pk=transactionRow.to_category_id).exists()):
+                    pass
+                else:
+                    transactionRow.to_category_id = None
                 transactionRow.save()
-                # TODO make sure tat both categories are enabled
-                pass
         else:
             raise Http404
     return redirect('/transactionForm/')
@@ -242,8 +271,8 @@ def groupTransactionList(request):
         filter_user_id = request.user.pk
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group=request.session['active_group']) &                          # filter the group
-                        Q(deleted=False) &                                                              # filter deleted
-                        (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
+                        Q(deleted=False) #&                                                              # filter deleted
+                    #    (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
                         ).distinct().order_by('transaction_time')
     transaction_list_for_sorting = list()
     cumulative_sum = 0
