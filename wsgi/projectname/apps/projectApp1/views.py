@@ -24,7 +24,7 @@ def createUser(request):
             newUserCreated = True
         else:
             pass
-            # form is invalid erros auto set
+            # form is invalid erros auto set TODO
     else:
         pass
     return render_to_response('loginCreate.html', locals(), context_instance=RequestContext(request))
@@ -47,16 +47,14 @@ def siteLogin(request):
                         return redirect(request.session['next_url'])
                     else:
                         return redirect('/home/')
-                    # return redirect('http://google.com')
-                    # redirect to success page
                 else:
                     pass
-                    # redirect ot 'dissabled account'
+                    # redirect ot 'dissabled account' TODO
             else:
                 wrongUsernameOrPassword = True
         else:
             pass
-            # form is invalid erros auto set
+            # form is invalid erros auto set TODO
     elif 'next' in request.GET:
         request.session['next_url'] = request.GET['next']
     form = LoginCreateForm()
@@ -67,7 +65,7 @@ def siteLogin(request):
 def home(request):
     form = GroupForm()
     no_of_invites = Invite.objects.filter(to_user=request.user).filter(unread=True).count()
-    # get invites count
+    # get invites count TODO
     return render_to_response('home.html', locals(), context_instance=RequestContext(request))
 
 
@@ -125,7 +123,6 @@ def groupHome(request, gid):
     try:
         group = Group.objects.get(id=gid, deleted=False)
     except Group.DoesNotExist:
-        # log error 404
         raise Http404
     members = Membership.objects.filter(group=group)
     invites = Invite.objects.filter(group=group)
@@ -179,7 +176,12 @@ def getJSONusers(request):
     '''
     return all users whose name matches the query string as json
     '''
-    users_in_grp = [{'name': usr['username'], 'id': usr['pk']} for usr in User.objects.filter(username__contains=request.GET['q']).values('username', 'pk')]
+    users_in_grp = [
+            {
+                'name': usr['username'],
+                'id': usr['pk']
+            }
+            for usr in User.objects.filter(username__contains=request.GET['q']).values('username', 'pk')]
     response_json = SafeString(json.dumps(users_in_grp))
     return HttpResponse(response_json, mimetype='application/json')
 
@@ -192,7 +194,6 @@ def deleteGroup(request, gid):
             try:
                 group = Group.objects.get(id=gid)
             except Group.DoesNotExist:
-                # log error 404
                 raise Http404
             group.deleted = True
             group.save()

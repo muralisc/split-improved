@@ -14,7 +14,6 @@ class UserManagementTestCase(TestCase):
         self.u1 = User.objects.create_user(username="default1@default.com", email="default1@default.com", password="default1")
         self.u2 = User.objects.create_user(username="default2@default.com", email="default2@default.com", password="default2")
         self.u3 = User.objects.create_user(username="jayalalv@default.com", email="jayalalv@default.com", password="solar")
-        # setup a default group
 
     def test_createUser_siteLogin(self):
         """
@@ -43,7 +42,7 @@ class UserManagementTestCase(TestCase):
         response = self.client.logout()
         response = self.client.post('/login/', {'email': 'jayalalv@gmail.com', 'password': 'wrongpassword'}, follow=True)
         self.assertTrue(response.context['wrongUsernameOrPassword'])
-        #logout and check of an arbitary url after login site redirects to arbitary url
+        #logout and check of an arbitary url after login site redirects to arbitary url TODO
 
     def test_permissions(self):
         '''
@@ -70,6 +69,7 @@ class UserManagementTestCase(TestCase):
         self.assertFalse(response.context['user'].has_perm('TransactionApp.personal_transactions'))
 
     def test_settings(self):
+        # TODO
         pass
 
     def test_createGroup(self):
@@ -92,8 +92,8 @@ class UserManagementTestCase(TestCase):
                                     'description': 'group1_desc',
                                     'privacy': '0',
                                     'members': '{0},{1}'.format(
-                                    self.u1.id, # User.objects.get(username='default1@default.com').id,
-                                    self.u2.id, # User.objects.get(username='default2@default.com').id,
+                                    self.u1.id,     # User.objects.get(username='default1@default.com').id,
+                                    self.u2.id,     # User.objects.get(username='default2@default.com').id,
                                     )},
                                     follow=True)
         self.assertEqual(Membership.objects.get(administrator=True).user.username, 'default@default.com')
@@ -116,7 +116,7 @@ class UserManagementTestCase(TestCase):
         group.save()
         response = self.client.post('/group/{0}/'.format(group.id))
         self.assertEqual(response.status_code, 404)
-        # the check box should sent only valid group members
+        # the check box should sent only valid group members TODO
 
     def test_changeInvite(self):
         '''
@@ -140,7 +140,7 @@ class UserManagementTestCase(TestCase):
                                     )},
                                     follow=True)
         # a invalid user tries to change invite of another user
-        invite_of_default1 = Invite.objects.get(to_user=self.u1)                        # User.objects.get(username='default1@default.com'))
+        invite_of_default1 = Invite.objects.get(to_user=self.u1)        # User.objects.get(username='default1@default.com'))
         response = self.client.post('/invite/accept/{0}/'.format(invite_of_default1.id))
         self.assertEqual(response.status_code, 404)
         # a valid user tries to delete invite invite deleted
@@ -159,8 +159,8 @@ class UserManagementTestCase(TestCase):
         # manually create an invite for a membership that already exist and then
         # try to change[accept] it to a membership using /changeInvite/ [should fail]
         temp_invite = Invite.objects.create(
-                                        from_user=self.u1,                              # User.objects.get(username='default1@default.com'),
-                                        to_user=self.u2,                                # User.objects.get(username='default2@default.com'),
+                                        from_user=self.u1,              # User.objects.get(username='default1@default.com'),
+                                        to_user=self.u2,                # User.objects.get(username='default2@default.com'),
                                         group=Group.objects.get(name='group1'),
                                         unread=True,
                                         message=''
@@ -175,6 +175,7 @@ class UserManagementTestCase(TestCase):
         valid query with incomlete dictionary keys in GET
         valid query with complete GET dictionary
         '''
+        # TODO
         pass
 
     def test_deleteGroup(self):

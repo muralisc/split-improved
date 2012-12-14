@@ -80,14 +80,16 @@ def makeTransaction(request):
     Update user category model after a personal transaction
     '''
     # TODO send conflicting data
-    # 1 check box dissabled but usersInvolved non empty
-    # checkbox dissabled but non logged in user as user paid
-    # checkbox enabled but non logged in user as user paid and fromCategory of logged in user
-    # invalid to category value
-    #checkbox enabled with empty users involved list
+    # TODO 1 check box dissabled but usersInvolved non empty
+    # TODO checkbox dissabled but non logged in user as user paid
+    # TODO checkbox enabled but non logged in user as user paid and fromCategory of logged in user
+    # TODO invalid to category value
+    # TODO checkbox enabled with empty users involved list
+    # TODO updater member ship outstsnding
+    # TODO update usercategory outstsnding
+    # TODO hoem page will get values form there field TODO
     if request.method == 'POST':
         form = TransactionForm(request.POST)
-        import pdb; pdb.set_trace() ### XXX BREAKPOINT
         if form.is_valid():
             transactionRow = form.save(commit=False)
             if transactionRow.transaction_time is None:
@@ -114,6 +116,7 @@ def makeTransaction(request):
                     pass
                 else:
                     transactionRow.to_category_id = None
+                # check if the user didnt pass any users_involved values
                 if len(form.cleaned_data['users_involved']) == 0:
                     raise Http404
                 transactionRow.created_for_group_id = request.session['active_group'].id
@@ -127,11 +130,12 @@ def makeTransaction(request):
                 newtransactionRow.to_category_id = request.user.usesCategories.get(name=request.session['active_group'].name).id
                 newtransactionRow.save()
             else:
+                # check if the from category belongs to the user
                 if(request.user.usesCategories.filter(pk=transactionRow.from_category_id).exists()):
                     pass
                 else:
                     transactionRow.from_category_id = None
-                # check if the to category belongs to the group
+                # check if the to category belongs to the user
                 if (request.user.usesCategories.filter(pk=transactionRow.to_category_id).exists()):
                     pass
                 else:
@@ -149,7 +153,7 @@ def createCategory(request, gid):
     gid decised weather user-category or group-category needs to be created
     gid creates a group-category relation if not 0
     '''
-    ############# prevent multiple usercategory objects
+    ############# prevent multiple usercategory objects TODO
     if request.method == 'GET':
         form = CategoryForm(request.GET)
         if form.is_valid():
@@ -180,7 +184,7 @@ def createCategory(request, gid):
                                 mimetype='application/json')
         else:
             raise Http404
-            # form not valid exception
+            # form not valid exception TODO
     else:
         pass
     return HttpResponse("done")
@@ -196,8 +200,14 @@ def getJSONcategories(request):
 #@login_required(login_url='/login/')
 def import_from_json(request):
     import_from_snapshot()
-   #transaction_list_with_payee_list = [[temp, Payee.objects.filter(txn=temp)] for temp in transaction_list]
     return render_to_response('import.html', locals(), context_instance=RequestContext(request))
+
+
+'''
+TransactionFn is for supporint reorder and sort
+OutstandingFn is for viewing cumulstive outstnding at various filters
+ExpenseFn is for cumulative expenses at various filters
+'''
 
 
 @login_required(login_url='/login/')
@@ -227,15 +237,17 @@ def groupStatistics(request):
 def groupExpenseList(request):
     (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
-                        Q(created_for_group=request.session['active_group']) &                          # filter the group
-                        Q(deleted=False) &                                                              # filter deleted
+                        Q(created_for_group_id=request.session['active_group'].id) &
+                        Q(deleted=False) &
                         Q(transaction_time__range=(start_time, end_time)) &
-                        (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
+                        (
+                            Q(paid_user_id=filter_user_id) |        # for including all transaction to which user is conencted
+                            Q(users_involved__id__in=[filter_user_id])
+                        )
                         ).distinct().order_by('-transaction_time')
     (paginator_obj, current_page) = getPageInfo(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
-
-    # populating the template array
+    # populating the transaction_list_with_expense array
     transaction_list_with_expense = list()
     cumulative_exp = 0
     for temp in transaction_list:
@@ -270,9 +282,8 @@ def groupTransactionList(request):
     else:
         filter_user_id = request.user.pk
     transaction_list = Transaction.objects.filter(
-                        Q(created_for_group=request.session['active_group']) &                          # filter the group
-                        Q(deleted=False) #&                                                              # filter deleted
-                    #    (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
+                        Q(created_for_group=request.session['active_group']) &
+                        Q(deleted=False)
                         ).distinct().order_by('transaction_time')
     transaction_list_for_sorting = list()
     cumulative_sum = 0
@@ -295,24 +306,23 @@ def groupOutstandingList(request):
     # TODO test for the varivles sent for rendering are proper in value and type
     # verify the calculations in TODO all helper functions
     # TODO modifi
-    # Trandsctoin is for supporint reorder and sort
-    # Ourstndi is milyf or  cumulstive outstnding
-    # Expense is for cumulstive exoense
     # XXX check for invalid 'page no' in GETS
     (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
-                        Q(created_for_group_id=request.session['active_group'].id) &                    # filter the group
-                        Q(deleted=False) &                                                              # filter deleted
+                        Q(created_for_group_id=request.session['active_group'].id) &
+                        Q(deleted=False) &
                         Q(transaction_time__range=(start_time, end_time)) &
-                        (Q(paid_user_id=filter_user_id) | Q(users_involved__id__in=[filter_user_id]))   # for including all transaction to which user is conencted
+                        (
+                            Q(paid_user_id=filter_user_id) |        # for including all transaction to which user is conencted
+                            Q(users_involved__id__in=[filter_user_id])
+                        )
                         ).distinct().order_by('-transaction_time')
     (paginator_obj, current_page) = getPageInfo(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
 
     # populating the template array
     transaction_list_with_outstanding = list()
-    # XXX in get is empty use cache withi=out calculating
-    # cumulative_sum = Membership.objects.get(group=request.session['active_group'], user_id=filter_user_id).amount_in_pool
+    # XXX in get is empty use cache withi=out calculating TODO
     cumulative_sum = get_outstanding_amount(request.session['active_group'], filter_user_id, transaction_list[0].transaction_time)
     for temp in transaction_list:
         usrcost = temp.get_outstanding_amount(filter_user_id)
@@ -400,7 +410,6 @@ def personalTransactionList(request):
                         ).distinct().order_by('-transaction_time')
     (paginator_obj, current_page) = getPageInfo(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
-
     response_json = dict()
     category = [{
                 'name': row.category.name,

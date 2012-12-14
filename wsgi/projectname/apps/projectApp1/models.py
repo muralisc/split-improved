@@ -47,7 +47,7 @@ class Group(models.Model):
                     pass
             else:
                 pass
-                # raise error| log
+                # raise error| log TODO
 
 
 class GroupForm(forms.ModelForm):

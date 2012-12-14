@@ -23,9 +23,7 @@ class Category(models.Model):
                                     )
     created_by = models.ForeignKey(User)
     create_time = models.DateTimeField(auto_now_add=True)
-    # all the users who use this category
     users = models.ManyToManyField(User, through='UserCategory', related_name='usesCategories')
-    # all the groups that use this this catgory
     groups = models.ManyToManyField(Group, through='GroupCategory', related_name='usesCategories')
     deleted = models.BooleanField(null=False, blank=True)
 
@@ -77,12 +75,14 @@ class UserCategory(models.Model):
 
 
 class Transaction(models.Model):
-    # DEFINITIONS
-    # involved user: may be a payee or paid_user
-    # payees
-    # paid : zero or positive only , actual money given, for all users involved
-    # outstanding: postove or negative, non zero for all users
-    # expense: zero or positive for all users involved
+    '''
+     DEFINITIONS
+     involved user: may be a payee or paid_user
+     payees
+     paid : zero or positive only , actual money given, for all users involved
+     outstanding: postove or negative, non zero for all users
+     expense: zero or positive for all users involved
+    '''
     paid_user = models.ForeignKey(User, related_name='paidForTransaction')
     amount = models.FloatField()
     from_category = models.ForeignKey(Category, related_name='inFromfield', null=True, blank=True)
@@ -118,7 +118,7 @@ class Transaction(models.Model):
             if self.paid_user_id == user_id:
                 user_cost = self.amount
             else:
-                # log it that an invalid user tried to
+                # log it that an invalid user tried to TODO`
                 pass
         return user_cost
 
@@ -135,7 +135,7 @@ class Transaction(models.Model):
         '''
         no_of_payees = len(payee_list)
         for temp_payee in payee_list:
-            # if it doestnt already exist
+            # if it doestnt already exist TODO
             temp_cost = -self.amount / no_of_payees
             if(temp_payee.id == self.paid_user.id):
                 temp_cost = self.amount + temp_cost

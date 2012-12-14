@@ -17,7 +17,7 @@ def import_from_snapshot():
     json_file = open('mysql_dump_snapsho')
     data = json.load(json_file)
     model_dict = dict()
-    # group the jsonby model
+    # group the json by model
     for key, g in itertools.groupby(data, key=lambda x: x["model"]):
         model_dict[key] = list(g)
     model_strings = ['TransactionsApp.users', 'TransactionsApp.groupstable', 'TransactionsApp.transactions', 'personalApp.categories', 'personalApp.transfers']
@@ -120,9 +120,9 @@ def get_outstanding_amount(group_id, user_id, end_time=None):
     else:
         time_filter = Q()
     txn_filters = (
-                Q(created_for_group_id=group_id) &          # filter the group
-                Q(deleted=False) &                          # filter deleted
-                Q(time_filter)                              # filter time
+                Q(created_for_group_id=group_id) &
+                Q(deleted=False) &
+                Q(time_filter)
                 )
     # Get the net of all the transaction in which user was not a Payee
     # i.e user just paid but did not have any expense towards the txn
@@ -153,8 +153,8 @@ def get_expense(group_id, user_id, start_time, end_time):
     Helper function to get the expense in the given time frame
     '''
     s2t = sum([temp.get_expense(user_id) for temp in Transaction.objects.filter(
-                    Q(created_for_group_id=group_id) &                                  # filter the group
-                    Q(deleted=False) &                                                  # filter deleted
+                    Q(created_for_group_id=group_id) &
+                    Q(deleted=False) &
                     (Q(paid_user_id=user_id) | Q(users_involved__id__in=[user_id])) &   # for including all transaction to which user is conencted
                     Q(transaction_time__range=(start_time, end_time))
                     ).distinct()])
@@ -183,7 +183,7 @@ def parseGET_initialise(request):
         try:
             if int(request.GET['tr']) == THIS_MONTH:
                 start_time = datetime(year=current_time.year, month=current_time.month, day=1)      # end_time is alredy initialised
-                timeRange = THIS_MONTH                                                              # for angularjs
+                timeRange = THIS_MONTH
             elif int(request.GET['tr']) == LAST_MONTH:
                 start_time = datetime(year=current_time.year, month=current_time.month - 1, day=1)
                 timeRange = LAST_MONTH                                                              # for angularjs
@@ -197,7 +197,7 @@ def parseGET_initialise(request):
             pass
     elif 'ts' in request.GET or 'te' in request.GET:
         try:
-            timeRange = CUSTOM_RANGE                                                                    # for angularjs
+            timeRange = CUSTOM_RANGE                                                                # for angularjs
             # time start
             if 'ts' in request.GET:
                 start_time = parser.parse(request.GET['ts'])
