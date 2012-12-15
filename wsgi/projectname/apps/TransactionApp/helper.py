@@ -1,7 +1,7 @@
 import calendar
 from datetime import datetime
 from dateutil import parser
-from TransactionApp.models import Category, Payee, Transaction, UserCategory
+from TransactionApp.models import Category, Payee, Transaction, UserCategory, GroupCategory
 from projectApp1.models import Membership
 from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, DEFAULT_START_PAGE, DEFAULT_RPP
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -152,6 +152,7 @@ def get_outstanding_amount(group_id, user_id, end_time=None):
                     ).aggregate(
                         Sum('amount')
                     )['amount__sum']
+    s1 = 0 if s1 is None else s1
     # Get the net sum of all the expenses the user was a Payee
     s2 = Payee.objects.filter(
                         deleted=False
@@ -162,6 +163,7 @@ def get_outstanding_amount(group_id, user_id, end_time=None):
                     ).aggregate(
                         Sum('outstanding_amount')
                     )['outstanding_amount__sum']
+    s2 = 0 if s2 is None else s2
     return s1 + s2
 
 
@@ -299,4 +301,4 @@ def new_personal_transaction_event(user_id, transaction):
         tc.save()
     except:
         pass
-    pass
+

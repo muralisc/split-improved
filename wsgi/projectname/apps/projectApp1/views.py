@@ -106,8 +106,11 @@ def createGroup(request):
                                     amount_in_pool=0
                                     )
             updateSession(request)
-            users_invited = [User.objects.get(pk=id) for id in request.POST['members'].split(',')]
-            groupRow.invite(request.user, users_invited)
+            try:
+                users_invited = [User.objects.get(pk=id) for id in request.POST['members'].split(',')]
+                groupRow.invite(request.user, users_invited)
+            except:
+                pass
         else:
             '''
             form error code

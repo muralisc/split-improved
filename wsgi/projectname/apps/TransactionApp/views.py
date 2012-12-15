@@ -453,3 +453,4 @@ def personalTransactionList(request):
 # TODO creating category of the same name
 # TODO creating duplicate user cateories
 # TODO transaction history
+# view and move uncategorised transactions TODO
