@@ -2,6 +2,7 @@ import calendar
 from datetime import datetime
 from dateutil import parser
 from TransactionApp.models import Category, Payee, Transaction, UserCategory
+from projectApp1.models import Membership
 from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, DEFAULT_START_PAGE, DEFAULT_RPP
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
@@ -108,6 +109,22 @@ def import_from_snapshot():
         temp_mem = Membership.objects.get(group=asd, user=temp_user)
         temp_mem.amount_in_pool = get_outstanding_amount(asd, temp_user)
         temp_mem.save()
+    asd = UserCategory.objects.filter().order_by('category__category_type')
+    for temp in asd:
+        category_lost = Transaction.objects.filter(
+                                        from_category_id=temp.id,
+                                    ).aggregate(
+                                        Sum('amount')
+                                    )['amount__sum']
+        category_lost = category_lost if category_lost else 0
+        category_gained = Transaction.objects.filter(
+                                        to_category_id=temp.id,
+                                    ).aggregate(
+                                        Sum('amount')
+                                    )['amount__sum']
+        category_gained = category_gained if category_gained else 0
+        temp.current_amount = category_gained - category_lost + temp.initial_amount
+        temp.save()
     json_file.close()
 
 
@@ -222,7 +239,7 @@ def parseGET_initialise(request):
     return (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page)
 
 
-def getPageInfo(transaction_list, txn_per_page, page_no):
+def get_page_info(transaction_list, txn_per_page, page_no):
     # Pagination stuff
     paginator_obj = Paginator(transaction_list, txn_per_page)
     try:
@@ -234,3 +251,52 @@ def getPageInfo(transaction_list, txn_per_page, page_no):
         # If page is out of range (e.g. 9999), deliver last page of results.
         current_page = paginator_obj.page(paginator_obj.num_pages)
     return (paginator_obj, current_page)
+
+
+def new_group_transaction_event(group_id, transaction):
+    '''
+    update the Membership table outstanding
+    update the GroupCategory table outstanding
+    '''
+    # get memberships of all users involved
+    involved_memberships = Membership.objects.filter(
+                                                Q(user_id=transaction.paid_user_id) |
+                                                Q(user_id__in=transaction.users_involved.values_list('id', flat=True))
+                                            ).filter(
+                                                Q(group_id=group_id)
+                                            )
+    for i in involved_memberships:
+        i.amount_in_pool = i.amount_in_pool + transaction.get_outstanding_amount(i.user_id)
+        i.save()
+    try:
+        tc = GroupCategory.objects.get(
+                        group_id=group_id,
+                        category_id=transaction.to_category_id)
+        tc.current_amount = tc.current_amount + transaction.amount
+        tc.save()
+    except:
+        pass
+    pass
+
+
+def new_personal_transaction_event(user_id, transaction):
+    '''
+    update the UserCategory table outstanding
+    '''
+    try:
+        fc = UserCategory.objects.get(
+                        user_id=user_id,
+                        category_id=transaction.from_category_id)
+        fc.current_amount = fc.current_amount - transaction.amount
+        fc.save()
+    except:
+        pass
+    try:
+        tc = UserCategory.objects.get(
+                        user_id=user_id,
+                        category_id=transaction.to_category_id)
+        tc.current_amount = tc.current_amount + transaction.amount
+        tc.save()
+    except:
+        pass
+    pass

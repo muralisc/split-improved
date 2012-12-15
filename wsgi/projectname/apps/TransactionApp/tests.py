@@ -43,7 +43,16 @@ class TransactionAppTestCase(TestCase):
         # create a category as user
         self.assertFalse(Category.objects.filter(name='SBI').exists())
         u1 = User.objects.get(username="jayalalv@default.com")
-        response = self.client.get('/createCategory/0/', {'name': 'SBI', 'category_type': 1, 'description': '', 'privacy': '0', 'created_by': u1.pk})
+        response = self.client.get(
+                                '/createCategory/0/',
+                                {
+                                    'name': 'SBI',
+                                    'category_type': 1,
+                                    'description': '',
+                                    'privacy': '0',
+                                    'created_by': u1.pk
+                                }
+                                )
         # verify created userCategory and Category
         self.assertTrue(Category.objects.filter(name='SBI').exists())
         self.assertEqual(1, UserCategory.objects.all().count())
@@ -64,8 +73,36 @@ class TransactionAppTestCase(TestCase):
         self.assertTrue(1, Category.objects.filter(name='SBI').count())
         self.assertEqual(1, UserCategory.objects.all().count())
         self.assertEqual(1, GroupCategory.objects.all().count())
-        # if a Usercategory exist do not create again TODO
-        # if a Groupcategory exist do not create again TODO
+        '''
+        now we have a user category and group category of same name
+        try creating again the same by trying to create the Category of the same name
+        that will trigger creating UserCategory again
+        assert that only one UserCategory is made
+        '''
+        # if a Usercategory exist do not create again eg user enter the name of an exitig category and tries to create again
+        response = self.client.get(
+                                '/createCategory/0/',
+                                {
+                                    'name': 'SBI',
+                                    'category_type': 1,
+                                    'description': '',
+                                    'privacy': '0',
+                                    'created_by': u1.pk
+                                }
+                                )
+        response = self.client.get(
+                                    '/createCategory/{0}/'.format(g1.pk),
+                                    {
+                                        'name': 'SBI',
+                                        'category_type': 1,
+                                        'description': '',
+                                        'privacy': 0,
+                                        'created_by': u1.pk
+                                    }
+                                   )
+        # verify that no new UserCategory or GroupCaregory is created
+        self.assertEqual(1, UserCategory.objects.all().count())
+        self.assertEqual(1, GroupCategory.objects.all().count())
 
     def test_displayTransactionForm(self):
         #login using url to update the session variable

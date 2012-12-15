@@ -9,7 +9,7 @@ from django.template import RequestContext
 #from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction  # , Payee
-from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise, getPageInfo
+from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise, get_page_info, new_group_transaction_event, new_personal_transaction_event
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE
 from projectApp1.models import Membership  # , Group
 from django.utils.safestring import SafeString
@@ -123,12 +123,15 @@ def makeTransaction(request):
                 transactionRow.save()
                 if form.cleaned_data['users_involved'] is not None:
                     transactionRow.associatePayees(form.cleaned_data['users_involved'])
+                new_group_transaction_event(request.session['active_group'].id, transactionRow)
                 # NOw make the corrsponding personal entry
                 newtransactionRow = deepcopy(transactionRow)
                 newtransactionRow.id = None
                 newtransactionRow.created_for_group = None
-                newtransactionRow.to_category_id = request.user.usesCategories.get(name=request.session['active_group'].name).id
+                newtransactionRow.description = 'sent to group' + request.session['active_group'].name
+                newtransactionRow.to_category_id = None
                 newtransactionRow.save()
+                new_personal_transaction_event(request.user.id, newtransactionRow)
             else:
                 # check if the from category belongs to the user
                 if(request.user.usesCategories.filter(pk=transactionRow.from_category_id).exists()):
@@ -141,6 +144,7 @@ def makeTransaction(request):
                 else:
                     transactionRow.to_category_id = None
                 transactionRow.save()
+                new_personal_transaction_event(request.user.id, transactionRow)
         else:
             raise Http404
     return redirect('/transactionForm/')
@@ -150,6 +154,7 @@ def makeTransaction(request):
 def createCategory(request, gid):
     '''
     always creates a category
+    checks weather a group already exist
     gid decised weather user-category or group-category needs to be created
     gid creates a group-category relation if not 0
     '''
@@ -164,19 +169,21 @@ def createCategory(request, gid):
             else:
                 categoryRow = Category.objects.get(name__iexact=form.cleaned_data['name'])
             if gid == '0':
-                UserCategory.objects.create(
-                                        user=request.user,
-                                        category=categoryRow,
-                                        initial_amount=0,
-                                        current_amount=0,
-                                        deleted=False)
+                if not UserCategory.objects.filter(user=request.user, category=categoryRow).exists():
+                    UserCategory.objects.create(
+                                            user=request.user,
+                                            category=categoryRow,
+                                            initial_amount=0,
+                                            current_amount=0,
+                                            deleted=False)
             else:
-                GroupCategory.objects.create(
-                                        group_id=gid,
-                                        category=categoryRow,
-                                        initial_amount=0,
-                                        current_amount=0,
-                                        deleted=False)
+                if not GroupCategory.objects.filter(group_id=gid, category=categoryRow).exists():
+                    GroupCategory.objects.create(
+                                            group_id=gid,
+                                            category=categoryRow,
+                                            initial_amount=0,
+                                            current_amount=0,
+                                            deleted=False)
             return HttpResponse(SafeString(json.dumps({
                                                     'name': categoryRow.name,
                                                     'id': categoryRow.id,
@@ -245,15 +252,15 @@ def groupExpenseList(request):
                             Q(users_involved__id__in=[filter_user_id])
                         )
                         ).distinct().order_by('-transaction_time')
-    (paginator_obj, current_page) = getPageInfo(transaction_list, txn_per_page, page_no)
+    (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
     # populating the transaction_list_with_expense array
     transaction_list_with_expense = list()
-    cumulative_exp = 0
+    cumulative_exp = get_expense(request.session['active_group'], filter_user_id, start_time, transaction_list[0].transaction_time)
     for temp in transaction_list:
         usrexp = temp.get_expense(filter_user_id)
-        cumulative_exp = cumulative_exp + usrexp
         transaction_list_with_expense.append([temp, usrexp, cumulative_exp])
+        cumulative_exp = cumulative_exp - usrexp
     dict_for_html = {
             'page_no': page_no,
             'txn_per_page': txn_per_page,
@@ -317,13 +324,13 @@ def groupOutstandingList(request):
                             Q(users_involved__id__in=[filter_user_id])
                         )
                         ).distinct().order_by('-transaction_time')
-    (paginator_obj, current_page) = getPageInfo(transaction_list, txn_per_page, page_no)
+    (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
 
     # populating the template array
     transaction_list_with_outstanding = list()
     # XXX in get is empty use cache withi=out calculating TODO
-    cumulative_sum = get_outstanding_amount(request.session['active_group'], filter_user_id, transaction_list[0].transaction_time)
+    cumulative_sum = get_outstanding_amount(request.session['active_group'].id, filter_user_id, transaction_list[0].transaction_time)
     for temp in transaction_list:
         usrcost = temp.get_outstanding_amount(filter_user_id)
         transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])
@@ -408,7 +415,7 @@ def personalTransactionList(request):
                         ).filter(
                             transacton_filters
                         ).distinct().order_by('-transaction_time')
-    (paginator_obj, current_page) = getPageInfo(transaction_list, txn_per_page, page_no)
+    (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
     response_json = dict()
     category = [{
@@ -440,3 +447,9 @@ def personalTransactionList(request):
             'CREDIT': CREDIT,
             }
     return render_to_response('personalTransactionList.html', dict_for_html, context_instance=RequestContext(request))
+
+# TODO report errroers fu nction
+# TODO user filer in all html pages
+# TODO creating category of the same name
+# TODO creating duplicate user cateories
+# TODO transaction history
