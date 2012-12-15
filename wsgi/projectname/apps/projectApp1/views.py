@@ -94,22 +94,27 @@ def createGroup(request):
     if request.method == 'POST':
         form = GroupForm(request.POST)
         if form.is_valid():
-            groupRow = form.save(commit=False)
-            groupRow.privacy = 0
-            groupRow.deleted = False
-            groupRow.save()
-            Membership.objects.create(
-                                    group=groupRow,
-                                    user=request.user,
-                                    administrator=True,
-                                    positions='creator',
-                                    amount_in_pool=0
-                                    )
-            updateSession(request)
-            try:
-                users_invited = [User.objects.get(pk=id) for id in request.POST['members'].split(',')]
-                groupRow.invite(request.user, users_invited)
-            except:
+            if not Group.objects.filter(name__iexact=form.cleaned_data['name']).exists():
+                groupRow = form.save(commit=False)
+                groupRow.privacy = 0
+                groupRow.deleted = False
+                groupRow.save()
+                Membership.objects.create(
+                                        group=groupRow,
+                                        user=request.user,
+                                        administrator=True,
+                                        positions='creator',
+                                        amount_in_pool=0
+                                        )
+                updateSession(request)
+                try:
+                    users_invited = [User.objects.get(pk=id) for id in request.POST['members'].split(',')]
+                    groupRow.invite(request.user, users_invited)
+                except:
+                    pass
+            else:
+                #group alredy exists
+                # TODO test for creating a groupname that alredy exists
                 pass
         else:
             '''
@@ -241,4 +246,6 @@ def changeGroup(request, gid):
 
 def updateSession(request):
     # list of all groups the user is a member of
-    request.session['memberships'] = Membership.objects.filter(user=request.user).filter(group__deleted=False)
+    membershipFilter = Membership.objects.filter(user=request.user).filter(group__deleted=False)
+    request.session['active_group'] = membershipFilter[0].group if membershipFilter.exist() else None
+    request.session['memberships'] = membershipFilter
