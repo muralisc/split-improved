@@ -1,12 +1,21 @@
 import calendar
 from datetime import datetime
 from dateutil import parser
+from django.contrib.auth.models import User, Permission
 from TransactionApp.models import Category, Payee, Transaction, UserCategory, GroupCategory
 from projectApp1.models import Membership
 from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, DEFAULT_START_PAGE, DEFAULT_RPP
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
 from django.db.models import Q
+
+
+def on_create_user(user):
+    '''
+    updatet the user permission on crating the user
+    '''
+    perm = Permission.objects.get(codename='group_transactions')
+    user.user_permissions.add(perm)
 
 
 def import_from_snapshot():

@@ -45,7 +45,7 @@ $(document).ready(function() {
 	{% if newUserCreated %}
 	$("#userCreated").modal();
 	{% endif %}
-	{% if form.email.errors %}
+	{% if form.email.errors or userNameExist %}
 	$("#errormodel").modal();
 	{% endif %}
 	});
@@ -60,7 +60,7 @@ $(document).ready(function() {
 		<p>Login to Contiue</p>
 	</div>
 	<div class="modal-footer">
-		<button class="btn" data-dismiss="modal" aria-hidden="true">Okay</button>
+		<button class="btn" name="okay" data-dismiss="modal" aria-hidden="true">Okay</button>
 	</div>
 </div>
 <div id="newUserModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -88,6 +88,7 @@ $(document).ready(function() {
 	</div>
 	<div class="modal-body">
 		{{ form.email.errors }}
+        {{ userNameExist }}
 	</div>
 	<div class="modal-footer">
 		<button class="btn" data-dismiss="modal" aria-hidden="true">Okay</button>

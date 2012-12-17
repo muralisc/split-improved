@@ -256,7 +256,10 @@ def groupExpenseList(request):
     transaction_list = current_page.object_list
     # populating the transaction_list_with_expense array
     transaction_list_with_expense = list()
-    cumulative_exp = get_expense(request.session['active_group'], filter_user_id, start_time, transaction_list[0].transaction_time)
+    if len(transaction_list) != 0:
+        cumulative_exp = get_expense(request.session['active_group'], filter_user_id, start_time, transaction_list[0].transaction_time)
+    else:
+        # TODO
     for temp in transaction_list:
         usrexp = temp.get_expense(filter_user_id)
         transaction_list_with_expense.append([temp, usrexp, cumulative_exp])
@@ -330,7 +333,10 @@ def groupOutstandingList(request):
     # populating the template array
     transaction_list_with_outstanding = list()
     # XXX in get is empty use cache withi=out calculating TODO
-    cumulative_sum = get_outstanding_amount(request.session['active_group'].id, filter_user_id, transaction_list[0].transaction_time)
+    if len(transaction_list) != 0:
+        cumulative_sum = get_outstanding_amount(request.session['active_group'].id, filter_user_id, transaction_list[0].transaction_time)
+    else:
+        # TODO
     for temp in transaction_list:
         usrcost = temp.get_outstanding_amount(filter_user_id)
         transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])

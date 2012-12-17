@@ -19,9 +19,9 @@
 			{{ i.administrator }}
 			<br/>
 		{% endfor %}
-		NO OF INVITES <a href="/allInvites/">{{ no_of_invites }}</a><br/>
+		NO OF INVITES <a name="invites_link" href="/allInvites/">{{ no_of_invites }}</a><br/>
 		CREATE GROUP <br/>
-		<form class="form form-horizontal" action="/createGroup/" method="post">{% csrf_token %}   
+		<form name="groupCreate" class="form form-horizontal" action="/createGroup/" method="post">{% csrf_token %}   
 			<label for="id_name">Name:</label> <input id="id_name" type="text" name="name" maxlength="64" />
 			<!--<label for="id_description">Description:</label> <input id="id_description" type="text" name="description" maxlength="564" />-->
 			<label for="id_members">Members:</label> 

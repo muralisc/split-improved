@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 try: import simplejson as json
 except ImportError: import json
 from django.shortcuts import render_to_response, redirect
@@ -9,6 +10,7 @@ from projectApp1.forms import LoginCreateForm
 from projectApp1.models import GroupForm, Membership, Group, Invite
 from django.http import Http404, HttpResponse
 from django.utils.safestring import SafeString
+from TransactionApp.helper import on_create_user
 
 
 def createUser(request):
@@ -18,10 +20,13 @@ def createUser(request):
             email = form.cleaned_data['email']
             username = email
             password = form.cleaned_data['password']
-            user = User.objects.create_user(username, email, password)
-            #myuser.user_permissions.add(permission, permission,)
-            user.save()
-            newUserCreated = True
+            try:
+                user = User.objects.create_user(username, email, password)
+                user.save()
+                on_create_user(user)
+                newUserCreated = True
+            except IntegrityError, e:
+                userNameExist = "user name already exist"
         else:
             pass
             # form is invalid erros auto set TODO
@@ -247,5 +252,9 @@ def changeGroup(request, gid):
 def updateSession(request):
     # list of all groups the user is a member of
     membershipFilter = Membership.objects.filter(user=request.user).filter(group__deleted=False)
-    request.session['active_group'] = membershipFilter[0].group if membershipFilter.exist() else None
+    request.session['active_group'] = membershipFilter[0].group if Membership.objects.filter(
+                                                                                        user=request.user
+                                                                                    ).filter(
+                                                                                        group__deleted=False
+                                                                                    ).exists() else None
     request.session['memberships'] = membershipFilter
