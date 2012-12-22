@@ -123,7 +123,7 @@ def makeTransaction(request):
                 transactionRow.save()
                 if form.cleaned_data['users_involved'] is not None:
                     transactionRow.associatePayees(form.cleaned_data['users_involved'])
-                new_group_transaction_event(request.session['active_group'].id, transactionRow)
+                new_group_transaction_event(request.session['active_group'].id, transactionRow, request.user.id)
                 # NOw make the corrsponding personal entry
                 newtransactionRow = deepcopy(transactionRow)
                 newtransactionRow.id = None
@@ -260,6 +260,7 @@ def groupExpenseList(request):
         cumulative_exp = get_expense(request.session['active_group'], filter_user_id, start_time, transaction_list[0].transaction_time)
     else:
         # TODO
+        pass
     for temp in transaction_list:
         usrexp = temp.get_expense(filter_user_id)
         transaction_list_with_expense.append([temp, usrexp, cumulative_exp])
@@ -294,14 +295,14 @@ def groupTransactionList(request):
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group=request.session['active_group']) &
                         Q(deleted=False)
-                        ).distinct().order_by('transaction_time')
+                        ).distinct().order_by(*['amount',])
+    # TODO more sorting
     transaction_list_for_sorting = list()
     cumulative_sum = 0
     for temp in transaction_list:
         usrcost = temp.get_outstanding_amount(filter_user_id)
         cumulative_sum = cumulative_sum + usrcost
         transaction_list_for_sorting.append([temp, usrcost, cumulative_sum])
-    transaction_list_for_sorting.reverse()
     dict_for_html = {
             'transaction_list_for_sorting': transaction_list_for_sorting,
             }
@@ -337,6 +338,7 @@ def groupOutstandingList(request):
         cumulative_sum = get_outstanding_amount(request.session['active_group'].id, filter_user_id, transaction_list[0].transaction_time)
     else:
         # TODO
+        pass
     for temp in transaction_list:
         usrcost = temp.get_outstanding_amount(filter_user_id)
         transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])

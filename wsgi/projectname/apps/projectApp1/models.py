@@ -69,7 +69,7 @@ class Invite(models.Model):
         return '{1} for {0}'.format(self.group.name, self.to_user.username)
 
 
-class Notifiacation(models.Model):
+class Notification(models.Model):
     from_user = models.ForeignKey(User, related_name='from_notification_set')
     to_user = models.ForeignKey(User, related_name='to_notification_set')
     group = models.ForeignKey(Group)
@@ -80,6 +80,9 @@ class Notifiacation(models.Model):
     is_unread = models.BooleanField(null=False, blank=True)
     is_hidden = models.BooleanField(null=False, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
+
+    def __unicode__(self):
+        return '{0}--{1}'.format(self.from_user, self.to_user)
 
 
 class Membership(models.Model):

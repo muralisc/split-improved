@@ -264,7 +264,8 @@ def get_page_info(transaction_list, txn_per_page, page_no):
     return (paginator_obj, current_page)
 
 
-def new_group_transaction_event(group_id, transaction):
+# TODO transaction groupid to transctuin.grop_id
+def new_group_transaction_event(group_id, transaction, user_created_id):
     '''
     update the Membership table outstanding
     update the GroupCategory table outstanding
@@ -287,14 +288,17 @@ def new_group_transaction_event(group_id, transaction):
         tc.save()
     except:
         pass
+    transaction.create_notifications(user_created_id)
     pass
 
-
+# TODO transaction user_id to transctuin.user_paidid
 def new_personal_transaction_event(user_id, transaction):
     '''
     update the UserCategory table outstanding
+    make notifications
     '''
     try:
+        # from category
         fc = UserCategory.objects.get(
                         user_id=user_id,
                         category_id=transaction.from_category_id)
@@ -303,6 +307,7 @@ def new_personal_transaction_event(user_id, transaction):
     except:
         pass
     try:
+        # ti category
         tc = UserCategory.objects.get(
                         user_id=user_id,
                         category_id=transaction.to_category_id)

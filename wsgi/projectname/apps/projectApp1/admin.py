@@ -37,6 +37,11 @@ class PayeeAdmin(admin.ModelAdmin):
     list_display = ('id', 'txn', 'user', 'outstanding_amount', 'deleted',)
 
 
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'from_user', 'to_user', 'group', 'create_time', 'updated_time', 'href',
+                    'message', 'is_unread', 'is_hidden', 'deleted')
+
+
 #class Admin(admin.ModelAdmin):
 #    list_display = ('', '', '', '', '',)
 #    pass
@@ -44,7 +49,7 @@ class PayeeAdmin(admin.ModelAdmin):
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Membership, MembershipAdmin)
 admin.site.register(Invite, InviteAdmin)
-admin.site.register(Notifiacation)
+admin.site.register(Notification, NotificationAdmin)
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(GroupCategory, GroupCategoryAdmin)

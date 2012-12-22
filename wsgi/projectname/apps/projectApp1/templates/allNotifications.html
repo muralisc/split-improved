@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}
+{% endblock %}
+
+
+{% block header %}
+{% endblock %}
+
+
+{% block body %}
+{% for i in all_notifications %}
+{{ i.from_user }} {{ i.message|safe }}<a href="{{ i.href|safe }}/">link to he notificai</a><br/>
+{% endfor %}
+{% endblock %}
+
+
+{% block footer%}
+{% endblock %}
+
+
+{% block afterbody%}
+{% endblock %}

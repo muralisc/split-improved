@@ -7,7 +7,7 @@ from django.contrib.auth.models import User, Permission
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from projectApp1.forms import LoginCreateForm
-from projectApp1.models import GroupForm, Membership, Group, Invite
+from projectApp1.models import GroupForm, Membership, Group, Invite, Notification
 from django.http import Http404, HttpResponse
 from django.utils.safestring import SafeString
 from TransactionApp.helper import on_create_user
@@ -70,7 +70,7 @@ def siteLogin(request):
 def home(request):
     form = GroupForm()
     no_of_invites = Invite.objects.filter(to_user=request.user).filter(unread=True).count()
-    # get invites count TODO
+    no_of_notifications = Notification.objects.filter(to_user=request.user, is_hidden=False).count()
     return render_to_response('home.html', locals(), context_instance=RequestContext(request))
 
 
@@ -182,6 +182,12 @@ def changeInvite(request, accept_decline, row_id):
 def showInvites(request):
     all_invites = Invite.objects.filter(to_user=request.user).filter(unread=True)
     return render_to_response('allInvites.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def showNotifications(request):
+    all_notifications = Notification.objects.filter(to_user=request.user, is_hidden=False)
+    return render_to_response('allNotifications.html', locals(), context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')
