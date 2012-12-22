@@ -32,7 +32,11 @@ def displayTransactionForm(request):
                             'checked': False
                             }
                             for mem_ship in request.session['active_group'].getMemberships.all()]
-            toCategory_group = [{'name': i.name, 'id': i.id} for i in request.session['active_group'].usesCategories.filter(category_type=EXPENSE)]
+            toCategory_group = [{
+                                    'name': i.name,
+                                    'id': i.id
+                                }
+                                for i in request.session['active_group'].usesCategories.filter(category_type=EXPENSE)]
         else:
             users_in_grp = []
             toCategory_group = []
