@@ -175,9 +175,12 @@ class TransactionForm(forms.ModelForm):
                     'users_involved': forms.CheckboxSelectMultiple(),
                     'date': forms.TextInput(attrs={'placeholder': 'Date', 'class': ''}),
                   }
-        exclude = ('created_by_user',
-                   'created_for_group',
-                   'deleted')
+        exclude = (
+                    'created_by_user',
+                    'created_for_group',
+                    'history',
+                    'deleted',
+                   )
 
 
 class Payee(models.Model):

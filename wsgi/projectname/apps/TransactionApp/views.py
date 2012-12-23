@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 #from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction  # , Payee
+from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction, Payee
 from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise, get_page_info, new_group_transaction_event, new_personal_transaction_event
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE
 from projectApp1.models import Membership  # , Group
@@ -152,6 +152,63 @@ def makeTransaction(request):
         else:
             raise Http404
     return redirect('/transactionForm/')
+
+
+@login_required(login_url='/login/')
+def editTransactionForm(request):
+    '''
+    '''
+    if 't' in request.GET:
+        transaction_id = int(request.GET['t'])
+    else:
+        return redirect('/transactionForm/')
+    categoryForm = CategoryForm()
+    response_json = dict()
+    if request.user.has_perm('TransactionApp.group_transactions'):
+        if 'active_group' in request.session:
+            users_in_grp = []
+            checked = False
+            transaction_to_edit = Transaction.objects.get(id=transaction_id) # TODO include group check too
+            for mem_ship in request.session['active_group'].getMemberships.all():
+                checked = True if Payee.objects.filter(txn_id=transaction_id, user_id=mem_ship.user.id).exists() else False
+                users_in_grp.append({
+                                'username': mem_ship.user.username,
+                                'id': mem_ship.user.id,
+                                'checked': checked
+                                })
+            toCategory_group = [{
+                                    'name': i.name,
+                                    'id': i.id
+                                }
+                                for i in request.session['active_group'].usesCategories.filter(category_type=EXPENSE)]
+        else:
+            users_in_grp = []
+            toCategory_group = []
+        response_json['users_in_grp'] = SafeString(json.dumps(users_in_grp))
+        response_json['toCategory_group'] = SafeString(json.dumps(toCategory_group))
+    if request.user.has_perm('TransactionApp.personal_transactions'):
+        pass
+    fromCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
+                                                                                    Q(category_type=INCOME) |
+                                                                                    Q(category_type=BANK) |
+                                                                                    Q(category_type=CREDIT))]
+    toCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
+                                                                                    Q(category_type=EXPENSE) |
+                                                                                    Q(category_type=BANK) |
+                                                                                    Q(category_type=CREDIT))]
+    response_json['fromCategory_user'] = SafeString(json.dumps(fromCategory_user))
+    response_json['toCategory_user'] = SafeString(json.dumps(toCategory_user))
+
+    dict_for_html = {
+            'categoryForm': CategoryForm,
+            'response_json': response_json,
+            'request': request,
+            'INCOME': INCOME,
+            'BANK':  BANK,
+            'EXPENSE': EXPENSE,
+            'CREDIT': CREDIT,
+            }
+    return render_to_response('makeTransaction.html', dict_for_html, context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')

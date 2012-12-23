@@ -24,6 +24,7 @@ urlpatterns = patterns('',
 
 
     (u'^transactionForm/$', 'TransactionApp.views.displayTransactionForm'),
+    (u'^edittransactionForm/$', 'TransactionApp.views.editTransactionForm'),
     (r'^makeTransaction/$', 'TransactionApp.views.makeTransaction'),
     (r'^createCategory/(\d+)/$', 'TransactionApp.views.createCategory'),
     (r'^getJSONcategories/$', 'TransactionApp.views.getJSONcategories'),

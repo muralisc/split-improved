@@ -208,6 +208,10 @@
 {% else %}
         $scope.involving_checkbox="true";
 {% endif %}
+// iniitalse varibles for editting
+{% if edit_date%}
+        $scope.date = {{ edit_date }}
+{% endif %}
         //this array is used for displaying the Payees
         $scope.users_inv = new Array();
         $scope.updateUsersInvolved = function(usr){
