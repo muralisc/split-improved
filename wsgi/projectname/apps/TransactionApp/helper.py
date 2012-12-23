@@ -1,6 +1,5 @@
 import calendar
 from datetime import datetime
-from dateutil import parser
 from django.contrib.auth.models import User, Permission
 from TransactionApp.models import Category, Payee, Transaction, UserCategory, GroupCategory
 from projectApp1.models import Membership
@@ -228,10 +227,10 @@ def parseGET_initialise(request):
             timeRange = CUSTOM_RANGE                                                                # for angularjs
             # time start
             if 'ts' in request.GET:
-                start_time = parser.parse(request.GET['ts'])
+                start_time = datetime.strptime(request.GET['ts'],'%Y-%m-%d')
             # time end
             if 'te' in request.GET:
-                end_time = parser.parse(request.GET['te'])
+                end_time = datetime.strptime(request.GET['te'],'%Y-%m-%d')
         except:
             # default values alredy filled
             pass

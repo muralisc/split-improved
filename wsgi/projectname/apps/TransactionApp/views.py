@@ -59,6 +59,7 @@ def displayTransactionForm(request):
             'categoryForm': CategoryForm,
             'response_json': response_json,
             'request': request,
+            'next_link': "/makeTransaction/",
             'INCOME': INCOME,
             'BANK':  BANK,
             'EXPENSE': EXPENSE,
@@ -157,6 +158,8 @@ def makeTransaction(request):
 @login_required(login_url='/login/')
 def editTransactionForm(request):
     '''
+    sents variables to initialize the angular js variables
+    finds the position of paid_user in list and sends it as edit_paid_user
     '''
     if 't' in request.GET:
         transaction_id = int(request.GET['t'])
@@ -169,7 +172,13 @@ def editTransactionForm(request):
             users_in_grp = []
             checked = False
             transaction_to_edit = Transaction.objects.get(id=transaction_id) # TODO include group check too
+            paid_user_pos_found = False
+            paid_user_pos = 0
             for mem_ship in request.session['active_group'].getMemberships.all():
+                if mem_ship.user_id == transaction_to_edit.paid_user_id:
+                    paid_user_pos_found = True
+                else:
+                    paid_user_pos = paid_user_pos + 1
                 checked = True if Payee.objects.filter(txn_id=transaction_id, user_id=mem_ship.user.id).exists() else False
                 users_in_grp.append({
                                 'username': mem_ship.user.username,
@@ -203,6 +212,12 @@ def editTransactionForm(request):
             'categoryForm': CategoryForm,
             'response_json': response_json,
             'request': request,
+            'edit_date': transaction_to_edit.transaction_time.strftime('%Y-%m-%d'),
+            'edit_id': transaction_to_edit.id,
+            'edit_description': transaction_to_edit.description,
+            'edit_amount': transaction_to_edit.amount,
+            'edit_paid_user': paid_user_pos,
+            'next_link': "/editTransaction/",
             'INCOME': INCOME,
             'BANK':  BANK,
             'EXPENSE': EXPENSE,

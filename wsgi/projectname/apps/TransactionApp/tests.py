@@ -221,14 +221,14 @@ class TransctionsTestCase(TestCase):
     def test_make_transactions(self):
         '''
         case1: user just paid
-        jay ->  kurian  |200    |Rent   |gc:Bills
+        jay ->  kurian  |200    |Rent   |gc:Bills   |1988
                 ropo
         case2: user paid and is also a payee
-        dash >  dash    |1500   |e-bill |gc:Bills
+        dash >  dash    |1500   |e-bill |gc:Bills   |1989
                 shkku
                 jay
         case3: User is just a payee
-        ropo >  jay     |400    |Pizza  |gc:Food
+        ropo >  jay     |400    |Pizza  |gc:Food    |1990
                 shakku
                 dash
                 kurian

@@ -27,7 +27,7 @@
 		<a href="/changeGroup/{{ i.group.pk }}/?next={{request.path}}">{{ i.group.name }}</a>
 		{% endif %}
 	{% endfor %}
-	<form action="/makeTransaction/" method="POST" class="form-horizontal span6">{% csrf_token %}  
+    <form name="makeTransactionForm" action="{{next_link}}?t={{edit_id}}" method="POST" class="form-horizontal span6">{% csrf_token %}  
 		<span ng-hide="involving_checkbox">YOU</span><span ng-show="involving_checkbox">{[{paid_user.username}]}</span> Paid {[{amount}]} for <span ng-repeat="u in users_inv">{[{u}]},</span> 
 		from {[{selectedFromCategory.name}]} for{[{description}]} to {[{selectedToCategory.name}]} on {[{date}]}
 		<div class="control-group" ng-hide="involving_checkbox">
@@ -38,7 +38,7 @@
         <div class="control-group" ng-show="involving_checkbox">
             <label class="control-label" for="paid_user">User Paid</label>
             <div class="controls">
-                <select ng-model="paid_user" ng-options="c.username for c in users_in_grp">
+                <select name="selectUserPaid" ng-model="paid_user" ng-options="c.username for c in users_in_grp">
                     <option value="" selected="selected">---------</option>
                 </select>
             </div>
@@ -210,7 +210,16 @@
 {% endif %}
 // iniitalse varibles for editting
 {% if edit_date%}
-        $scope.date = {{ edit_date }}
+        $scope.date = '{{ edit_date }}';
+{% endif %}
+{% if edit_description %}
+        $scope.description = '{{ edit_description }}';
+{% endif %}
+{% if edit_amount %}
+        $scope.amount = {{ edit_amount }};
+{% endif %}
+{% if edit_paid_user %}
+        $scope.paid_user = $scope.users_in_grp[{{ edit_paid_user }}];
 {% endif %}
         //this array is used for displaying the Payees
         $scope.users_inv = new Array();
