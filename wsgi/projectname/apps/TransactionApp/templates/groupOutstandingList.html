@@ -10,11 +10,11 @@
 
 
 {% block body%}
-{%if transaction_list_with_outstanding%}
 <div class="offset1 span10" >
 {% include "filterController.html" %}
 {% include "pageFilter.html" %}
 {% include "timeFilter.html" %}
+{%if transaction_list_with_outstanding%}
 <table class="table table-hover table-condensed">
 		<thead>
 			<tr>
@@ -42,6 +42,7 @@
 			  <td class="span2">{{i.0.transaction_time}}</td>
 			  <td class="span1">{{i.1|floatformat}}</td>
 			  <td class="span1">{{i.2|floatformat}}</td>
+              <td class="span1"><a href="/deleteTransaction/?t={{i.0.pk}}">delete</a></td>
 			</tr>
 		</tbody>
 {% endfor %}

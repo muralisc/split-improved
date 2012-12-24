@@ -289,7 +289,7 @@ class TransctionsTestCase(TestCase):
         self.assertEqual(-600, self.m3.amount_in_pool)
         self.assertEqual(-200, self.m4.amount_in_pool)
         self.assertEqual(+900, self.m5.amount_in_pool)
-        self.assertEqual(-400, get_outstanding_amount(self.g1.id, self.m1.id, datetime(2112, 1, 1)))
+        self.assertEqual(-400, get_outstanding_amount(self.g1.id, self.m1.id, datetime(2050, 1, 1)))
         self.assertEqual(+300, get_outstanding_amount(self.g1.id, self.m2.id))
         self.assertEqual(-600, get_outstanding_amount(self.g1.id, self.m3.id))
         self.assertEqual(-200, get_outstanding_amount(self.g1.id, self.m4.id))

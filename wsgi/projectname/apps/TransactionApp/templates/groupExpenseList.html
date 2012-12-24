@@ -10,11 +10,11 @@
 
 
 {% block body%}
-{%if transaction_list_with_expense%}
 <div class="offset1 span10">
 {% include "filterController.html" %}
 {% include "pageFilter.html" %}
 {% include "timeFilter.html" %}
+{%if transaction_list_with_expense%}
 	<table class="table table-hover table-condensed">
 			<thead>
 				<tr>
@@ -30,19 +30,20 @@
 			</thead>
 {% for i in transaction_list_with_expense%}
 			<tbody>
-				<tr>
-				  <td class="span1">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</td>
-				  <td class="span1">{{i.0.paid_user}}</td>
-				  <td class="span1">{{i.0.amount}}</td>
-				  <td class="span1">{{i.0.description}}</td>
-				  <td class="span1">{%for usr in i.0.users_involved.all%}
-									{{usr}}<br/>
-									{%endfor%}
-									</td>
-				  <td class="span2">{{i.0.transaction_time}}</td>
-				  <td class="span1">{{i.1|floatformat}}</td>
-				  <td class="span1">{{i.2|floatformat}}</td>
-				</tr>
+                <tr>
+                    <td class="span1">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</td>
+                    <td class="span1">{{i.0.paid_user}}</td>
+                    <td class="span1">{{i.0.amount}}</td>
+                    <td class="span1">{{i.0.description}}</td>
+                    <td class="span1">{%for usr in i.0.users_involved.all%}
+                        {{usr}}<br/>
+                        {%endfor%}
+                    </td>
+                    <td class="span2">{{i.0.transaction_time}}</td>
+                    <td class="span1">{{i.1|floatformat}}</td>
+                    <td class="span1">{{i.2|floatformat}}</td>
+                    <td class="span1"><a href="/deleteTransaction/?t={{i.0.pk}}">delete</a></td>
+                </tr>
 			</tbody>
 {% endfor %}
 	</table>

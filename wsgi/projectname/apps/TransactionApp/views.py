@@ -9,7 +9,8 @@ from django.template import RequestContext
 #from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction, Payee
-from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise, get_page_info, new_group_transaction_event, new_personal_transaction_event
+from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise, \
+        get_page_info, new_group_transaction_event, new_personal_transaction_event, delete_group_transaction_event
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE
 from projectApp1.models import Membership  # , Group
 from django.utils.safestring import SafeString
@@ -125,19 +126,27 @@ def makeTransaction(request):
                 if len(form.cleaned_data['users_involved']) == 0:
                     raise Http404
                 transactionRow.created_for_group_id = request.session['active_group'].id
+                try:
+                    transactionRow.history_id = int(request.GET['t']) if 't' in request.GET else None
+                except:
+                    pass
                 transactionRow.save()
                 if form.cleaned_data['users_involved'] is not None:
                     transactionRow.associatePayees(form.cleaned_data['users_involved'])
                 new_group_transaction_event(request.session['active_group'].id, transactionRow, request.user.id)
                 # NOw make the corrsponding personal entry
+                # for every group transaction a personal transaction
+                # entry is made for paid user
                 newtransactionRow = deepcopy(transactionRow)
                 newtransactionRow.id = None
                 newtransactionRow.created_for_group = None
                 newtransactionRow.description = 'sent to group' + request.session['active_group'].name
                 newtransactionRow.to_category_id = None
+                newtransactionRow.history_id = None
                 newtransactionRow.save()
                 new_personal_transaction_event(request.user.id, newtransactionRow)
             else:
+                # the user is trying to make a personal transaction alone
                 # check if the from category belongs to the user
                 if(request.user.usesCategories.filter(pk=transactionRow.from_category_id).exists()):
                     pass
@@ -156,6 +165,19 @@ def makeTransaction(request):
 
 
 @login_required(login_url='/login/')
+def deleteTransaction(request):
+    if 't' in request.GET:
+        transaction_id = int(request.GET['t'])
+    else:
+        pass
+    next_url = request.META['HTTP_REFERER']
+    transactionRow = Transaction.objects.get(id=transaction_id)
+    delete_group_transaction_event(request.session['active_group'].id, transactionRow, request.user.id)
+    transactionRow.deleted = True
+    transactionRow.save()
+    return redirect(next_url)
+
+@login_required(login_url='/login/')
 def editTransactionForm(request):
     '''
     sents variables to initialize the angular js variables
@@ -171,7 +193,7 @@ def editTransactionForm(request):
         if 'active_group' in request.session:
             users_in_grp = []
             checked = False
-            transaction_to_edit = Transaction.objects.get(id=transaction_id) # TODO include group check too
+            transaction_to_edit = Transaction.objects.get(id=transaction_id)  # TODO include group check too
             paid_user_pos_found = False
             paid_user_pos = 0
             for mem_ship in request.session['active_group'].getMemberships.all():
@@ -224,6 +246,26 @@ def editTransactionForm(request):
             'CREDIT': CREDIT,
             }
     return render_to_response('makeTransaction.html', dict_for_html, context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def editTransaction(request):
+    if 't' in request.GET:
+        transaction_id = int(request.GET['t'])
+    else:
+        return redirect('/transactionForm/')
+    '''
+    delete old transactions
+    '''
+    temp_obj_store = Transaction.objects.get(id=transaction_id)
+    temp_obj_store.deleted = True
+    temp_obj_store.save()
+    temp_obj_store = Transaction.objects.get(id=transaction_id + 1)
+    temp_obj_store.deleted = True
+    temp_obj_store.save()
+    # TODO edit outstanding amount
+    makeTransaction(request)
+    return redirect('/transactionForm/')
 
 
 @login_required(login_url='/login/')
@@ -343,6 +385,7 @@ def groupExpenseList(request):
         cumulative_exp = cumulative_exp - usrexp
     dict_for_html = {
             'page_no': page_no,
+            'filter_user_id': filter_user_id,
             'txn_per_page': txn_per_page,
             'start_time': start_time,
             'current_page': current_page,
@@ -421,6 +464,7 @@ def groupOutstandingList(request):
         cumulative_sum = cumulative_sum - usrcost
     dict_for_html = {
             'page_no': page_no,
+            'filter_user_id': filter_user_id,
             'txn_per_page': txn_per_page,
             'start_time': start_time,
             'current_page': current_page,
@@ -512,6 +556,7 @@ def personalTransactionList(request):
 
     dict_for_html = {
             'page_no': page_no,
+            'filter_user_id': filter_user_id,
             'txn_per_page': txn_per_page,
             'start_time': start_time,
             'current_page': current_page,

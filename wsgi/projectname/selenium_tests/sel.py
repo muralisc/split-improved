@@ -106,6 +106,7 @@ enter transaction details
         jay ->  kurian  |200    |Rent   |gc:Bills   |1988
                 ropo
 '''
+WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//select[@name='selectUserPaid']").is_displayed())
 select_element = Select(driver.find_element_by_xpath("//select[@name='selectUserPaid']"))
 select_element.select_by_visible_text(usernames[1])
 driver.find_element_by_id("id_amount").send_keys("200")
@@ -120,6 +121,7 @@ driver.find_element_by_xpath("//form/div/div/input[@type='submit']").click()
                 shkku
                 jay
 '''
+WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//select[@name='selectUserPaid']").is_displayed())
 select_element = Select(driver.find_element_by_xpath("//select[@name='selectUserPaid']"))
 select_element.select_by_visible_text(usernames[4])
 driver.find_element_by_id("id_amount").send_keys("1500")
@@ -136,6 +138,7 @@ driver.find_element_by_xpath("//form/div/div/input[@type='submit']").click()
                 dash
                 kurian
 '''
+WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//select[@name='selectUserPaid']").is_displayed())
 select_element = Select(driver.find_element_by_xpath("//select[@name='selectUserPaid']"))
 select_element.select_by_visible_text(usernames[6])
 driver.find_element_by_id("id_amount").send_keys("400")

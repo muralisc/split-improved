@@ -1,8 +1,7 @@
-import calendar
 from datetime import datetime
 from django.contrib.auth.models import User, Permission
 from TransactionApp.models import Category, Payee, Transaction, UserCategory, GroupCategory
-from projectApp1.models import Membership
+from projectApp1.models import Membership, Group
 from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, DEFAULT_START_PAGE, DEFAULT_RPP
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
@@ -20,9 +19,6 @@ def on_create_user(user):
 def import_from_snapshot():
     import json
     import itertools
-    from projectApp1.models import Membership, Group
-    from django.contrib.auth.models import User
-
     json_file = open('mysql_dump_snapsho')
     data = json.load(json_file)
     model_dict = dict()
@@ -227,10 +223,10 @@ def parseGET_initialise(request):
             timeRange = CUSTOM_RANGE                                                                # for angularjs
             # time start
             if 'ts' in request.GET:
-                start_time = datetime.strptime(request.GET['ts'],'%Y-%m-%d')
+                start_time = datetime.strptime(request.GET['ts'], '%Y-%m-%d')
             # time end
             if 'te' in request.GET:
-                end_time = datetime.strptime(request.GET['te'],'%Y-%m-%d')
+                end_time = datetime.strptime(request.GET['te'], '%Y-%m-%d')
         except:
             # default values alredy filled
             pass
@@ -287,8 +283,35 @@ def new_group_transaction_event(group_id, transaction, user_created_id):
         tc.save()
     except:
         pass
-    transaction.create_notifications(user_created_id)
-    pass
+    transaction.create_notifications(user_created_id, 'txn_created')
+
+
+# TODO transaction groupid to transctuin.grop_id
+def delete_group_transaction_event(group_id, transaction, user_created_id):
+    '''
+    update the Membership table outstanding
+    update the GroupCategory table outstanding
+    '''
+    # get memberships of all users involved
+    involved_memberships = Membership.objects.filter(
+                                                Q(user_id=transaction.paid_user_id) |
+                                                Q(user_id__in=transaction.users_involved.values_list('id', flat=True))
+                                            ).filter(
+                                                Q(group_id=group_id)
+                                            )
+    for i in involved_memberships:
+        i.amount_in_pool = i.amount_in_pool - transaction.get_outstanding_amount(i.user_id)
+        i.save()
+    try:
+        tc = GroupCategory.objects.get(
+                        group_id=group_id,
+                        category_id=transaction.to_category_id)
+        tc.current_amount = tc.current_amount - transaction.amount
+        tc.save()
+    except:
+        pass
+    transaction.create_notifications(user_created_id, 'txn_deleted')
+
 
 # TODO transaction user_id to transctuin.user_paidid
 def new_personal_transaction_event(user_id, transaction):
@@ -314,4 +337,3 @@ def new_personal_transaction_event(user_id, transaction):
         tc.save()
     except:
         pass
-

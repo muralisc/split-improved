@@ -5,6 +5,7 @@ Requires
 {{timeRange}}
 {{start_time}} 	only in html
 {{end_time}}	only in html
+{{filter_user_id}}
 and ng-app in <html> tag
 -->
 <script type="text/javascript">
@@ -27,6 +28,10 @@ function filterController($scope) {
 	$scope.txn_per_page={{txn_per_page}};
 	$scope.page_array = {{paginator_obj.page_range}};
 {% endif %}<!--}}}-->
+
+{% if filter_user_id %}
+	$scope.u = {{filter_user_id}};
+{% endif %}
 
 {% if response_json.category %}//<!--{{{-->
 	$scope.category_list = {{ response_json.category }};
@@ -104,6 +109,11 @@ function filterController($scope) {
 				$scope.queryString = $scope.queryString.concat($scope.t_e);
 				$scope.queryString = $scope.queryString.concat("&");
 			}
+{% if filter_user_id %}
+            $scope.queryString = $scope.queryString.concat("u=");
+            $scope.queryString = $scope.queryString.concat($scope.u);
+            $scope.queryString = $scope.queryString.concat("&");
+{% endif %}
 		};
 {% if paginator_obj %}
 		/*

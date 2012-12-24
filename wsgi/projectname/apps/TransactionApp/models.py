@@ -141,24 +141,34 @@ class Transaction(models.Model):
                 temp_cost = self.amount + temp_cost
             Payee.objects.create(txn_id=self.id, user_id=temp_payee.id, outstanding_amount=temp_cost)
 
-    def create_notifications(self, user_created_id):
+    def create_notifications(self, user_created_id, notification_type):
         # TODO make help string for this function
         # TODO test to ensuer that the trasaction craing user dont have a txn
         payee_objects = Payee.objects.filter(txn_id=self.id, deleted=False)
         for p_object in payee_objects:
             if p_object.user_id != user_created_id:
+                if notification_type == 'txn_created':
+                    message='created transaction for {0}/{1}; \
+                            your outstanding is <strong>{2:.2}</strong> \
+                            among {3} users involved '.format(
+                                self.description, self.to_category,
+                                p_object.outstanding_amount,
+                                self.users_involved.count()
+                                ),
+                elif notification_type == 'txn_deleted':
+                    message='deleted transaction for {0}/{1}; \
+                            your outstanding is <strong>{2:.2}</strong> \
+                            among {3} users involved '.format(
+                                self.description, self.to_category,
+                                p_object.outstanding_amount,
+                                self.users_involved.count()
+                                ),
                 Notification.objects.create(
                                     from_user_id=user_created_id,
                                     to_user_id=p_object.user.id,
                                     group_id=self.created_for_group.id,
                                     href='',    # TODO
-                                    message='created transaction for {0}/{1}; \
-                                            your outstanding is <strong>{2:.2}</strong> \
-                                            among {3} users involved '.format(
-                                                self.description, self.to_category,
-                                                p_object.outstanding_amount,
-                                                self.users_involved.count()
-                                               ),
+                                    message=message,
                                     is_unread=True,
                                     is_hidden=False,
                                     deleted=False,

@@ -22,6 +22,7 @@
 			  <th>DatePaid</th>
 			  <th>Outstanding</th>
 			  <th>CumOutstanding</th>
+			  <th>delete</th>
 			</tr>
 		</thead>
 {% for i in transaction_list_for_sorting%}
@@ -38,6 +39,7 @@
 			  <td class="span2">{{i.0.transaction_time}}</td>
 			  <td class="span1">{{i.1|floatformat}}</td>
 			  <td class="span1">{{i.2|floatformat}}</td>
+              <td class="span1"><a href="/deleteTransaction/?t={{i.0.pk}}">delete</a></td>
 			</tr>
 		</tbody>
 {% endfor %}
