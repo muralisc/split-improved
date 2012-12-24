@@ -2,7 +2,7 @@ from datetime import datetime
 from django.contrib.auth.models import User, Permission
 from TransactionApp.models import Category, Payee, Transaction, UserCategory, GroupCategory
 from projectApp1.models import Membership, Group
-from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, DEFAULT_START_PAGE, DEFAULT_RPP
+from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, DEFAULT_START_PAGE, DEFAULT_RPP
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
 from django.db.models import Q
@@ -215,6 +215,10 @@ def parseGET_initialise(request):
                             month=current_time.month,
                             day=1)
                             #day=calendar.monthrange(current_time.year, current_time.month - 1)[1])
+            elif int(request.GET['tr']) == ALL_TIME:
+                start_time = Transaction.objects.all().values('transaction_time').order_by('-transaction_time')[0]['transaction_time']
+                timeRange = ALL_TIME                                                                # for angularjs
+                #end_time = current_time
         except:
             # default values alredy filled
             pass

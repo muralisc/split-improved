@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User, Permission
 from projectApp1.models import Membership, Group
 from TransactionApp.models import Category, UserCategory, GroupCategory
-from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, PRIVATE, PUBLIC, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, DEFAULT_START_PAGE, DEFAULT_RPP
+from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, PRIVATE, PUBLIC, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, DEFAULT_START_PAGE, DEFAULT_RPP
 from TransactionApp.helper import parseGET_initialise, get_outstanding_amount, get_expense
 from django.test.client import RequestFactory
 from datetime import datetime

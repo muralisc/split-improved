@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction, Payee
 from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise, \
         get_page_info, new_group_transaction_event, new_personal_transaction_event, delete_group_transaction_event
-from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE
+from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME
 from projectApp1.models import Membership  # , Group
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
@@ -354,6 +354,7 @@ def groupStatistics(request):
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,
+            'ALL_TIME': ALL_TIME,
             }
     return render_to_response('groupStatistics.html', dict_for_html, context_instance=RequestContext(request))
 
@@ -395,7 +396,8 @@ def groupExpenseList(request):
             'paginator_obj': paginator_obj,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
-            'CUSTOM_RANGE': CUSTOM_RANGE
+            'CUSTOM_RANGE': CUSTOM_RANGE,
+            'ALL_TIME': ALL_TIME,
             }
     return render_to_response('groupExpenseList.html', dict_for_html, context_instance=RequestContext(request))
 
@@ -474,7 +476,8 @@ def groupOutstandingList(request):
             'paginator_obj': paginator_obj,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
-            'CUSTOM_RANGE': CUSTOM_RANGE
+            'CUSTOM_RANGE': CUSTOM_RANGE,
+            'ALL_TIME': ALL_TIME,
             }
     return render_to_response('groupOutstandingList.html', dict_for_html, context_instance=RequestContext(request))
 
@@ -556,7 +559,6 @@ def personalTransactionList(request):
 
     dict_for_html = {
             'page_no': page_no,
-            'filter_user_id': filter_user_id,
             'txn_per_page': txn_per_page,
             'start_time': start_time,
             'current_page': current_page,
@@ -570,6 +572,7 @@ def personalTransactionList(request):
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,
+            'ALL_TIME': ALL_TIME,
             'INCOME': INCOME,
             'BANK':  BANK,
             'EXPENSE': EXPENSE,

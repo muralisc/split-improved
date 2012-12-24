@@ -60,6 +60,11 @@ function filterController($scope) {
 		
 	$scope.frameGETquery = function() {
 		$scope.queryString = "?";
+{% if filter_user_id %}
+        $scope.queryString = $scope.queryString.concat("u=");
+        $scope.queryString = $scope.queryString.concat($scope.u);
+        $scope.queryString = $scope.queryString.concat("&");
+{% endif %}
 		/*
 		start framing "tr=" queries
 		*/
@@ -79,6 +84,10 @@ function filterController($scope) {
 				else{
 					break;
 				}
+			case "4":
+				$scope.queryString = $scope.queryString.concat("tr=4");
+				$scope.queryString = $scope.queryString.concat("&");
+				break;
 			default:
 				break;
 		};
@@ -109,11 +118,6 @@ function filterController($scope) {
 				$scope.queryString = $scope.queryString.concat($scope.t_e);
 				$scope.queryString = $scope.queryString.concat("&");
 			}
-{% if filter_user_id %}
-            $scope.queryString = $scope.queryString.concat("u=");
-            $scope.queryString = $scope.queryString.concat($scope.u);
-            $scope.queryString = $scope.queryString.concat("&");
-{% endif %}
 		};
 {% if paginator_obj %}
 		/*
