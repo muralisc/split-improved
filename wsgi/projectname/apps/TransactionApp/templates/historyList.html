@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}
+{% endblock %}
+
+{% block ngAppName %}{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+
+{% block body %}
+<div class="offset1 span10">
+<table class="table table-hover table-condensed">
+		<thead>
+			<tr>
+			  <th></th>
+			  <th>name</th>
+			  <th>Amount</th>
+			  <th>Description</th>
+			  <th>PaidFor</th>
+			  <th>DatePaid</th>
+			</tr>
+		</thead>
+{% for i in history_transaction_list%}
+		<tbody>
+			<tr>
+			  <td class="span1">{{forloop.revcounter}}</td>
+			  <td class="span1">{{i.paid_user}}</td>
+			  <td class="span1">{{i.amount}}</td>
+			  <td class="span1">{{i.description}}</td>
+			  <td class="span1">{%for usr in i.users_involved.all%}
+								{{usr}}<br/>
+								{%endfor%}
+								</td>
+			  <td class="span2">{{i.transaction_time}}</td>
+			</tr>
+		</tbody>
+{% endfor %}
+</table>
+</div>
+{% endblock %}
+
+
+{% block footer%}
+{% endblock %}
+
+
+{% block afterbody%}
+{% endblock %}

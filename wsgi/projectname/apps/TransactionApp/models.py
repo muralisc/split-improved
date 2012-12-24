@@ -93,7 +93,7 @@ class Transaction(models.Model):
     create_time = models.DateTimeField(auto_now_add=True, null=False, blank=True)
     created_by_user = models.ForeignKey(User, related_name='ceatedTransaction', null=False, blank=True)
     created_for_group = models.ForeignKey(Group, null=True, blank=True)
-    history = models.OneToOneField('Transaction', null=True, blank=True)
+    history = models.OneToOneField('Transaction', null=True, blank=True, related_name='future')
     deleted = models.BooleanField(null=False, blank=True)
 
     class Meta:
@@ -103,8 +103,7 @@ class Transaction(models.Model):
             )
 
     def __unicode__(self):
-        pass
-        return '{0} | {1} | {2}|{3}'.format(self.paid_user, self.amount, self.created_for_group, self.description)
+        return '{0}'.format(self.id)
 
     def get_outstanding_amount(self, user_id):
         '''
@@ -149,7 +148,7 @@ class Transaction(models.Model):
             if p_object.user_id != user_created_id:
                 if notification_type == 'txn_created':
                     message='created transaction for {0}/{1}; \
-                            your outstanding is <strong>{2:.2}</strong> \
+                            your outstanding is <strong>{2:.2f}</strong> \
                             among {3} users involved '.format(
                                 self.description, self.to_category,
                                 p_object.outstanding_amount,
@@ -157,7 +156,7 @@ class Transaction(models.Model):
                                 ),
                 elif notification_type == 'txn_deleted':
                     message='deleted transaction for {0}/{1}; \
-                            your outstanding is <strong>{2:.2}</strong> \
+                            your outstanding is <strong>{2:.2f}</strong> \
                             among {3} users involved '.format(
                                 self.description, self.to_category,
                                 p_object.outstanding_amount,

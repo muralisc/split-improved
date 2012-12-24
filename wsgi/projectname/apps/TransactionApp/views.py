@@ -199,7 +199,7 @@ def editTransactionForm(request):
             for mem_ship in request.session['active_group'].getMemberships.all():
                 if mem_ship.user_id == transaction_to_edit.paid_user_id:
                     paid_user_pos_found = True
-                else:
+                elif paid_user_pos_found is False:
                     paid_user_pos = paid_user_pos + 1
                 checked = True if Payee.objects.filter(txn_id=transaction_id, user_id=mem_ship.user.id).exists() else False
                 users_in_grp.append({
@@ -250,20 +250,7 @@ def editTransactionForm(request):
 
 @login_required(login_url='/login/')
 def editTransaction(request):
-    if 't' in request.GET:
-        transaction_id = int(request.GET['t'])
-    else:
-        return redirect('/transactionForm/')
-    '''
-    delete old transactions
-    '''
-    temp_obj_store = Transaction.objects.get(id=transaction_id)
-    temp_obj_store.deleted = True
-    temp_obj_store.save()
-    temp_obj_store = Transaction.objects.get(id=transaction_id + 1)
-    temp_obj_store.deleted = True
-    temp_obj_store.save()
-    # TODO edit outstanding amount
+    deleteTransaction(request)
     makeTransaction(request)
     return redirect('/transactionForm/')
 
@@ -580,6 +567,25 @@ def personalTransactionList(request):
             }
     return render_to_response('personalTransactionList.html', dict_for_html, context_instance=RequestContext(request))
 
+
+@login_required(login_url='/login/')
+def transactionHistory(request):
+    if 't' in request.GET:
+        transaction_id = int(request.GET['t'])
+    else:
+        # TODO redirect
+        pass
+    temp_txn = Transaction.objects.get(id=transaction_id)
+    history_transaction_list = list()
+    history_transaction_list.append(temp_txn)
+    while temp_txn.history is not None:
+        temp_txn = temp_txn.history
+        history_transaction_list.append(temp_txn)
+        pass
+    dict_for_html = {
+            'history_transaction_list': history_transaction_list,
+            }
+    return render_to_response('historyList.html', dict_for_html, context_instance=RequestContext(request))
 # TODO report errroers fu nction
 # TODO user filer in all html pages
 # TODO creating category of the same name

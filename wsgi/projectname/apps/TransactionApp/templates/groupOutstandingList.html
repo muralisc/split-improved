@@ -26,24 +26,27 @@
 			  <th>DatePaid</th>
 			  <th>Outstanding</th>
 			  <th>CumOutstanding</th>
+			  <th>delete</th>
+			  <th>edit</th>
 			</tr>
 		</thead>
 {% for i in transaction_list_with_outstanding %}
 		<tbody>
-			<tr>
-			  <td class="span1">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</td>
-			  <td class="span1">{{i.0.paid_user}}</td>
-			  <td class="span1">{{i.0.amount}}</td>
-			  <td class="span1">{{i.0.description}}</td>
-			  <td class="span1">{%for usr in i.0.users_involved.all%}
-								{{usr}}<br/>
-								{%endfor%}
-								</td>
-			  <td class="span2">{{i.0.transaction_time}}</td>
-			  <td class="span1">{{i.1|floatformat}}</td>
-			  <td class="span1">{{i.2|floatformat}}</td>
-              <td class="span1"><a href="/deleteTransaction/?t={{i.0.pk}}">delete</a></td>
-			</tr>
+            <tr>
+                <td class="span1">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</td>
+                <td class="span1">{{i.0.paid_user}}</td>
+                <td class="span1">{{i.0.amount}}</td>
+                <td class="span1">{{i.0.description}}</td>
+                <td class="span1">{%for usr in i.0.users_involved.all%}
+                    {{usr}}<br/>
+                    {%endfor%}
+                </td>
+                <td class="span2">{{i.0.transaction_time}}</td>
+                <td class="span1">{{i.1|floatformat}}</td>
+                <td class="span1">{{i.2|floatformat}}</td>
+                <td class="span1"><a href="/deleteTransaction/?t={{i.0.pk}}">delete</a></td>
+                <td class="span1"><a href="/editTransactionForm/?t={{i.0.pk}}">edit</a></td>
+            </tr>
 		</tbody>
 {% endfor %}
 </table>

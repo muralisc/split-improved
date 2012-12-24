@@ -216,7 +216,7 @@ def parseGET_initialise(request):
                             day=1)
                             #day=calendar.monthrange(current_time.year, current_time.month - 1)[1])
             elif int(request.GET['tr']) == ALL_TIME:
-                start_time = Transaction.objects.all().values('transaction_time').order_by('-transaction_time')[0]['transaction_time']
+                start_time = Transaction.objects.order_by('transaction_time')[0].transaction_time
                 timeRange = ALL_TIME                                                                # for angularjs
                 #end_time = current_time
         except:
@@ -268,6 +268,7 @@ def new_group_transaction_event(group_id, transaction, user_created_id):
     '''
     update the Membership table outstanding
     update the GroupCategory table outstanding
+    create notifications
     '''
     # get memberships of all users involved
     involved_memberships = Membership.objects.filter(
@@ -295,6 +296,8 @@ def delete_group_transaction_event(group_id, transaction, user_created_id):
     '''
     update the Membership table outstanding
     update the GroupCategory table outstanding
+    dekted the associated user transaction
+    create notifications
     '''
     # get memberships of all users involved
     involved_memberships = Membership.objects.filter(
@@ -314,6 +317,9 @@ def delete_group_transaction_event(group_id, transaction, user_created_id):
         tc.save()
     except:
         pass
+    ass_personal_txn = Transaction.objects.get(id=transaction.id + 1)
+    ass_personal_txn.deleted = True
+    ass_personal_txn.save()
     transaction.create_notifications(user_created_id, 'txn_deleted')
 
 

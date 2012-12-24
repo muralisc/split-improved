@@ -23,6 +23,8 @@
 			  <th>Outstanding</th>
 			  <th>CumOutstanding</th>
 			  <th>delete</th>
+			  <th>edit</th>
+			  <th>history</th>
 			</tr>
 		</thead>
 {% for i in transaction_list_for_sorting%}
@@ -40,6 +42,12 @@
 			  <td class="span1">{{i.1|floatformat}}</td>
 			  <td class="span1">{{i.2|floatformat}}</td>
               <td class="span1"><a href="/deleteTransaction/?t={{i.0.pk}}">delete</a></td>
+              <td class="span1"><a href="/editTransactionForm/?t={{i.0.pk}}">edit</a></td>
+              <td class="span1">
+{% if i.0.history %}
+                  <a href="">history</a>
+{% endif %}
+              </td>
 			</tr>
 		</tbody>
 {% endfor %}

@@ -24,7 +24,7 @@ urlpatterns = patterns('',
 
 
     (u'^transactionForm/$', 'TransactionApp.views.displayTransactionForm'),
-    (u'^edittransactionForm/$', 'TransactionApp.views.editTransactionForm'),
+    (u'^editTransactionForm/$', 'TransactionApp.views.editTransactionForm'),
     (u'^editTransaction/$', 'TransactionApp.views.editTransaction'),
     (r'^makeTransaction/$', 'TransactionApp.views.makeTransaction'),
     (r'^deleteTransaction/$', 'TransactionApp.views.deleteTransaction'),
@@ -36,6 +36,7 @@ urlpatterns = patterns('',
     (r'^group/transactionList/$', 'TransactionApp.views.groupTransactionList'),
     (r'^group/expenseList/$', 'TransactionApp.views.groupExpenseList'),
     (r'^group/outstandingList/$', 'TransactionApp.views.groupOutstandingList'),
+    (r'^transactionHistory/$', 'TransactionApp.views.transactionHistory'),
 
     (r'^import/$', 'TransactionApp.views.import_from_json'),
 
