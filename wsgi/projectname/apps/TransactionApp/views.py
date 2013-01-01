@@ -311,7 +311,8 @@ def getJSONcategories(request):
 
 #@login_required(login_url='/login/')
 def import_from_json(request):
-    import_from_snapshot()
+    if request.method == 'POST':
+        import_from_snapshot(request)
     return render_to_response('import.html', locals(), context_instance=RequestContext(request))
 
 

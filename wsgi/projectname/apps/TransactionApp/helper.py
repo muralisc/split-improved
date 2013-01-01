@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.contrib.auth.models import User, Permission
 from TransactionApp.models import Category, Payee, Transaction, UserCategory, GroupCategory
 from projectApp1.models import Membership, Group
@@ -16,11 +16,11 @@ def on_create_user(user):
     user.user_permissions.add(perm)
 
 
-def import_from_snapshot():
+def import_from_snapshot(request):
     import json
     import itertools
-    json_file = open('mysql_dump_snapsho')
-    data = json.load(json_file)
+    json_file = request.FILES['json_file'].read()
+    data = json.loads(json_file)
     model_dict = dict()
     # group the json by model
     for key, g in itertools.groupby(data, key=lambda x: x["model"]):
@@ -129,7 +129,6 @@ def import_from_snapshot():
         category_gained = category_gained if category_gained else 0
         temp.current_amount = category_gained - category_lost + temp.initial_amount
         temp.save()
-    json_file.close()
 
 
 def get_outstanding_amount(group_id, user_id, end_time=None):
@@ -217,20 +216,21 @@ def parseGET_initialise(request):
                             #day=calendar.monthrange(current_time.year, current_time.month - 1)[1])
             elif int(request.GET['tr']) == ALL_TIME:
                 start_time = Transaction.objects.order_by('transaction_time')[0].transaction_time
-                timeRange = ALL_TIME                                                                # for angularjs
+                timeRange = ALL_TIME                                                        # for angularjs
                 #end_time = current_time
         except:
             # default values alredy filled
             pass
     elif 'ts' in request.GET or 'te' in request.GET:
         try:
-            timeRange = CUSTOM_RANGE                                                                # for angularjs
+            timeRange = CUSTOM_RANGE                                                        # for angularjs
             # time start
             if 'ts' in request.GET:
                 start_time = datetime.strptime(request.GET['ts'], '%Y-%m-%d')
             # time end
             if 'te' in request.GET:
                 end_time = datetime.strptime(request.GET['te'], '%Y-%m-%d')
+                end_time = end_time + timedelta(days=1)                                     # to include the last date also
         except:
             # default values alredy filled
             pass
