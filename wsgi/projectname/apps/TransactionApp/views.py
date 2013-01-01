@@ -177,6 +177,7 @@ def deleteTransaction(request):
     transactionRow.save()
     return redirect(next_url)
 
+
 @login_required(login_url='/login/')
 def editTransactionForm(request):
     '''
@@ -194,6 +195,7 @@ def editTransactionForm(request):
             users_in_grp = []
             checked = False
             transaction_to_edit = Transaction.objects.get(id=transaction_id)  # TODO include group check too
+            involving_checkbox_state = True if transaction_to_edit.created_for_group is not None else False
             paid_user_pos_found = False
             paid_user_pos = 0
             for mem_ship in request.session['active_group'].getMemberships.all():
@@ -239,6 +241,7 @@ def editTransactionForm(request):
             'edit_description': transaction_to_edit.description,
             'edit_amount': transaction_to_edit.amount,
             'edit_paid_user': paid_user_pos,
+            'involving_checkbox_state': involving_checkbox_state,
             'next_link': "/editTransaction/",
             'INCOME': INCOME,
             'BANK':  BANK,
@@ -593,3 +596,4 @@ def transactionHistory(request):
 # TODO creating duplicate user cateories
 # TODO transaction history
 # view and move uncategorised transactions TODO
+# TODO check [test] delte txn reflect properly on totals personal and group

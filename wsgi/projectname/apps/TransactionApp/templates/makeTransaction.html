@@ -209,7 +209,10 @@
         $scope.involving_checkbox="true";
 {% endif %}
 // iniitalse varibles for editting
-{% if edit_date%}
+{% if involving_checkbox_state %}
+        $scope.involving_checkbox = "{{ involving_checkbox_state|lower }}";
+{% endif %}
+{% if edit_date %}
         $scope.date = '{{ edit_date }}';
 {% endif %}
 {% if edit_description %}
