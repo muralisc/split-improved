@@ -407,7 +407,7 @@ def groupTransactionList(request):
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group=request.session['active_group']) &
                         Q(deleted=False)
-                        ).distinct().order_by(*['amount',])
+                        ).distinct().order_by(*['transaction_time'])
     # TODO more sorting
     transaction_list_for_sorting = list()
     cumulative_sum = 0

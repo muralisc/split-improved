@@ -8,7 +8,10 @@
 
 
 {% block body %}
-<div class="span12">
+<div class="span2">
+{% include "navlist.html" %}
+</div>
+<div class="span6">
 	<a class="pull-right btn-primary btn-small" href="/logout/" >logout</a>
 	<br/>
 	{{ user.username}}
@@ -21,7 +24,6 @@
 		{% endfor %}
 		NO OF INVITES <a name="invites_link" href="/allInvites/">{{ no_of_invites }}</a><br/>
 		NO OF Notifications<a name="nofication_link" href="/allNotifications/">{{ no_of_notifications }}</a><br/>
-		<a name="makeTransactionLink" href="/transactionForm/">Make transaction Link</a><br/>
 		CREATE GROUP <br/>
 		<form name="groupCreate" class="form form-horizontal" action="/createGroup/" method="post">{% csrf_token %}   
 			<label for="id_name">Name:</label> <input id="id_name" type="text" name="name" maxlength="64" />

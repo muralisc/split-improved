@@ -11,14 +11,6 @@
 
 
 {% block body %}
-<div class="span4">
-{% if perms.TransactionApp.personal_transactions %}
-    <a href="/personal/statistics/">personalStatistics</a><br/>
-    <a href="/personal/transactionList/">personalTransactionList</a><br/>
-{% endif %}
-    <a href="/group/statistics/">groupStatistics</a><br/>
-    <a href="/group/transactionList/">groupTransactionList</a><br/>
-</div>
 <div class="span8" ng-controller="TransactionsFormController">
 	{% for i in request.session.memberships%}
 		{% if request.session.active_group == i.group %}
