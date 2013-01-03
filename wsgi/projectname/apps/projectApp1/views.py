@@ -268,7 +268,7 @@ def updateSession(request):
     request.session['memberships'] = membershipFilter
     response_json = dict()
     if request.user.has_perm('TransactionApp.group_transactions'):
-        if 'active_group' in request.session:
+        if request.session['active_group'] is not None:
             users_in_grp = [{
                             'username': mem_ship.user.username,
                             'id': mem_ship.user.id,

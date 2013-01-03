@@ -97,8 +97,8 @@ inputElement.submit()
 '''
 go to the transaction link
 '''
-WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//div/a[@name='makeTransactionLink']").is_displayed())
-driver.find_element_by_xpath("//div/a[@name='makeTransactionLink']").click()
+WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//li/a[@name='makeTransactionLink']").is_displayed())
+driver.find_element_by_xpath("//li/a[@name='makeTransactionLink']").click()
 WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//form[@name='makeTransactionForm']").is_displayed())
 '''
 enter transaction details
