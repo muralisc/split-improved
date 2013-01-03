@@ -11,6 +11,9 @@
 
 
 {% block body %}
+<div class="span2">
+{% include "navlist.html" %}
+</div>
 <div class="span8" ng-controller="TransactionsFormController">
 	{% for i in request.session.memberships%}
 		{% if request.session.active_group == i.group %}

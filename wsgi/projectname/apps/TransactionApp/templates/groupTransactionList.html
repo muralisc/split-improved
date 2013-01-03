@@ -1,16 +1,22 @@
 {% extends 'base.html' %}
+{% load customfilters %}
 {% block title %}
 {% endblock %}
 
-{% block ngAppName %}{% endblock %}
+{% block ngAppName %} ng-app="YourAppName" {% endblock %}
 
 {% block header %}
 {% endblock %}
 
 
 {% block body%}
+<div class="span2">
+{% include "navlist.html" %}
+</div>
 {%if transaction_list_for_sorting%}
-<div class="offset1 span10">
+<div class="span10">
+{% include "filterController.html" %}
+{% include "pageFilter.html" %}
 <table class="table table-hover table-condensed">
 		<thead>
 			<tr>
@@ -20,8 +26,6 @@
 			  <th>Description</th>
 			  <th>PaidFor</th>
 			  <th>DatePaid</th>
-			  <th>Outstanding</th>
-			  <th>CumOutstanding</th>
 			  <th>delete</th>
 			  <th>edit</th>
 			  <th>history</th>
@@ -30,19 +34,17 @@
 {% for i in transaction_list_for_sorting%}
 		<tbody>
 			<tr>
-			  <td class="span1">{{forloop.revcounter}}</td>
-			  <td class="span1">{{i.0.paid_user}}</td>
-			  <td class="span1">{{i.0.amount}}</td>
-			  <td class="span1">{{i.0.description}}</td>
-			  <td class="span1">{%for usr in i.0.users_involved.all%}
+              <td class="span1">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</td>
+              <td class="span1">{{i.paid_user}}</td>
+			  <td class="span1">{{i.amount}}</td>
+			  <td class="span1">{{i.description}}</td>
+			  <td class="span1">{%for usr in i.users_involved.all%}
 								{{usr}}<br/>
 								{%endfor%}
 								</td>
-			  <td class="span2">{{i.0.transaction_time}}</td>
-			  <td class="span1">{{i.1|floatformat}}</td>
-			  <td class="span1">{{i.2|floatformat}}</td>
-              <td class="span1"><a href="/deleteTransaction/?t={{i.0.pk}}">delete</a></td>
-              <td class="span1"><a href="/editTransactionForm/?t={{i.0.pk}}">edit</a></td>
+			  <td class="span2">{{i.transaction_time}}</td>
+              <td class="span1"><a href="/deleteTransaction/?t={{i.pk}}">delete</a></td>
+              <td class="span1"><a href="/editTransactionForm/?t={{i.pk}}">edit</a></td>
               <td class="span1">
 {% if i.0.history %}
                   <a href="">history</a>

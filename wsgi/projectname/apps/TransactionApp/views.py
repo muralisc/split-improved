@@ -400,22 +400,24 @@ def groupTransactionList(request):
     no Pagination
     mainly for debugging
     '''
-    if 'u' in request.GET:
-        filter_user_id = int(request.GET['u'])
-    else:
-        filter_user_id = request.user.pk
+    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group=request.session['active_group']) &
                         Q(deleted=False)
-                        ).distinct().order_by(*['transaction_time'])
+                        ).distinct().order_by(*['-transaction_time'])
+    (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
+    transaction_list = current_page.object_list
     # TODO more sorting
     transaction_list_for_sorting = list()
     cumulative_sum = 0
     for temp in transaction_list:
-        usrcost = temp.get_outstanding_amount(filter_user_id)
-        cumulative_sum = cumulative_sum + usrcost
-        transaction_list_for_sorting.append([temp, usrcost, cumulative_sum])
+        transaction_list_for_sorting.append(temp)
     dict_for_html = {
+            'page_no': page_no,
+            'filter_user_id': filter_user_id,
+            'txn_per_page': txn_per_page,
+            'current_page': current_page,
+            'paginator_obj': paginator_obj,
             'transaction_list_for_sorting': transaction_list_for_sorting,
             }
     return render_to_response('groupTransactionList.html', dict_for_html, context_instance=RequestContext(request))

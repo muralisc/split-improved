@@ -9,9 +9,14 @@
 
 
 {% block body %}
+<div class="span2">
+{% include "navlist.html" %}
+</div>
+<div class="span10">
 {% for i in category_outstanding_list%}
 <a href="/personal/transactionList/?atofc={{i.0.id}}">{{i.0}}</a> --- {{i.1}}<br/>
 {% endfor %}
+</div>
 {% endblock %}
 
 
