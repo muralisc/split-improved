@@ -24,41 +24,9 @@ def displayTransactionForm(request):
     ensure that the session 'grp' is popuklated
     '''
     categoryForm = CategoryForm()
-    response_json = dict()
-    if request.user.has_perm('TransactionApp.group_transactions'):
-        if 'active_group' in request.session:
-            users_in_grp = [{
-                            'username': mem_ship.user.username,
-                            'id': mem_ship.user.id,
-                            'checked': False
-                            }
-                            for mem_ship in request.session['active_group'].getMemberships.all()]
-            toCategory_group = [{
-                                    'name': i.name,
-                                    'id': i.id
-                                }
-                                for i in request.session['active_group'].usesCategories.filter(category_type=EXPENSE)]
-        else:
-            users_in_grp = []
-            toCategory_group = []
-        response_json['users_in_grp'] = SafeString(json.dumps(users_in_grp))
-        response_json['toCategory_group'] = SafeString(json.dumps(toCategory_group))
-    if request.user.has_perm('TransactionApp.personal_transactions'):
-        pass
-    fromCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
-                                                                                    Q(category_type=INCOME) |
-                                                                                    Q(category_type=BANK) |
-                                                                                    Q(category_type=CREDIT))]
-    toCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
-                                                                                    Q(category_type=EXPENSE) |
-                                                                                    Q(category_type=BANK) |
-                                                                                    Q(category_type=CREDIT))]
-    response_json['fromCategory_user'] = SafeString(json.dumps(fromCategory_user))
-    response_json['toCategory_user'] = SafeString(json.dumps(toCategory_user))
-
     dict_for_html = {
             'categoryForm': CategoryForm,
-            'response_json': response_json,
+            'response_json': request.session['response_json'],
             'request': request,
             'next_link': "/makeTransaction/",
             'INCOME': INCOME,
@@ -376,6 +344,7 @@ def groupExpenseList(request):
         transaction_list_with_expense.append([temp, usrexp, cumulative_exp])
         cumulative_exp = cumulative_exp - usrexp
     dict_for_html = {
+            'response_json': request.session['response_json'],
             'page_no': page_no,
             'filter_user_id': filter_user_id,
             'txn_per_page': txn_per_page,
@@ -413,6 +382,7 @@ def groupTransactionList(request):
     for temp in transaction_list:
         transaction_list_for_sorting.append(temp)
     dict_for_html = {
+            'response_json': request.session['response_json'],
             'page_no': page_no,
             'filter_user_id': filter_user_id,
             'txn_per_page': txn_per_page,
@@ -458,6 +428,7 @@ def groupOutstandingList(request):
         transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])
         cumulative_sum = cumulative_sum - usrcost
     dict_for_html = {
+            'response_json': request.session['response_json'],
             'page_no': page_no,
             'filter_user_id': filter_user_id,
             'txn_per_page': txn_per_page,

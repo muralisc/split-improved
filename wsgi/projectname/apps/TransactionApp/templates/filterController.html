@@ -11,6 +11,10 @@ and ng-app in <html> tag
 <script type="text/javascript">
 function filterController($scope) {
 	//initialise selectboxes
+{% if perms.TransactionApp.group_transactions %}
+    $scope.users_in_grp={{ response_json.users_in_grp }};
+    $scope.toCategory_group={{ response_json.toCategory_group }};
+{% endif %}
 	$scope.timeRange="{{timeRange}}";
 	
 	if($scope.timeRange=="3"){
@@ -30,7 +34,12 @@ function filterController($scope) {
 {% endif %}<!--}}}-->
 
 {% if filter_user_id %}
-	$scope.u = {{filter_user_id}};
+    for (var i = 0; i < $scope.users_in_grp.length; i++) {
+        if ($scope.users_in_grp[i].id == {{filter_user_id}}){
+            $scope.u = $scope.users_in_grp[i];
+            break;
+        }
+    }
 {% endif %}
 
 {% if response_json.category %}//<!--{{{-->
@@ -62,7 +71,7 @@ function filterController($scope) {
 		$scope.queryString = "?";
 {% if filter_user_id %}
         $scope.queryString = $scope.queryString.concat("u=");
-        $scope.queryString = $scope.queryString.concat($scope.u);
+        $scope.queryString = $scope.queryString.concat($scope.u.id);
         $scope.queryString = $scope.queryString.concat("&");
 {% endif %}
 		/*

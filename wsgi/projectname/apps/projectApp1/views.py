@@ -8,9 +8,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from projectApp1.forms import LoginCreateForm
 from projectApp1.models import GroupForm, Membership, Group, Invite, Notification
+from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT  # , THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME
 from django.http import Http404, HttpResponse
 from django.utils.safestring import SafeString
 from TransactionApp.helper import on_create_user
+from django.db.models import Q   # , Sum
 
 
 def createUser(request):
@@ -264,3 +266,35 @@ def updateSession(request):
                                                                                         group__deleted=False
                                                                                     ).exists() else None
     request.session['memberships'] = membershipFilter
+    response_json = dict()
+    if request.user.has_perm('TransactionApp.group_transactions'):
+        if 'active_group' in request.session:
+            users_in_grp = [{
+                            'username': mem_ship.user.username,
+                            'id': mem_ship.user.id,
+                            'checked': False
+                            }
+                            for mem_ship in request.session['active_group'].getMemberships.all()]
+            toCategory_group = [{
+                                    'name': i.name,
+                                    'id': i.id
+                                }
+                                for i in request.session['active_group'].usesCategories.filter(category_type=EXPENSE)]
+        else:
+            users_in_grp = []
+            toCategory_group = []
+        response_json['users_in_grp'] = SafeString(json.dumps(users_in_grp))
+        response_json['toCategory_group'] = SafeString(json.dumps(toCategory_group))
+    if request.user.has_perm('TransactionApp.personal_transactions'):
+        pass
+    fromCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
+                                                                                    Q(category_type=INCOME) |
+                                                                                    Q(category_type=BANK) |
+                                                                                    Q(category_type=CREDIT))]
+    toCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
+                                                                                    Q(category_type=EXPENSE) |
+                                                                                    Q(category_type=BANK) |
+                                                                                    Q(category_type=CREDIT))]
+    response_json['fromCategory_user'] = SafeString(json.dumps(fromCategory_user))
+    response_json['toCategory_user'] = SafeString(json.dumps(toCategory_user))
+    request.session['response_json'] = response_json

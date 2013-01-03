@@ -1,0 +1,10 @@
+<!-- 
+Requires 
+{-%include "filterController.html" %-}
+and ng-app in <html> tag
+--->
+<div ng-controller="filterController">
+    <select ng-model="u" ng-change="frameGETquery()" ng-options="c.username for c in users_in_grp">
+        <option value="" selected="selected">---------</option>
+    </select>
+</div>
