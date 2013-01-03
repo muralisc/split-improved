@@ -5,7 +5,16 @@
         <li><a href="/personal/statistics/">personalStatistics</a></li>
 {% endif %}
         <li><a href="/group/statistics/">groupStatistics</a></li>
-        <li><a href=""></a></li>
+        <li class="nav-header">Groups</li>
+		{% for i in request.session.memberships %}
+        <li 
+        {% if request.session.active_group.id == i.group.id %}"
+        class="active"
+        {% endif %}
+        >
+			<a href="/group/{{ i.group.pk }}">{{ i.group.name }}</a>{{ i.administrator }}
+        </li>
+		{% endfor %}
         <li><a href=""></a></li>
         <li><a href=""></a></li>
     </ul>

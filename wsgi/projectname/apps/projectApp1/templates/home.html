@@ -14,12 +14,6 @@
 </div>
 <div class="span6">
 	<div class="row-fluid">
-		GROUPS :
-		{% for i in request.session.memberships %}
-			<a href="/group/{{ i.group.pk }}">{{ i.group.name }}</a>
-			{{ i.administrator }}
-			<br/>
-		{% endfor %}
 		NO OF INVITES <a name="invites_link" href="/allInvites/">{{ no_of_invites }}</a><br/>
 		NO OF Notifications<a name="nofication_link" href="/allNotifications/">{{ no_of_notifications }}</a><br/>
 		CREATE GROUP <br/>
