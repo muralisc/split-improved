@@ -4,13 +4,19 @@
 
 
 {% block header %}
+{% include "navbar.html" %}
 {% endblock %}
 
 
 {% block body %}
-{% for i in all_invites %}
-{{ i.from_user }} invited you to <strong>{{ i.group }}</strong> : {{ i.message }} <a href="/invite/accept/{{ i.pk }}/">Accept</a> <a href="/invite/decline/{{ i.pk }}/">Decline</a><br/>
-{% endfor %}
+<div class="span2">
+{% include "navlist.html" %}
+</div>
+<div class="span10">
+    {% for i in all_invites %}
+    {{ i.from_user }} invited you to <strong>{{ i.group }}</strong> : {{ i.message }} <a href="/invite/accept/{{ i.pk }}/">Accept</a> <a href="/invite/decline/{{ i.pk }}/">Decline</a><br/>
+    {% endfor %}
+</div>
 {% endblock %}
 
 

@@ -6,6 +6,7 @@
 {% block ngAppName %} ng-app="YourAppName" {% endblock %}
 
 {% block header %}
+{% include "navbar.html" %}
 {% endblock %}
 
 
@@ -13,7 +14,7 @@
 <div class="span2">
 {% include "navlist.html" %}
 </div>
-<div class="offset1 span10">
+<div class="span10">
 {% include "filterController.html" %}
 {% include "pageFilter.html" %}
 {% include "timeFilter.html" %}

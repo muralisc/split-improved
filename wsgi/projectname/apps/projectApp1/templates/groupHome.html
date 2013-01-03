@@ -5,33 +5,38 @@ groupinfo Page
 
 
 {% block header %}
+{% include "navbar.html" %}
 {% endblock %}
 
 
 {% block body %}
-{{ group.name }}<br/>
-{{ group.description}}<br/>
-DELETED: {{ group.deleted}}<br/>
-Members:<br/>
-{% for i in members %}
-{{ i.user.username }}
-{{ i.administrator }}
-{{ i.positions }}
-{{ i.amount_in_pool }}
-<br/>
-{% endfor %}
-Invites sent to <br/>
-{% for i in invites %}
-{{ i }}
-<br/>
-{% endfor %}
-<h3>NEW INVITES</h3>
-<form class="form form-horizontal" action="/sentInvites/{{ group.pk }}/" method="post">{% csrf_token %}   
-	<label for="id_members">Invite new Members:</label> 
-	<input name="members" id="id_members"type="text" id="tokeninput-demo" />
-	<input class="btn" type="submit" name="SentInvite" value="Sent Invite"/>
-</form>
-
+<div class="span2">
+{% include "navlist.html" %}
+</div>
+<div class="span10">
+    {{ group.name }}<br/>
+    {{ group.description}}<br/>
+    DELETED: {{ group.deleted}}<br/>
+    Members:<br/>
+    {% for i in members %}
+    {{ i.user.username }}
+    {{ i.administrator }}
+    {{ i.positions }}
+    {{ i.amount_in_pool }}
+    <br/>
+    {% endfor %}
+    Invites sent to <br/>
+    {% for i in invites %}
+    {{ i }}
+    <br/>
+    {% endfor %}
+    <h3>NEW INVITES</h3>
+    <form class="form form-horizontal" action="/sentInvites/{{ group.pk }}/" method="post">{% csrf_token %}   
+        <label for="id_members">Invite new Members:</label> 
+        <input name="members" id="id_members"type="text" id="tokeninput-demo" />
+        <input class="btn" type="submit" name="SentInvite" value="Sent Invite"/>
+    </form>
+</div>
 {% endblock %}
 
 

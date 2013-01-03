@@ -1,15 +1,16 @@
-            <div class="navbar  navbar-fixed-top navbar-inverse">
-                <div class="navbar-inner">
-                    <a class="brand" href="#">Title</a>
+        <div class="navbar  navbar-fixed-top navbar-inverse">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="/home/">Split</a>
                     <ul class="nav">
                         <li class="active"><a href="#">Home</a></li>
                         <li><a href="#">Link</a></li>
                     </ul>
                     <ul class="nav pull-right">
-                        <li class="active"><a href="#">Home</a></li>
-                        <li><a href="#">Link</a></li>
-                        <li><a href="#">Link</a></li>
-                        <li><a href="#"><i class="icon-cog icon-white"></i></a></li>
+                        <li><a href="#">{{request.user}}</a></li>
+                        <li><a href="/logout/">Logout</a></li>
+                        <li><a href="/settings/"><i class="icon-cog icon-white"></i></a></li>
                     </ul>
                 </div>
             </div>
+        </div>

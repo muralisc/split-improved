@@ -4,6 +4,7 @@
 
 
 {% block header %}
+{% include "navbar.html" %}
 {% endblock %}
 
 
@@ -12,9 +13,6 @@
 {% include "navlist.html" %}
 </div>
 <div class="span6">
-	<a class="pull-right btn-primary btn-small" href="/logout/" >logout</a>
-	<br/>
-	{{ user.username}}
 	<div class="row-fluid">
 		GROUPS :
 		{% for i in request.session.memberships %}
