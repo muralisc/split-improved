@@ -1,0 +1,14 @@
+<!-- 
+Requires 
+{-% include "filterController.html" %-}
+and ng-app in <html> tag
+--->
+<div ng-controller="filterController">
+	<select ng-model="listType" ng-change="frameGETquery()">
+		<option value="" selected="selected">---------</option>
+		<option value="/group/outstandingList/">Outstanding List</option>
+		<option value="/group/expenseList/">ExpenseList</option>
+		<option value="/group/transactionList/">All Transactions simple</option>
+        <option value="">All Transactions advanced</option>
+	</select>
+</div>

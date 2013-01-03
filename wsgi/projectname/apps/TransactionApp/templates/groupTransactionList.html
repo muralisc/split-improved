@@ -13,10 +13,12 @@
 <div class="span2">
 {% include "navlist.html" %}
 </div>
-{%if transaction_list_for_sorting%}
 <div class="span10">
 {% include "filterController.html" %}
 {% include "pageFilter.html" %}
+{% include "timeFilter.html" %}
+{% include "listTypeFilter.html" %}
+{%if transaction_list_for_sorting%}
 <table class="table table-hover table-condensed">
 		<thead>
 			<tr>

@@ -16,6 +16,7 @@ function filterController($scope) {
     $scope.toCategory_group={{ response_json.toCategory_group }};
 {% endif %}
 	$scope.timeRange="{{timeRange}}";
+	$scope.listType = window.location.pathname;
 	
 	if($scope.timeRange=="3"){
 		/*
@@ -68,7 +69,8 @@ function filterController($scope) {
 {% endif %}<!--}}}-->
 		
 	$scope.frameGETquery = function() {
-		$scope.queryString = "?";
+        $scope.queryString = $scope.listType;
+        $scope.queryString = $scope.queryString.concat("?");
 {% if filter_user_id %}
         $scope.queryString = $scope.queryString.concat("u=");
         $scope.queryString = $scope.queryString.concat($scope.u.id);

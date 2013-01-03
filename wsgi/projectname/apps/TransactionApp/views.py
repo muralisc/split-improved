@@ -344,6 +344,7 @@ def groupExpenseList(request):
         transaction_list_with_expense.append([temp, usrexp, cumulative_exp])
         cumulative_exp = cumulative_exp - usrexp
     dict_for_html = {
+            'transaction_list_with_expense': transaction_list_with_expense,
             'response_json': request.session['response_json'],
             'page_no': page_no,
             'filter_user_id': filter_user_id,
@@ -352,7 +353,6 @@ def groupExpenseList(request):
             'current_page': current_page,
             'end_time': end_time,
             'timeRange': timeRange,
-            'transaction_list_with_expense': transaction_list_with_expense,
             'paginator_obj': paginator_obj,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
@@ -372,7 +372,8 @@ def groupTransactionList(request):
     (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group=request.session['active_group']) &
-                        Q(deleted=False)
+                        Q(deleted=False) &
+                        Q(transaction_time__range=(start_time, end_time))
                         ).distinct().order_by(*['-transaction_time'])
     (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
@@ -382,13 +383,20 @@ def groupTransactionList(request):
     for temp in transaction_list:
         transaction_list_for_sorting.append(temp)
     dict_for_html = {
+            'transaction_list_for_sorting': transaction_list_for_sorting,
             'response_json': request.session['response_json'],
             'page_no': page_no,
             'filter_user_id': filter_user_id,
             'txn_per_page': txn_per_page,
+            'start_time': start_time,
             'current_page': current_page,
+            'end_time': end_time,
+            'timeRange': timeRange,
             'paginator_obj': paginator_obj,
-            'transaction_list_for_sorting': transaction_list_for_sorting,
+            'THIS_MONTH': THIS_MONTH,
+            'LAST_MONTH': LAST_MONTH,
+            'CUSTOM_RANGE': CUSTOM_RANGE,
+            'ALL_TIME': ALL_TIME,
             }
     return render_to_response('groupTransactionList.html', dict_for_html, context_instance=RequestContext(request))
 
@@ -428,6 +436,7 @@ def groupOutstandingList(request):
         transaction_list_with_outstanding.append([temp, usrcost, cumulative_sum])
         cumulative_sum = cumulative_sum - usrcost
     dict_for_html = {
+            'transaction_list_with_outstanding': transaction_list_with_outstanding,
             'response_json': request.session['response_json'],
             'page_no': page_no,
             'filter_user_id': filter_user_id,
@@ -436,7 +445,6 @@ def groupOutstandingList(request):
             'current_page': current_page,
             'end_time': end_time,
             'timeRange': timeRange,
-            'transaction_list_with_outstanding': transaction_list_with_outstanding,
             'paginator_obj': paginator_obj,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
