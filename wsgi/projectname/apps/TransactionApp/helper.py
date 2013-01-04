@@ -1,8 +1,11 @@
+try: import simplejson as json
+except ImportError: import json
 from datetime import datetime, timedelta
 from django.contrib.auth.models import User, Permission
 from TransactionApp.models import Category, Payee, Transaction, UserCategory, GroupCategory
 from projectApp1.models import Membership, Group
-from TransactionApp.__init__ import THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, DEFAULT_START_PAGE, DEFAULT_RPP
+from django.utils.safestring import SafeString
+from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, DEFAULT_START_PAGE, DEFAULT_RPP
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
 from django.db.models import Q
@@ -17,7 +20,6 @@ def on_create_user(user):
 
 
 def import_from_snapshot(request):
-    import json
     import itertools
     json_file = request.FILES['json_file'].read()
     data = json.loads(json_file)
@@ -345,3 +347,53 @@ def new_personal_transaction_event(user_id, transaction):
         tc.save()
     except:
         pass
+
+
+def updateSession(request):
+    # list of all groups the user is a member of
+    membershipFilter = Membership.objects.filter(user=request.user).filter(group__deleted=False)
+    request.session['active_group'] = membershipFilter[0].group if Membership.objects.filter(
+                                                                                        user=request.user
+                                                                                    ).filter(
+                                                                                        group__deleted=False
+                                                                                    ).exists() else None
+    request.session['memberships'] = membershipFilter
+    response_json = dict()
+    if request.user.has_perm('TransactionApp.group_transactions'):
+        if request.session['active_group'] is not None:
+            users_in_grp = [{
+                            'username': mem_ship.user.username,
+                            'id': mem_ship.user.id,
+                            'checked': False
+                            }
+                            for mem_ship in request.session['active_group'].getMemberships.all()]
+            toCategory_group = [{
+                                    'name': i.name,
+                                    'id': i.id
+                                }
+                                for i in request.session['active_group'].usesCategories.filter(category_type=EXPENSE)]
+        else:
+            users_in_grp = []
+            toCategory_group = []
+        response_json['users_in_grp'] = SafeString(json.dumps(users_in_grp))
+        response_json['toCategory_group'] = SafeString(json.dumps(toCategory_group))
+    if request.user.has_perm('TransactionApp.personal_transactions'):
+        pass
+    fromCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
+                                                                                    Q(category_type=INCOME) |
+                                                                                    Q(category_type=BANK) |
+                                                                                    Q(category_type=CREDIT))]
+    toCategory_user = [{'name': i.name, 'id': i.id} for i in request.user.usesCategories.filter(
+                                                                                    Q(category_type=EXPENSE) |
+                                                                                    Q(category_type=BANK) |
+                                                                                    Q(category_type=CREDIT))]
+    response_json['fromCategory_user'] = SafeString(json.dumps(fromCategory_user))
+    response_json['toCategory_user'] = SafeString(json.dumps(toCategory_user))
+    category = [{
+                'name': row.category.name,
+                'id': row.category.id,
+                'type': row.category.category_type,
+                }
+                for row in UserCategory.objects.filter(user_id=request.user.id)]
+    response_json['category'] = SafeString(json.dumps(category))
+    request.session['response_json'] = response_json

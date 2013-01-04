@@ -312,10 +312,11 @@ def groupStatistics(request):
         members1.append([temp, get_expense(temp.group.id, temp.user.id, start_time, end_time)])
     dict_for_html = {
             'members1': members1,
+            'request': request,
+            'response_json': request.session['response_json'],
             'start_time': start_time,
             'end_time': end_time,
             'timeRange': timeRange,
-            'request': request,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,
@@ -352,13 +353,13 @@ def groupExpenseList(request):
     dict_for_html = {
             'transaction_list_with_expense': transaction_list_with_expense,
             'response_json': request.session['response_json'],
-            'page_no': page_no,
             'filter_user_id': filter_user_id,
-            'txn_per_page': txn_per_page,
             'start_time': start_time,
-            'current_page': current_page,
             'end_time': end_time,
             'timeRange': timeRange,
+            'page_no': page_no,
+            'current_page': current_page,
+            'txn_per_page': txn_per_page,
             'paginator_obj': paginator_obj,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
@@ -391,13 +392,13 @@ def groupTransactionList(request):
     dict_for_html = {
             'transaction_list_for_sorting': transaction_list_for_sorting,
             'response_json': request.session['response_json'],
-            'page_no': page_no,
             'filter_user_id': filter_user_id,
-            'txn_per_page': txn_per_page,
             'start_time': start_time,
-            'current_page': current_page,
             'end_time': end_time,
             'timeRange': timeRange,
+            'page_no': page_no,
+            'current_page': current_page,
+            'txn_per_page': txn_per_page,
             'paginator_obj': paginator_obj,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
@@ -444,13 +445,13 @@ def groupOutstandingList(request):
     dict_for_html = {
             'transaction_list_with_outstanding': transaction_list_with_outstanding,
             'response_json': request.session['response_json'],
-            'page_no': page_no,
             'filter_user_id': filter_user_id,
-            'txn_per_page': txn_per_page,
             'start_time': start_time,
-            'current_page': current_page,
             'end_time': end_time,
             'timeRange': timeRange,
+            'page_no': page_no,
+            'current_page': current_page,
+            'txn_per_page': txn_per_page,
             'paginator_obj': paginator_obj,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
@@ -526,27 +527,19 @@ def personalTransactionList(request):
                         ).distinct().order_by('-transaction_time')
     (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
-    response_json = dict()
-    category = [{
-                'name': row.category.name,
-                'id': row.category.id,
-                'type': row.category.category_type,
-                }
-                for row in UserCategory.objects.filter(user_id=request.user.id)]
-    response_json['category'] = SafeString(json.dumps(category))
 
     dict_for_html = {
-            'page_no': page_no,
-            'txn_per_page': txn_per_page,
-            'start_time': start_time,
-            'current_page': current_page,
-            'end_time': end_time,
-            'timeRange': timeRange,
             'transaction_list': transaction_list,
-            'paginator_obj': paginator_obj,
-            'response_json': response_json,
             'fc': fc,
             'tc': tc,
+            'response_json': request.session['response_json'],
+            'start_time': start_time,
+            'end_time': end_time,
+            'timeRange': timeRange,
+            'page_no': page_no,
+            'current_page': current_page,
+            'txn_per_page': txn_per_page,
+            'paginator_obj': paginator_obj,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,
