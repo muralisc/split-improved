@@ -481,6 +481,7 @@ def personalStatistics(request):
         category_outstanding_list.append([temp, category_gained - category_lost + temp.initial_amount])
     category_outstanding_list = sorted(category_outstanding_list, key=lambda x: x[0].category.category_type)
     dict_for_html = {
+            'request': request,
             'category_outstanding_list': category_outstanding_list,
             }
     return render_to_response('personalStatistics.html', dict_for_html, context_instance=RequestContext(request))
@@ -529,7 +530,7 @@ def personalTransactionList(request):
     transaction_list = current_page.object_list
 
     dict_for_html = {
-            'transaction_list': transaction_list,
+            'personal_transaction_list': transaction_list,
             'fc': fc,
             'tc': tc,
             'response_json': request.session['response_json'],

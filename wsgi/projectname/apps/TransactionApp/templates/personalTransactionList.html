@@ -10,12 +10,14 @@
 
 
 {% block body %}
-<div class="offset1 span10">
+<div class="span2">
+{% include "navlist.html" %}
+</div>
+<div class="span8">
 {% include "filterController.html" %}
 {% include "pageFilter.html" %}
 {% include "timeFilter.html" %}
 {% include "categoryFilter.html" %}
-
 <table class="table table-hover table-condensed">
 		<thead>
 			<tr>
@@ -28,7 +30,7 @@
 			  <th>Amount</th>
 			</tr>
 		</thead>
-{% for i in transaction_list%}
+{% for i in personal_transaction_list%}
 		<tbody>
 			<tr>
 			  <td class="span1">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</td>

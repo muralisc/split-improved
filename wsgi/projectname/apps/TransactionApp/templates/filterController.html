@@ -43,7 +43,7 @@ function filterController($scope) {
     }
 {% endif %}
 
-{% if response_json.category %}//<!--{{{-->
+{% if personal_transaction_list %}//<!--{{{-->
 	$scope.category_list = {{ response_json.category }};
 	//Construct object type insted of Array types as angularJS generates auto values for default arrays
     $scope.from_list = new Array();
