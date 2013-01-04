@@ -288,7 +288,6 @@ def new_group_transaction_event(group_id, transaction, user_created_id):
         tc.save()
     except:
         pass
-    transaction.create_notifications(user_created_id, 'txn_created')
 
 
 # TODO transaction groupid to transctuin.grop_id
@@ -320,7 +319,6 @@ def delete_group_transaction_event(group_id, transaction, user_created_id):
     ass_personal_txn = Transaction.objects.get(id=transaction.id + 1)
     ass_personal_txn.deleted = True
     ass_personal_txn.save()
-    transaction.create_notifications(user_created_id, 'txn_deleted')
 
 
 # TODO transaction user_id to transctuin.user_paidid

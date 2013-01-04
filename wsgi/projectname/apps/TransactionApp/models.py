@@ -153,7 +153,7 @@ class Transaction(models.Model):
                                 self.description, self.to_category,
                                 p_object.outstanding_amount,
                                 self.users_involved.count()
-                                ),
+                                )
                 elif notification_type == 'txn_deleted':
                     message='deleted transaction for {0}/{1}; \
                             your outstanding is <strong>{2:.2f}</strong> \
@@ -161,17 +161,46 @@ class Transaction(models.Model):
                                 self.description, self.to_category,
                                 p_object.outstanding_amount,
                                 self.users_involved.count()
-                                ),
-                Notification.objects.create(
-                                    from_user_id=user_created_id,
-                                    to_user_id=p_object.user.id,
-                                    group_id=self.created_for_group.id,
-                                    href='',    # TODO
-                                    message=message,
-                                    is_unread=True,
-                                    is_hidden=False,
-                                    deleted=False,
-                                            )
+                                )
+                elif notification_type == 'txn_edited':
+                    message='edited transaction for {0}/{1}; \
+                            your outstanding is <strong>{2:.2f}</strong> \
+                            among {3} users involved '.format(
+                                self.description, self.to_category,
+                                p_object.outstanding_amount,
+                                self.users_involved.count()
+                                )
+                # create notficatin for all the payees
+                if p_object.user.id != user_created_id:
+                    Notification.objects.create(
+                                        from_user_id=user_created_id,
+                                        to_user_id=p_object.user.id,
+                                        group_id=self.created_for_group.id,
+                                        href=self.id,
+                                        message=message,
+                                        is_unread=True,
+                                        is_hidden=False,
+                                        deleted=False,
+                                                )
+        # create notification for the user paid
+        if self.paid_user_id != user_created_id:
+            message='edited transaction for {0}/{1}; \
+                    your outstanding is <strong>{2:.2f}</strong> \
+                    among {3} users involved '.format(
+                        self.description, self.to_category,
+                        self.get_outstanding_amount(self.paid_user_id),
+                        self.users_involved.count()
+                        )
+            Notification.objects.create(
+                                from_user_id=user_created_id,
+                                to_user_id=self.paid_user_id,
+                                group_id=self.created_for_group.id,
+                                href=self.id,
+                                message=message,
+                                is_unread=True,
+                                is_hidden=False,
+                                deleted=False,
+                                        )
 
 
 class TransactionForm(forms.ModelForm):

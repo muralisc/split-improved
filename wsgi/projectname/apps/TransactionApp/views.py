@@ -38,7 +38,7 @@ def displayTransactionForm(request):
 
 
 @login_required(login_url='/login/')
-def makeTransaction(request):
+def makeTransaction(request, called_for_edit=None):
     '''
     create a transaction row in table if
     payee table rows for transaction
@@ -102,6 +102,10 @@ def makeTransaction(request):
                 if form.cleaned_data['users_involved'] is not None:
                     transactionRow.associatePayees(form.cleaned_data['users_involved'])
                 new_group_transaction_event(request.session['active_group'].id, transactionRow, request.user.id)
+                if called_for_edit is not True:
+                    transactionRow.create_notifications(request.user.id, 'txn_created')
+                else:  #  the transction is being editted
+                    transactionRow.create_notifications(request.user.id, 'txn_edited')
                 # NOw make the corrsponding personal entry
                 # for every group transaction a personal transaction
                 # entry is made for paid user
@@ -133,7 +137,7 @@ def makeTransaction(request):
 
 
 @login_required(login_url='/login/')
-def deleteTransaction(request):
+def deleteTransaction(request, called_for_edit=None):
     if 't' in request.GET:
         transaction_id = int(request.GET['t'])
     else:
@@ -141,6 +145,8 @@ def deleteTransaction(request):
     next_url = request.META['HTTP_REFERER']
     transactionRow = Transaction.objects.get(id=transaction_id)
     delete_group_transaction_event(request.session['active_group'].id, transactionRow, request.user.id)
+    if called_for_edit is not True:
+        transactionRow.create_notifications(request.user.id, 'txn_deleted')
     transactionRow.deleted = True
     transactionRow.save()
     return redirect(next_url)
@@ -221,8 +227,8 @@ def editTransactionForm(request):
 
 @login_required(login_url='/login/')
 def editTransaction(request):
-    deleteTransaction(request)
-    makeTransaction(request)
+    deleteTransaction(request, called_for_edit=True)
+    makeTransaction(request, called_for_edit=True)
     return redirect('/transactionForm/')
 
 
