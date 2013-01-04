@@ -13,6 +13,7 @@ from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, 
         get_page_info, new_group_transaction_event, new_personal_transaction_event, delete_group_transaction_event
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME
 from projectApp1.models import Membership  # , Group
+from itertools import groupby
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
 from django.db.models import Q, Sum
@@ -463,23 +464,16 @@ def groupOutstandingList(request):
 
 @login_required(login_url='/login/')
 def personalStatistics(request):
-    asd = UserCategory.objects.filter(user_id=request.user.id).order_by('category__category_type')
+    user_categories = UserCategory.objects.filter(user_id=request.user.id).order_by('category__category_type')
+    user_categories = sorted(user_categories, key=lambda x: x.category.category_type)
     category_outstanding_list = list()
-    for temp in asd:
-        category_lost = Transaction.objects.filter(
-                                        from_category_id=temp.id,
-                                    ).aggregate(
-                                        Sum('amount')
-                                    )['amount__sum']
-        category_lost = category_lost if category_lost else 0
-        category_gained = Transaction.objects.filter(
-                                        to_category_id=temp.id,
-                                    ).aggregate(
-                                        Sum('amount')
-                                    )['amount__sum']
-        category_gained = category_gained if category_gained else 0
-        category_outstanding_list.append([temp, category_gained - category_lost + temp.initial_amount])
-    category_outstanding_list = sorted(category_outstanding_list, key=lambda x: x[0].category.category_type)
+    expense_category_outstanding_list = list()
+    for keys, grp in groupby(user_categories, key=lambda x: x.category.category_type):
+        if keys == EXPENSE:
+            expense_category_outstanding_list.append(list(grp))
+        pass
+    for temp in user_categories:
+        category_outstanding_list.append([temp, temp.get_outstnading()])
     dict_for_html = {
             'request': request,
             'category_outstanding_list': category_outstanding_list,

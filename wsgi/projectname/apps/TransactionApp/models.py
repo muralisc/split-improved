@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, PRIVATE, PUBLIC
 from projectApp1.models import Group, Notification
 from django import forms
+from django.db.models import Sum
 
 
 class Category(models.Model):
@@ -72,6 +73,23 @@ class UserCategory(models.Model):
 
     def __unicode__(self):
         return '{0}'.format(self.category.name)
+
+    def get_outstnading(self):
+        category_lost = Transaction.objects.filter(
+                                        from_category_id=self.category.id,
+                                        paid_user_id=self.user_id,
+                                    ).aggregate(
+                                        Sum('amount')
+                                    )['amount__sum']
+        category_lost = category_lost if category_lost else 0
+        category_gained = Transaction.objects.filter(
+                                        to_category_id=self.category.id,
+                                        paid_user_id=self.user_id,
+                                    ).aggregate(
+                                        Sum('amount')
+                                    )['amount__sum']
+        category_gained = category_gained if category_gained else 0
+        return category_gained - category_lost + self.initial_amount
 
 
 class Transaction(models.Model):
@@ -147,7 +165,7 @@ class Transaction(models.Model):
         for p_object in payee_objects:
             if p_object.user_id != user_created_id:
                 if notification_type == 'txn_created':
-                    message='created transaction for {0}/{1}; \
+                    message = 'created transaction for {0}/{1}; \
                             your outstanding is <strong>{2:.2f}</strong> \
                             among {3} users involved '.format(
                                 self.description, self.to_category,
@@ -155,7 +173,7 @@ class Transaction(models.Model):
                                 self.users_involved.count()
                                 )
                 elif notification_type == 'txn_deleted':
-                    message='deleted transaction for {0}/{1}; \
+                    message = 'deleted transaction for {0}/{1}; \
                             your outstanding is <strong>{2:.2f}</strong> \
                             among {3} users involved '.format(
                                 self.description, self.to_category,
@@ -163,7 +181,7 @@ class Transaction(models.Model):
                                 self.users_involved.count()
                                 )
                 elif notification_type == 'txn_edited':
-                    message='edited transaction for {0}/{1}; \
+                    message = 'edited transaction for {0}/{1}; \
                             your outstanding is <strong>{2:.2f}</strong> \
                             among {3} users involved '.format(
                                 self.description, self.to_category,
@@ -184,7 +202,7 @@ class Transaction(models.Model):
                                                 )
         # create notification for the user paid
         if self.paid_user_id != user_created_id:
-            message='edited transaction for {0}/{1}; \
+            message = 'edited transaction for {0}/{1}; \
                     your outstanding is <strong>{2:.2f}</strong> \
                     among {3} users involved '.format(
                         self.description, self.to_category,
