@@ -43,7 +43,7 @@ function filterController($scope) {
     }
 {% endif %}
 
-{% if personal_transaction_list %}//<!--{{{-->
+{% if display_category%}//<!--{{{-->
 	$scope.category_list = {{ response_json.category }};
 	//Construct object type insted of Array types as angularJS generates auto values for default arrays
     $scope.from_list = new Array();
@@ -60,6 +60,9 @@ function filterController($scope) {
             $scope.to_list.push($scope.category_list[temp]);
         }
     }
+{% if atofc %}
+    $scope.atofc = {{atofc}};
+{% endif %}
 {% if fc %}
     $scope.fc = {{fc}};
 {% endif %}
@@ -145,18 +148,25 @@ function filterController($scope) {
 {% endif %}
 
 {% if response_json.category %}
-		/*
-		start framing "fc=" and "tc=" queries
-		*/
-        if (undefined != $scope.fc){
-            $scope.queryString = $scope.queryString.concat("fc=");
-            $scope.queryString = $scope.queryString.concat($scope.fc);
+        if (undefined |= $scope.atofc && $scope.atofc > 0 && $scope.fc == $scope.tc){
+            $scope.queryString = $scope.queryString.concat("atofc=");
+            $scope.queryString = $scope.queryString.concat($scope.atofc);
             $scope.queryString = $scope.queryString.concat("&");
         }
-        if (undefined != $scope.tc){
-            $scope.queryString = $scope.queryString.concat("tc=");
-            $scope.queryString = $scope.queryString.concat($scope.tc);
-            $scope.queryString = $scope.queryString.concat("&");
+        else{
+            /*
+            start framing "fc=" and "tc=" queries
+            */
+            if (undefined != $scope.fc){
+                $scope.queryString = $scope.queryString.concat("fc=");
+                $scope.queryString = $scope.queryString.concat($scope.fc);
+                $scope.queryString = $scope.queryString.concat("&");
+            }
+            if (undefined != $scope.tc){
+                $scope.queryString = $scope.queryString.concat("tc=");
+                $scope.queryString = $scope.queryString.concat($scope.tc);
+                $scope.queryString = $scope.queryString.concat("&");
+            }
         }
 {% endif %}
 		window.location.href = $scope.queryString;

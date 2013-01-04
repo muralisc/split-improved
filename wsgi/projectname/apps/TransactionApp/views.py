@@ -493,6 +493,7 @@ def personalTransactionList(request):
     # all transactions of category
     if('atofc' in request.GET):
         try:
+            atofc = int(request.GET['atofc'])
             fc = int(request.GET['atofc'])
             tc = fc
             transacton_filters = transacton_filters & (
@@ -500,21 +501,23 @@ def personalTransactionList(request):
                                     Q(to_category_id=tc)
                                     )
         except:
-            fc = None
-            tc = None
+            atofc = -1      # an invalid value
+            fc = ""
+            tc = ""
             pass
     else:
+        atofc = -1      # an invalid value
         try:
             fc = int(request.GET['fc'])
             transacton_filters = transacton_filters & Q(from_category_id=fc)
         except:
-            fc = None
+            fc = ""
             pass
         try:
             tc = int(request.GET['tc'])
             transacton_filters = transacton_filters & Q(to_category_id=tc)
         except:
-            tc = None
+            tc = ""
             pass
     (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
@@ -530,7 +533,9 @@ def personalTransactionList(request):
     transaction_list = current_page.object_list
 
     dict_for_html = {
+            'display_category': True,
             'personal_transaction_list': transaction_list,
+            'atofc': atofc,
             'fc': fc,
             'tc': tc,
             'response_json': request.session['response_json'],

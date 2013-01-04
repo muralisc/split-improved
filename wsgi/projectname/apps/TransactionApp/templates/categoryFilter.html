@@ -4,6 +4,9 @@
         <option value="" selected="selected">---------</option>
         <option  ng-repeat="obj in from_list" value="{[{obj.id}]}" ng-selected="fc==obj.id">{[{obj.name}]}</option>
     </select>
+    {% if atofc > 0 %}
+    <strong>or</strong>
+    {% endif %}
     tocategory
     <select ng-model="tc" ng-change="frameGETquery()">
         <option value="" selected="selected">---------</option>
