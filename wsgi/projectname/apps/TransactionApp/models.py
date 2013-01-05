@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, PRIVATE, PUBLIC
 from projectApp1.models import Group, Notification
 from django import forms
-from django.db.models import Sum
+from django.db.models import Q, Sum
 
 
 class Category(models.Model):
@@ -74,10 +74,16 @@ class UserCategory(models.Model):
     def __unicode__(self):
         return '{0}'.format(self.category.name)
 
-    def get_outstnading(self):
+    def get_outstnading(self, start_time=None, end_time=None):
+        if start_time is not None and end_time is not None:
+            time_filter = Q(transaction_time__range=(start_time, end_time))
+        else:
+            time_filter = Q()
         category_lost = Transaction.objects.filter(
                                         from_category_id=self.category.id,
                                         paid_user_id=self.user_id,
+                                    ).filter(
+                                        time_filter
                                     ).aggregate(
                                         Sum('amount')
                                     )['amount__sum']
@@ -85,6 +91,8 @@ class UserCategory(models.Model):
         category_gained = Transaction.objects.filter(
                                         to_category_id=self.category.id,
                                         paid_user_id=self.user_id,
+                                    ).filter(
+                                        time_filter
                                     ).aggregate(
                                         Sum('amount')
                                     )['amount__sum']

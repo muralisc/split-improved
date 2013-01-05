@@ -3,8 +3,10 @@
         <li><a name="makeTransactionLink" href="/transactionForm/">Make transaction Link</a></li>
 {% if perms.TransactionApp.personal_transactions %}
         <li><a href="/personal/statistics/">personalStatistics</a></li>
+        <li><a href="/personal/transactionList/">personalTransactionList</a></li>
 {% endif %}
         <li><a href="/group/statistics/">groupStatistics</a></li>
+        <li><a href="/group/transactionList/">groupTransactionList</a></li>
         <li class="nav-header">Groups</li>
 		{% for i in request.session.memberships %}
         <li 

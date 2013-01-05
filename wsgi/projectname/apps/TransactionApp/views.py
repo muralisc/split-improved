@@ -464,19 +464,44 @@ def groupOutstandingList(request):
 
 @login_required(login_url='/login/')
 def personalStatistics(request):
+    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     user_categories = UserCategory.objects.filter(user_id=request.user.id).order_by('category__category_type')
     user_categories = sorted(user_categories, key=lambda x: x.category.category_type)
-    category_outstanding_list = list()
-    expense_category_outstanding_list = list()
+    expense_category_list = None
+    income_category_list = None
+    bank_category_list = None
     for keys, grp in groupby(user_categories, key=lambda x: x.category.category_type):
         if keys == EXPENSE:
-            expense_category_outstanding_list.append(list(grp))
-        pass
-    for temp in user_categories:
-        category_outstanding_list.append([temp, temp.get_outstnading()])
+            expense_category_list = list(grp)
+        if keys == INCOME:
+            income_category_list = list(grp)
+        if keys == BANK:
+            bank_category_list = list(grp)
+    expense_category_outstanding_list = list()
+    if expense_category_list is not None:
+        for temp in expense_category_list:
+            expense_category_outstanding_list.append([temp, temp.get_outstnading(start_time, end_time)])
+    income_category_outstanding_list = list()
+    if income_category_list is not None:
+        for temp in income_category_list:
+            income_category_outstanding_list.append([temp, temp.get_outstnading()])
+    bank_category_outstanding_list = list()
+    if bank_category_list is not None:
+        for temp in bank_category_list:
+            bank_category_outstanding_list.append([temp, temp.get_outstnading()])
     dict_for_html = {
             'request': request,
-            'category_outstanding_list': category_outstanding_list,
+            'expense_category_outstanding_list': expense_category_outstanding_list,
+            'income_category_outstanding_list': income_category_outstanding_list,
+            'bank_category_outstanding_list': bank_category_outstanding_list,
+            'response_json': request.session['response_json'],
+            'start_time': start_time,
+            'end_time': end_time,
+            'timeRange': timeRange,
+            'THIS_MONTH': THIS_MONTH,
+            'LAST_MONTH': LAST_MONTH,
+            'CUSTOM_RANGE': CUSTOM_RANGE,
+            'ALL_TIME': ALL_TIME,
             }
     return render_to_response('personalStatistics.html', dict_for_html, context_instance=RequestContext(request))
 
