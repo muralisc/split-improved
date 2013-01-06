@@ -8,6 +8,7 @@ from django.utils.safestring import SafeString
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, DEFAULT_START_PAGE, DEFAULT_RPP
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
+from django.http import Http404
 from django.db.models import Q
 
 
@@ -133,18 +134,24 @@ def import_from_snapshot(request):
         temp.save()
 
 
-def get_outstanding_amount(group_id, user_id, end_time=None):
+def get_outstanding_amount(group_id, user_id, start_time=None, end_time=None):
     '''
     get the net outstandin amount in a group till the timestamp specified
     '''
-    if end_time is not None:
+    if start_time is not None:
+        try:
+            time_filter = Q(transaction_time__range=(start_time, end_time))
+        except:
+            # for cases where end_time is missed out
+            raise Http404
+    elif end_time is not None:
         time_filter = Q(transaction_time__lte=end_time)
     else:
         time_filter = Q()
     txn_filters = (
                 Q(created_for_group_id=group_id) &
                 Q(deleted=False) &
-                Q(time_filter)
+                time_filter
                 )
     # Get the net of all the transaction in which user was not a Payee
     # i.e user just paid but did not have any expense towards the txn
