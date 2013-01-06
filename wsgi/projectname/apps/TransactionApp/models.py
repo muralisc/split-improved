@@ -149,12 +149,11 @@ class Transaction(models.Model):
 
     def get_expense(self, user_id):
         '''
-        amount is split into 2: Expense and Outstanding
-        Only user paid has Expense rest has it in Outstanding
+        All invloved users has expense
         '''
         if Payee.objects.filter(txn=self).filter(user_id=user_id).exists():
             ost_amt = Payee.objects.get(txn=self, user_id=user_id).outstanding_amount
-            return (self.amount - ost_amt) if (ost_amt > 0) else 0
+            return (self.amount - ost_amt) if (ost_amt > 0) else abs(ost_amt)
         else:
             return 0
 

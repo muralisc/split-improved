@@ -78,7 +78,7 @@ def home(request):
     for temp in request.session['memberships']:
         group_list.append(
                 [
-                    temp.group.name,
+                    temp.group,
                     get_outstanding_amount(temp.group.id, temp.user.id, start_time, end_time),
                     get_expense(temp.group.id, temp.user.id, start_time, end_time),
                     get_paid_amount(temp.group.id, temp.user.id, start_time, end_time)

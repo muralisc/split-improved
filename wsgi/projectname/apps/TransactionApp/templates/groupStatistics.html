@@ -14,36 +14,31 @@
 {% include "navlist.html" %}
 </div>
 <div class="span10">
+			{% include "filterController.html" %}
+			{% include "timeFilter.html" %}
 <table class="table table-hover table-condensed">
 	<thead>
 		<tr>
 		  <th>name</th>
-		  <th>Amount in Pool</th>
+          <th>Oustanding in Specified time period</th>
 		  <th>Expense</th>
+		  <th>PaidAmount</th>
 		</tr>
 	</thead>
 	<tbody>
-		<tr>
-		  <td></td>
-		  <td></td>
-		  <td>
-			{% include "filterController.html" %}
-			{% include "timeFilter.html" %}
-		  </td>
-		</tr>
 	{%for i in members1%}
 		<tr>
 			<td><a href="?u={{i.0.user.id}}">{{i.0.user}}</a></td>
             <td>
-                <a href="/group/outstandingList/?u={{i.0.user.id}}&tr={{ALL_TIME}}" rel="tooltip" data-placement="right" 
-                    data-original-title="How did this come?">{{i.0.amount_in_pool|floatformat}}</a>
-            </td>
-            <td class="">
                 <a href="/group/expenseList/?u={{i.0.user.id}}&ts={{start_time|date:'Y-m-d'}}&te={{end_time|date:'Y-m-d'}}"
                     rel="tooltip" data-placement="right" data-original-title="How did this come?" >{{i.1|floatformat}}</a>
             </td>
             <td class="">
-                    {{i.2|floatformat}}
+                <a href="/group/expenseList/?u={{i.0.user.id}}&ts={{start_time|date:'Y-m-d'}}&te={{end_time|date:'Y-m-d'}}"
+                    rel="tooltip" data-placement="right" data-original-title="How did this come?" >{{i.2|floatformat}}</a>
+            </td>
+            <td class="">
+                    {{i.3|floatformat}}
             </td>
 		</tr>
 	{%endfor%}

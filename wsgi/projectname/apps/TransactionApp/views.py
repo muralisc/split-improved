@@ -313,6 +313,7 @@ def groupStatistics(request):
         members1.append(
                 [
                     temp,
+                    get_outstanding_amount(temp.group.id, temp.user.id, start_time, end_time),
                     get_expense(temp.group.id, temp.user.id, start_time, end_time),
                     get_paid_amount(temp.group.id, temp.user.id, start_time, end_time)
                 ]
@@ -330,6 +331,15 @@ def groupStatistics(request):
             'ALL_TIME': ALL_TIME,
             }
     return render_to_response('groupStatistics.html', dict_for_html, context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def groupSettle(request):
+    members = Membership.objects.filter(group=request.session['active_group'])
+    dict_for_html = {
+            'members': members,
+            }
+    return render_to_response('groupSettle.html', dict_for_html, context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')
@@ -510,6 +520,7 @@ def personalStatistics(request):
             'ALL_TIME': ALL_TIME,
             }
     return render_to_response('personalStatistics.html', dict_for_html, context_instance=RequestContext(request))
+
 
 
 @login_required(login_url='/login/')

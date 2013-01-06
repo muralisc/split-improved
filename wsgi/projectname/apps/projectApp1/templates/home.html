@@ -40,7 +40,7 @@
             <tbody>
                 {%for i in group_list%}
                 <tr>
-                    <td><a href="">{{i.0}}</a></td>
+                    <td><a href="/group/{{i.0.id}}">{{i.0.name}}</a></td>
                     <td>
                         <a href="/group/outstandingList/?u={{i.0.user.id}}&ts={{start_time|date:'Y-m-d'}}&te={{end_time|date:'Y-m-d'}}" 
                             rel="tooltip" data-placement="right" data-original-title="How did this come?">{{i.1|floatformat}}</a>
