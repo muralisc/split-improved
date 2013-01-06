@@ -50,7 +50,8 @@
                             rel="tooltip" data-placement="right" data-original-title="How did this come?">{{i.2|floatformat}}</a>
                     </td>
                     <td>
-                            {{i.3|floatformat}}
+                        <a href="/group/paidList/?u={{i.0.user.id}}&ts={{start_time|date:'Y-m-d'}}&te={{end_time|date:'Y-m-d'}}"
+                            rel="tooltip" data-placement="right" data-original-title="How did this come?" >{{i.3|floatformat}}</a>
                     </td>
                 </tr>
                 {%endfor%}
