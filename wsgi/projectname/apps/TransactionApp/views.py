@@ -9,8 +9,8 @@ from django.template import RequestContext
 #from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction, Payee
-from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, parseGET_initialise, \
-        get_page_info, new_group_transaction_event, new_personal_transaction_event, delete_group_transaction_event
+from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, get_paid_amount, \
+        parseGET_initialise, get_page_info, new_group_transaction_event, new_personal_transaction_event, delete_group_transaction_event
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME
 from projectApp1.models import Membership  # , Group
 from itertools import groupby
@@ -105,7 +105,7 @@ def makeTransaction(request, called_for_edit=None):
                 new_group_transaction_event(request.session['active_group'].id, transactionRow, request.user.id)
                 if called_for_edit is not True:
                     transactionRow.create_notifications(request.user.id, 'txn_created')
-                else:  #  the transction is being editted
+                else:  # the transction is being editted
                     transactionRow.create_notifications(request.user.id, 'txn_edited')
                 # NOw make the corrsponding personal entry
                 # for every group transaction a personal transaction
@@ -310,7 +310,13 @@ def groupStatistics(request):
     members = Membership.objects.filter(group=request.session['active_group'])
     members1 = list()
     for temp in members:
-        members1.append([temp, get_expense(temp.group.id, temp.user.id, start_time, end_time)])
+        members1.append(
+                [
+                    temp,
+                    get_expense(temp.group.id, temp.user.id, start_time, end_time),
+                    get_paid_amount(temp.group.id, temp.user.id, start_time, end_time)
+                ]
+                )
     dict_for_html = {
             'members1': members1,
             'request': request,

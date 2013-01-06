@@ -177,12 +177,29 @@ def get_expense(group_id, user_id, start_time, end_time):
     Helper function to get the expense in the given time frame
     '''
     s2t = sum([temp.get_expense(user_id) for temp in Transaction.objects.filter(
-                    Q(created_for_group_id=group_id) &
-                    Q(deleted=False) &
-                    (Q(paid_user_id=user_id) | Q(users_involved__id__in=[user_id])) &   # for including all transaction to which user is conencted
-                    Q(transaction_time__range=(start_time, end_time))
+                        Q(created_for_group_id=group_id) &
+                        Q(deleted=False) &
+                        (Q(paid_user_id=user_id) | Q(users_involved__id__in=[user_id])) &   # for including all transaction to which user is conencted
+                        Q(transaction_time__range=(start_time, end_time))
                     ).distinct()])
     return s2t
+
+
+def get_paid_amount(group_id, user_id, start_time, end_time):
+    '''
+    PaidAmount[in contrst to Expense and Outstanding] is the total amount spent by a user
+    '''
+    s2t = Transaction.objects.filter(
+                        Q(created_for_group_id=group_id) &
+                        Q(deleted=False) &
+                        (Q(paid_user_id=user_id)) &
+                        Q(transaction_time__range=(start_time, end_time))
+                    ).aggregate(
+                        Sum('amount')
+                    )['amount__sum']
+    s2t = s2t if s2t is not None else 0
+    return s2t
+
 
 
 def parseGET_initialise(request):
