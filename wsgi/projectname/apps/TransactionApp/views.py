@@ -479,6 +479,49 @@ def groupOutstandingList(request):
 
 
 @login_required(login_url='/login/')
+def groupPaidList(request):
+    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+    transaction_list = Transaction.objects.filter(
+                        Q(created_for_group_id=request.session['active_group'].id) &
+                        Q(deleted=False) &
+                        Q(transaction_time__range=(start_time, end_time)) &
+                        (
+                            Q(paid_user_id=filter_user_id)
+                        )
+                        ).distinct().order_by('-transaction_time')
+    (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
+    transaction_list = current_page.object_list
+
+    transaction_list_with_paid = list()
+    if len(transaction_list) != 0:
+        cumulative_paid_amt = get_paid_amount(request.session['active_group'], filter_user_id, start_time, transaction_list[0].transaction_time)
+    else:
+        # TODO
+        pass
+    for temp in transaction_list:
+        usr_paid = temp.amount
+        transaction_list_with_paid.append([temp, usr_paid, cumulative_paid_amt])
+        cumulative_paid_amt = cumulative_paid_amt - usr_paid
+    dict_for_html = {
+            'transaction_list_with_paid': transaction_list_with_paid,
+            'response_json': request.session['response_json'],
+            'filter_user_id': filter_user_id,
+            'start_time': start_time,
+            'end_time': end_time,
+            'timeRange': timeRange,
+            'page_no': page_no,
+            'current_page': current_page,
+            'txn_per_page': txn_per_page,
+            'paginator_obj': paginator_obj,
+            'THIS_MONTH': THIS_MONTH,
+            'LAST_MONTH': LAST_MONTH,
+            'CUSTOM_RANGE': CUSTOM_RANGE,
+            'ALL_TIME': ALL_TIME,
+            }
+    return render_to_response('groupPaidList.html', dict_for_html, context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
 def personalStatistics(request):
     (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     user_categories = UserCategory.objects.filter(user_id=request.user.id).order_by('category__category_type')
@@ -520,7 +563,6 @@ def personalStatistics(request):
             'ALL_TIME': ALL_TIME,
             }
     return render_to_response('personalStatistics.html', dict_for_html, context_instance=RequestContext(request))
-
 
 
 @login_required(login_url='/login/')

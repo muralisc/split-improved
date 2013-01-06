@@ -36,6 +36,7 @@ urlpatterns = patterns('',
     (r'^group/transactionList/$', 'TransactionApp.views.groupTransactionList'),
     (r'^group/expenseList/$', 'TransactionApp.views.groupExpenseList'),
     (r'^group/outstandingList/$', 'TransactionApp.views.groupOutstandingList'),
+    (r'^group/paidList/$', 'TransactionApp.views.groupPaidList'),
     (r'^group/settle/$', 'TransactionApp.views.groupSettle'),
     (r'^transactionHistory/$', 'TransactionApp.views.transactionHistory'),
 
