@@ -441,7 +441,7 @@ def groupOutstandingList(request):
     transaction_list_with_outstanding = list()
     # XXX in get is empty use cache withi=out calculating TODO
     if len(transaction_list) != 0:
-        cumulative_sum = get_outstanding_amount(request.session['active_group'].id, filter_user_id, transaction_list[0].transaction_time)
+        cumulative_sum = get_outstanding_amount(request.session['active_group'].id, filter_user_id, end_time=transaction_list[0].transaction_time)
     else:
         # TODO
         pass
