@@ -10,7 +10,9 @@ from projectApp1.forms import LoginCreateForm
 from projectApp1.models import GroupForm, Membership, Group, Invite, Notification
 from django.http import Http404, HttpResponse
 from django.utils.safestring import SafeString
-from TransactionApp.helper import on_create_user, updateSession
+from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME
+from TransactionApp.helper import on_create_user, updateSession, get_outstanding_amount, get_expense, get_paid_amount, \
+        parseGET_initialise
 
 
 def createUser(request):
@@ -68,10 +70,36 @@ def siteLogin(request):
 
 @login_required(login_url='/login/')
 def home(request):
+    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     form = GroupForm()
     no_of_invites = Invite.objects.filter(to_user=request.user).filter(unread=True).count()
     no_of_notifications = Notification.objects.filter(to_user=request.user, is_hidden=False).count()
-    return render_to_response('home.html', locals(), context_instance=RequestContext(request))
+    group_list = list()
+    for temp in request.session['memberships']:
+        group_list.append(
+                [
+                    temp.group.name,
+                    get_outstanding_amount(temp.group.id, temp.user.id, start_time, end_time),
+                    get_expense(temp.group.id, temp.user.id, start_time, end_time),
+                    get_paid_amount(temp.group.id, temp.user.id, start_time, end_time)
+                ]
+                )
+    dict_for_html = {
+            'form': form,
+            'no_of_invites': no_of_invites,
+            'no_of_notifications': no_of_notifications,
+            'group_list': group_list,
+            'request': request,
+            'response_json': request.session['response_json'],
+            'start_time': start_time,
+            'end_time': end_time,
+            'timeRange': timeRange,
+            'THIS_MONTH': THIS_MONTH,
+            'LAST_MONTH': LAST_MONTH,
+            'CUSTOM_RANGE': CUSTOM_RANGE,
+            'ALL_TIME': ALL_TIME,
+            }
+    return render_to_response('home.html', dict_for_html, context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')

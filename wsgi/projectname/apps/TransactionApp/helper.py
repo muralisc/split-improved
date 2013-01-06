@@ -208,7 +208,6 @@ def get_paid_amount(group_id, user_id, start_time, end_time):
     return s2t
 
 
-
 def parseGET_initialise(request):
     '''
     Helper function to parse the requestGET to
@@ -233,7 +232,11 @@ def parseGET_initialise(request):
                 start_time = datetime(year=current_time.year, month=current_time.month, day=1)      # end_time is alredy initialised
                 timeRange = THIS_MONTH
             elif int(request.GET['tr']) == LAST_MONTH:
-                start_time = datetime(year=current_time.year, month=current_time.month - 1, day=1)
+                start_time = datetime(
+                                    year=current_time.year if current_time.month != 1 else current_time.year - 1,
+                                    month=current_time.month - 1 if current_time.month != 1 else 12,
+                                    day=1
+                                    )
                 timeRange = LAST_MONTH                                                              # for angularjs
                 end_time = datetime(
                             year=current_time.year,
