@@ -306,7 +306,14 @@ def groupStatistics(request):
     '''
     displays outstnding amount and expense
     '''
-    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+    (
+            start_time,
+            end_time,
+            timeRange,
+            filter_user_id,
+            page_no,
+            txn_per_page
+                            ) = parseGET_initialise(request)
     members = Membership.objects.filter(group=request.session['active_group'])
     members1 = list()
     for temp in members:
@@ -344,7 +351,14 @@ def groupSettle(request):
 
 @login_required(login_url='/login/')
 def groupExpenseList(request):
-    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+    (
+            start_time,
+            end_time,
+            timeRange,
+            filter_user_id,
+            page_no,
+            txn_per_page
+                            ) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group_id=request.session['active_group'].id) &
                         Q(deleted=False) &
@@ -393,7 +407,14 @@ def groupTransactionList(request):
     no Pagination
     mainly for debugging
     '''
-    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+    (
+            start_time,
+            end_time,
+            timeRange,
+            filter_user_id,
+            page_no,
+            txn_per_page
+                            ) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group=request.session['active_group']) &
                         Q(deleted=False) &
@@ -434,7 +455,14 @@ def groupOutstandingList(request):
     # verify the calculations in TODO all helper functions
     # TODO modifi
     # XXX check for invalid 'page no' in GETS
-    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+    (
+            start_time,
+            end_time,
+            timeRange,
+            filter_user_id,
+            page_no,
+            txn_per_page
+                            ) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group_id=request.session['active_group'].id) &
                         Q(deleted=False) &
@@ -480,7 +508,14 @@ def groupOutstandingList(request):
 
 @login_required(login_url='/login/')
 def groupPaidList(request):
-    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+    (
+            start_time,
+            end_time,
+            timeRange,
+            filter_user_id,
+            page_no,
+            txn_per_page
+                            ) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group_id=request.session['active_group'].id) &
                         Q(deleted=False) &
@@ -523,7 +558,14 @@ def groupPaidList(request):
 
 @login_required(login_url='/login/')
 def personalStatistics(request):
-    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+    (
+            start_time,
+            end_time,
+            timeRange,
+            filter_user_id,
+            page_no,
+            txn_per_page
+                            ) = parseGET_initialise(request)
     user_categories = UserCategory.objects.filter(user_id=request.user.id).order_by('category__category_type')
     user_categories = sorted(user_categories, key=lambda x: x.category.category_type)
     expense_category_list = None
@@ -597,7 +639,14 @@ def personalTransactionList(request):
         except:
             tc = ""
             pass
-    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+    (
+            start_time,
+            end_time,
+            timeRange,
+            filter_user_id,
+            page_no,
+            txn_per_page
+                            ) = parseGET_initialise(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group=None) &
                         Q(deleted=False) &
