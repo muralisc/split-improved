@@ -10,7 +10,8 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction, Payee
 from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, get_paid_amount, \
-        parseGET_initialise, get_page_info, new_group_transaction_event, new_personal_transaction_event, delete_group_transaction_event
+        parseGET_initialise, parseGET_ordering, get_page_info, new_group_transaction_event, new_personal_transaction_event, \
+        delete_group_transaction_event
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME
 from projectApp1.models import Membership  # , Group
 from itertools import groupby
@@ -359,6 +360,7 @@ def groupExpenseList(request):
             page_no,
             txn_per_page
                             ) = parseGET_initialise(request)
+    (order_by_args, order_by_page_list) = parseGET_ordering(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group_id=request.session['active_group'].id) &
                         Q(deleted=False) &
@@ -367,7 +369,7 @@ def groupExpenseList(request):
                             Q(paid_user_id=filter_user_id) |        # for including all transaction to which user is conencted
                             Q(users_involved__id__in=[filter_user_id])
                         )
-                        ).distinct().order_by('-transaction_time')
+                        ).distinct().order_by(*order_by_args)
     (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
     # populating the transaction_list_with_expense array
@@ -415,11 +417,12 @@ def groupTransactionList(request):
             page_no,
             txn_per_page
                             ) = parseGET_initialise(request)
+    (order_by_args, order_by_page_list) = parseGET_ordering(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group=request.session['active_group']) &
                         Q(deleted=False) &
                         Q(transaction_time__range=(start_time, end_time))
-                        ).distinct().order_by(*['-transaction_time'])
+                        ).distinct().order_by(*order_by_args)
     (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
     # TODO more sorting
@@ -463,6 +466,7 @@ def groupOutstandingList(request):
             page_no,
             txn_per_page
                             ) = parseGET_initialise(request)
+    (order_by_args, order_by_page_list) = parseGET_ordering(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group_id=request.session['active_group'].id) &
                         Q(deleted=False) &
@@ -471,7 +475,7 @@ def groupOutstandingList(request):
                             Q(paid_user_id=filter_user_id) |        # for including all transaction to which user is conencted
                             Q(users_involved__id__in=[filter_user_id])
                         )
-                        ).distinct().order_by('-transaction_time')
+                        ).distinct().order_by(*order_by_args)
     (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
 
@@ -516,6 +520,7 @@ def groupPaidList(request):
             page_no,
             txn_per_page
                             ) = parseGET_initialise(request)
+    (order_by_args, order_by_page_list) = parseGET_ordering(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group_id=request.session['active_group'].id) &
                         Q(deleted=False) &
@@ -523,7 +528,7 @@ def groupPaidList(request):
                         (
                             Q(paid_user_id=filter_user_id)
                         )
-                        ).distinct().order_by('-transaction_time')
+                        ).distinct().order_by(*order_by_args)
     (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
 

@@ -208,6 +208,13 @@ def get_paid_amount(group_id, user_id, start_time, end_time):
     return s2t
 
 
+def parseGET_ordering(request):
+    pass
+    order_by_args = ['-amount']
+    order_by_page_list = False
+    return (order_by_args, order_by_page_list)
+
+
 def parseGET_initialise(request):
     '''
     Helper function to parse the requestGET to
