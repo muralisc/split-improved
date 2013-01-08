@@ -209,9 +209,26 @@ def get_paid_amount(group_id, user_id, start_time, end_time):
 
 
 def parseGET_ordering(request):
-    pass
-    order_by_args = ['-amount']
+    order_by_args = list()
     order_by_page_list = False
+    columns_order = [
+                    '',
+                    'paid_user',
+                    'amount',
+                    'description',
+                    'users_involved',
+                    'transaction_time',
+                    ]
+    if 'o' in request.GET:
+        for index in request.GET['o'].split('.'):
+            index = int(index)
+            if index > 0:
+                order_by_args.append(columns_order[index])
+            else:
+                order_by_args.append('-' + columns_order[abs(index)])
+    else:
+        order_by_args = ['-transaction_time']
+        order_by_page_list = False
     return (order_by_args, order_by_page_list)
 
 
