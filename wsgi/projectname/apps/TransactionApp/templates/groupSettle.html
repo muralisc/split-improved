@@ -24,9 +24,9 @@
 	<tbody>
 	{%for i in members%}
 		<tr>
-			<td><a href="?u={{i.0.user.id}}">{{i.user}}</a></td>
+			<td><a href="?u={{i.user.id}}">{{i.user}}</a></td>
             <td>
-                <a href="/group/outstandingList/?u={{i.0.user.id}}&tr={{ALL_TIME}}" rel="tooltip" data-placement="right" 
+                <a href="/group/outstandingList/?u={{i.user.id}}&tr={{ALL_TIME}}" rel="tooltip" data-placement="right" 
                     data-original-title="How did this come?">{{i.amount_in_pool|floatformat}}</a>
             </td>
 		</tr>

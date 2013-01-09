@@ -346,6 +346,7 @@ def groupSettle(request):
     members = Membership.objects.filter(group=request.session['active_group'])
     dict_for_html = {
             'members': members,
+            'ALL_TIME': ALL_TIME,
             }
     return render_to_response('groupSettle.html', dict_for_html, context_instance=RequestContext(request))
 

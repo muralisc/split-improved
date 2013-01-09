@@ -4,13 +4,19 @@
 
 
 {% block header %}
+{% include "navbar.html" %}
 {% endblock %}
 
 
 {% block body %}
+<div class="span2">
+{% include "navlist.html" %}
+</div>
+<div class="span10">
 {% for i in all_notifications %}
 {{ i.from_user }} {{ i.message|safe }}<a href="{{ i.href|safe }}/">link to he notificai</a><br/>
 {% endfor %}
+</div>
 {% endblock %}
 
 

@@ -74,6 +74,8 @@ def home(request):
     form = GroupForm()
     no_of_invites = Invite.objects.filter(to_user=request.user).filter(unread=True).count()
     no_of_notifications = Notification.objects.filter(to_user=request.user, is_hidden=False).count()
+    request.session['no_of_invites'] = no_of_invites
+    request.session['no_of_notifications'] = no_of_notifications
     group_list = list()
     for temp in request.session['memberships']:
         group_list.append(
