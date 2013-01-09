@@ -53,6 +53,7 @@
             <label class="control-label" for="amount">paid</label>
             <div class="controls">
                 <input ng-model="amount" name="amount" type="number" placeholder="Amount" id="id_amount">
+                <input ng-change="callCalculator()" ng-model="valueToCalculate" name="amount" type="text" placeholder="Calculator eg: 9+6*log(5)=">
             </div>
         </div>
         {% if perms.TransactionApp.group_transactions %}
@@ -242,6 +243,13 @@
             }else{
                 $scope.users_inv.splice($scope.users_inv.indexOf(usr.username),1);	
             }
+        };
+        $scope.callCalculator = function(){
+            $.get(
+                '/calculator/'+$scope.valueToCalculate+'/',
+                function(data){
+                    $scope.amount = parseFloat(data);
+                });
         };
 		$scope.createCategory = function() {
 			/* 

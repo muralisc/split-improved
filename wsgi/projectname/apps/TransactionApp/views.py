@@ -1,3 +1,5 @@
+import urllib
+import re
 try:
     import simplejson as json
 except ImportError:
@@ -18,6 +20,17 @@ from itertools import groupby
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
 from django.db.models import Q, Sum
+
+
+def calculator(request, exp):
+    response = urllib.urlopen('http://www.google.com/ig/calculator?q=' + urllib.quote(exp))
+    html = response.read()
+    error = re.findall(r'error: "(.*?)"', html)
+    result = re.findall(r'rhs: "(.*?)"', html)
+    result = re.sub('\xa0', '', result[0])
+    if error != [""] and error != ['0'] and error != ['4']:
+        result = error
+    return HttpResponse(result)
 
 
 @login_required(login_url='/login/')

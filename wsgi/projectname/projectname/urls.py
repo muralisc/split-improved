@@ -24,6 +24,7 @@ urlpatterns = patterns('',
     (r'^changeGroup/(\d+)/$', 'projectApp1.views.changeGroup'),
 
 
+    (r'^calculator/(.*)/$', 'TransactionApp.views.calculator'),
     (u'^transactionForm/$', 'TransactionApp.views.displayTransactionForm'),
     (u'^editTransactionForm/$', 'TransactionApp.views.editTransactionForm'),
     (u'^editTransaction/$', 'TransactionApp.views.editTransaction'),
