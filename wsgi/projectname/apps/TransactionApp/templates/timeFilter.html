@@ -4,17 +4,22 @@ Requires
 and ng-app in <html> tag
 --->
 <div ng-controller="filterController">
-	<select ng-model="timeRange" ng-change="frameGETquery()">
-		<option value="" selected="selected">---------</option>
-		<option value="{{THIS_MONTH}}">This Month</option>
-		<option value="{{LAST_MONTH}}">Last Month</option>
-		<option value="{{CUSTOM_RANGE}}">Custom timerange</option>
-        <option value="{{ALL_TIME}}">from the begining of time</option>
-	</select>
-	<div ng-show="timeRange=={{CUSTOM_RANGE}}">
-		<input id="id_t_st" type="date" ng-model="t_s" class="input-small" name="t_st"/> to
-		<input id="id_t_et" type="date" ng-model="t_e" class="input-small" name="t_et"/>
-		<a ng-click="frameGETquery()">Filter</a><br/>
-	</div>
-	<div>{{start_time}} to {{end_time}}</div>
+    <form action="" class="form-inline">
+        <label>for</label>
+        <select ng-model="timeRange" ng-change="frameGETquery()">
+            <option value="" selected="selected">---------</option>
+            <option value="{{THIS_MONTH}}">This Month</option>
+            <option value="{{LAST_MONTH}}">Last Month</option>
+            <option value="{{CUSTOM_RANGE}}">Custom timerange</option>
+            <option value="{{ALL_TIME}}">from the begining of time</option>
+        </select>
+        <label><strong>{{start_time}}</strong> to <strong>{{end_time}}</strong></label>
+        <div ng-show="timeRange=={{CUSTOM_RANGE}}">
+            <input id="id_t_st" type="date" ng-model="t_s" class="input-small" name="t_st"/> to
+            <input id="id_t_et" type="date" ng-model="t_e" class="input-small" name="t_et"/>
+            <a ng-click="frameGETquery()">Filter</a><br/>
+        </div>
+        <!--
+        -->
+    </form>
 </div>

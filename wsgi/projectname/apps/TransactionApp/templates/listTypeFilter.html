@@ -4,6 +4,8 @@ Requires
 and ng-app in <html> tag
 --->
 <div ng-controller="filterController">
+    <form action="" class="form-inline">
+        <label>Current list type:</label>
 	<select ng-model="listType" ng-change="frameGETquery()">
 		<option value="" selected="selected">---------</option>
 		<option value="/group/outstandingList/">Outstanding List</option>
@@ -12,4 +14,5 @@ and ng-app in <html> tag
 		<option value="/group/transactionList/">All Transactions simple</option>
         <option value="">All Transactions advanced</option>
 	</select>
+    </form>
 </div>

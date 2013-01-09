@@ -387,6 +387,7 @@ def groupExpenseList(request):
         cumulative_exp = cumulative_exp - usrexp
     dict_for_html = {
             'transaction_list_with_expense': transaction_list_with_expense,
+            'request': request,
             'response_json': request.session['response_json'],
             'filter_user_id': filter_user_id,
             'start_time': start_time,
@@ -434,6 +435,7 @@ def groupTransactionList(request):
         transaction_list_for_sorting.append(temp)
     dict_for_html = {
             'transaction_list_for_sorting': transaction_list_for_sorting,
+            'request': request,
             'response_json': request.session['response_json'],
             'filter_user_id': filter_user_id,
             'start_time': start_time,
@@ -495,6 +497,7 @@ def groupOutstandingList(request):
         cumulative_sum = cumulative_sum - usrcost
     dict_for_html = {
             'transaction_list_with_outstanding': transaction_list_with_outstanding,
+            'request': request,
             'response_json': request.session['response_json'],
             'filter_user_id': filter_user_id,
             'start_time': start_time,
@@ -546,6 +549,7 @@ def groupPaidList(request):
         cumulative_paid_amt = cumulative_paid_amt - usr_paid
     dict_for_html = {
             'transaction_list_with_paid': transaction_list_with_paid,
+            'request': request,
             'response_json': request.session['response_json'],
             'filter_user_id': filter_user_id,
             'start_time': start_time,

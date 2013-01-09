@@ -15,11 +15,13 @@
 {% include "navlist.html" %}
 </div>
 <div class="span10">
-    <h1 class="offset1">Transaction List</h1>
-{% include "filterController.html" %}
-{% include "pageFilter.html" %}
+<h1 class="">Transaction List</h1>
 {% include "timeFilter.html" %}
+<div class="pull-right">
+    {% include "pageFilter.html" %}
+</div>
 {% include "listTypeFilter.html" %}
+{% include "filterController.html" %}
 {%if transaction_list_for_sorting%}
 <table class="table table-hover table-condensed">
 		<thead>

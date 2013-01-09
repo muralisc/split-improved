@@ -15,12 +15,13 @@
 {% include "navlist.html" %}
 </div>
 <div class="span8" >
-    <h1 class="offset1">Outsranding List</h1>
-{% include "filterController.html" %}
-{% include "pageFilter.html" %}
+<h1 class="">Outsranding List</h1>
 {% include "timeFilter.html" %}
-{% include "userFilter.html" %}
+<div class="pull-right">
+    {% include "pageFilter.html" %}
+</div>
 {% include "listTypeFilter.html" %}
+{% include "filterController.html" %}
 {%if transaction_list_with_outstanding%}
 <table class="table table-hover table-condensed">
 		<thead>
