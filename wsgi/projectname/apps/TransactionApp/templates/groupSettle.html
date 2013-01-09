@@ -14,25 +14,28 @@
 {% include "navlist.html" %}
 </div>
 <div class="span10">
-<table class="table table-hover table-condensed">
-	<thead>
-		<tr>
-		  <th>name</th>
-		  <th>Amount in Pool</th>
-		</tr>
-	</thead>
-	<tbody>
-	{%for i in members%}
-		<tr>
-			<td><a href="?u={{i.user.id}}">{{i.user}}</a></td>
-            <td>
-                <a href="/group/outstandingList/?u={{i.user.id}}&tr={{ALL_TIME}}" rel="tooltip" data-placement="right" 
-                    data-original-title="How did this come?">{{i.amount_in_pool|floatformat}}</a>
-            </td>
-		</tr>
-	{%endfor%}
-	</tbody>
-</table>
+    <h1 class="offset1">Settle</h1>
+    <div class="span4">
+        <table class="table table-hover table-condensed">
+            <thead>
+                <tr>
+                    <th>name</th>
+                    <th>Amount in Pool</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for i in members%}
+                <tr>
+                    <td><a href="/home/?u={{i.user.id}}">{{i.user}}</a></td>
+                    <td>
+                        <a href="/group/outstandingList/?u={{i.user.id}}&tr={{ALL_TIME}}" rel="tooltip" data-placement="right" 
+                            data-original-title="How did this come?">{{i.amount_in_pool|floatformat}}</a>
+                    </td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
 

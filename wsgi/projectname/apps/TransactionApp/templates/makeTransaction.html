@@ -16,6 +16,7 @@
 {% include "navlist.html" %}
 </div>
 <div class="span8" ng-controller="TransactionsFormController">
+    <h1 class="offset1">Make Txn</h1>
 	{% for i in request.session.memberships%}
 		{% if request.session.active_group == i.group %}
 		{{ i.group.name }}*
@@ -23,9 +24,17 @@
 		<a href="/changeGroup/{{ i.group.pk }}/?next={{request.path}}">{{ i.group.name }}</a>
 		{% endif %}
 	{% endfor %}
+    <p class="pull-right">
+    <span ng-hide="involving_checkbox">YOU<br/> Paid </span>
+    <span ng-show="involving_checkbox && paid_user"><strong>{[{paid_user.username}]}</strong><br/> Paid </span> 
+    <span ng-show="amount"><strong>{[{amount}]}</strong><br/> for<br/></span> 
+    <span ng-repeat="u in users_inv">{[{u}]},<br/></span> 
+    <span ng-show="selectedFromCategory">from {[{selectedFromCategory.name}]}<br/></span> 
+    <span ng-show="description">for<br/><strong>{[{description}]}</strong><br/></span> 
+    <span ng-show="selectedToCategory">to {[{selectedToCategory.name}]}<br/></span> 
+    <span ng-show="date">on<br><strong>{[{date}]}</strong><br/>
+    </p>
     <form name="makeTransactionForm" action="{{next_link}}?t={{edit_id}}" method="POST" class="form-horizontal span6">{% csrf_token %}  
-		<span ng-hide="involving_checkbox">YOU</span><span ng-show="involving_checkbox">{[{paid_user.username}]}</span> Paid {[{amount}]} for <span ng-repeat="u in users_inv">{[{u}]},</span> 
-		from {[{selectedFromCategory.name}]} for{[{description}]} to {[{selectedToCategory.name}]} on {[{date}]}
 		<div class="control-group" ng-hide="involving_checkbox">
 			<label class="control-label" for="paid_user">You</label>
             <div class="controls">
@@ -66,7 +75,7 @@
                             </td>
                             <td>
 								<span ng-show="usr.checked">
-									{[{amount/users_inv.length | number:2}]}
+                                    <strong>{[{amount/users_inv.length | number:2}]}</strong>
 								</span>
                             </td>
                         </tr>
