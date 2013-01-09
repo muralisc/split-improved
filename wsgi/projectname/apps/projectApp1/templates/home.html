@@ -15,15 +15,6 @@
 </div>
 <div class="span6">
 	<div class="row-fluid">
-		CREATE GROUP <br/>
-		<form name="groupCreate" class="form form-horizontal" action="/createGroup/" method="post">{% csrf_token %}   
-			<label for="id_name">Name:</label> <input id="id_name" type="text" name="name" maxlength="64" />
-			<!--<label for="id_description">Description:</label> <input id="id_description" type="text" name="description" maxlength="564" />-->
-			<label for="id_members">Members:</label> 
-			<input name="members" id="id_members"type="text" id="tokeninput-demo" /><br/>
-			{{form.privacy}}
-			<input class="btn" type="submit" name="Create" value="Create"/>
-		</form>
         {% include "filterController.html" %}
         {% include "timeFilter.html" %}
         <table class="table table-hover table-condensed">
@@ -65,18 +56,4 @@
 
 
 {% block afterbody%}
-<script>
-	$(document).ready(function() {
-		//token input function to get the users for dropdown to create group
-		$("#id_members").tokenInput("/getJSON/users/", {
-			theme: "facebook",
-			hintText: "Search Friends",
-			noResultsText: "O results",
-			searchingText: "searching Friends",
-			preventDuplicates: true
-		});	
-	});
-</script>
-<link rel="stylesheet" href="http://loopj.com/jquery-tokeninput/styles/token-input-facebook.css" type="text/css" media="screen" charset="utf-8" />
-<script src="https://github.com/loopj/jquery-tokeninput/raw/master/src/jquery.tokeninput.js" type="text/javascript" charset="utf-8"></script>
 {% endblock %}

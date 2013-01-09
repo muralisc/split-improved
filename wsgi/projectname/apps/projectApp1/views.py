@@ -71,7 +71,6 @@ def siteLogin(request):
 @login_required(login_url='/login/')
 def home(request):
     (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
-    form = GroupForm()
     no_of_invites = Invite.objects.filter(to_user=request.user).filter(unread=True).count()
     no_of_notifications = Notification.objects.filter(to_user=request.user, is_hidden=False).count()
     request.session['no_of_invites'] = no_of_invites
@@ -87,9 +86,6 @@ def home(request):
                 ]
                 )
     dict_for_html = {
-            'form': form,
-            'no_of_invites': no_of_invites,
-            'no_of_notifications': no_of_notifications,
             'group_list': group_list,
             'request': request,
             'response_json': request.session['response_json'],
@@ -102,6 +98,17 @@ def home(request):
             'ALL_TIME': ALL_TIME,
             }
     return render_to_response('home.html', dict_for_html, context_instance=RequestContext(request))
+
+
+@login_required(login_url='/login/')
+def createGroupForm(request):
+    form = GroupForm()
+    dict_for_html = {
+            'form': form,
+            'request': request,
+            'response_json': request.session['response_json'],
+            }
+    return render_to_response('createGroupForm.html', dict_for_html, context_instance=RequestContext(request))
 
 
 @login_required(login_url='/login/')
