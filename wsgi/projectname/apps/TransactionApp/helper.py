@@ -208,6 +208,32 @@ def get_paid_amount(group_id, user_id, start_time, end_time):
     return s2t
 
 
+def get_personal_paid_amount(user_id, start_time, end_time):
+    '''
+    For personal Tranasctions alone
+    '''
+    user_expense_category_list = UserCategory.objects.filter(
+                                                user_id=user_id,
+                                            ).filter(
+                                                Q(category__category_type=INCOME) |
+                                                Q(category__category_type=BANK) |
+                                                Q(category__category_type=CREDIT)
+                                            ).values_list(
+                                                'category', flat=True
+                                            )
+    s2t = Transaction.objects.filter(
+                        Q(created_for_group_id=None) &
+                        Q(deleted=False) &
+                        Q(paid_user_id=user_id) &
+                        ~Q(to_category_id__in=user_expense_category_list) &
+                        Q(transaction_time__range=(start_time, end_time))
+                    ).aggregate(
+                        Sum('amount')
+                    )['amount__sum']
+    s2t = s2t if s2t is not None else 0
+    return s2t
+
+
 def parseGET_ordering(request):
     order_by_args = list()
     order_by_page_list = False

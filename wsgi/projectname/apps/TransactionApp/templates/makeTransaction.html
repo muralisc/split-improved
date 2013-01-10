@@ -17,13 +17,6 @@
 </div>
 <div class="span8" ng-controller="TransactionsFormController">
     <h1 class="offset1">Make Txn</h1>
-	{% for i in request.session.memberships%}
-		{% if request.session.active_group == i.group %}
-		{{ i.group.name }}*
-		{% else %}
-		<a href="/changeGroup/{{ i.group.pk }}/?next={{request.path}}">{{ i.group.name }}</a>
-		{% endif %}
-	{% endfor %}
     <p class="pull-right">
     <span ng-hide="involving_checkbox">YOU<br/> Paid </span>
     <span ng-show="involving_checkbox"><strong>{[{paid_user.username}]}</strong><br/> Paid </span> 
