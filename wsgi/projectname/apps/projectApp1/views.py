@@ -71,8 +71,8 @@ def siteLogin(request):
 @login_required(login_url='/login/')
 def home(request):
     (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
-    no_of_invites = Invite.objects.filter(to_user=request.user).filter(unread=True).count()
-    no_of_notifications = Notification.objects.filter(to_user=request.user, is_hidden=False).count()
+    no_of_invites = Invite.objects.filter(to_user_id=request.user.id).filter(unread=True).count()
+    no_of_notifications = Notification.objects.filter(to_user_id=request.user.id, is_hidden=False).count()
     request.session['no_of_invites'] = no_of_invites
     request.session['no_of_notifications'] = no_of_notifications
     group_list = list()

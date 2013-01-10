@@ -20,7 +20,12 @@
 <div class="pull-right">
     {% include "pageFilter.html" %}
 </div>
-{% include "listTypeFilter.html" %}
+<div class="pull-left">
+    {% include "userFilter.html" %}
+</div>
+<div class="pull-left">
+    {% include "listTypeFilter.html" %}
+</div>
 {% include "filterController.html" %}
 {%if transaction_list_with_expense%}
     <table class="table table-hover table-condensed">

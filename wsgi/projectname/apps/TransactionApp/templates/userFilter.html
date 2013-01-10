@@ -4,6 +4,7 @@ Requires
 and ng-app in <html> tag
 --->
 <div ng-controller="filterController">
+    of 
     <select ng-model="u" ng-change="frameGETquery()" ng-options="c.username for c in users_in_grp">
         <option value="" selected="selected">---------</option>
     </select>

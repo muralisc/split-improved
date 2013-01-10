@@ -26,7 +26,7 @@
 	{% endfor %}
     <p class="pull-right">
     <span ng-hide="involving_checkbox">YOU<br/> Paid </span>
-    <span ng-show="involving_checkbox && paid_user"><strong>{[{paid_user.username}]}</strong><br/> Paid </span> 
+    <span ng-show="involving_checkbox"><strong>{[{paid_user.username}]}</strong><br/> Paid </span> 
     <span ng-show="amount"><strong>{[{amount}]}</strong><br/> for<br/></span> 
     <span ng-repeat="u in users_inv">{[{u}]},<br/></span> 
     <span ng-show="selectedFromCategory">from {[{selectedFromCategory.name}]}<br/></span> 
@@ -53,7 +53,7 @@
             <label class="control-label" for="amount">paid</label>
             <div class="controls">
                 <input ng-model="amount" name="amount" type="number" placeholder="Amount" id="id_amount">
-                <input ng-change="callCalculator()" ng-model="valueToCalculate" name="amount" type="text" placeholder="Calculator eg: 9+6*log(5)=">
+                <input ng-change="callCalculator()" ng-model="valueToCalculate" type="text" placeholder="Calculator eg: 9+6*log(5)=">
             </div>
         </div>
         {% if perms.TransactionApp.group_transactions %}
