@@ -82,6 +82,7 @@ class UserCategory(models.Model):
         category_lost = Transaction.objects.filter(
                                         from_category_id=self.category.id,
                                         paid_user_id=self.user_id,
+                                        created_for_group_id=None,
                                     ).filter(
                                         time_filter
                                     ).aggregate(
@@ -91,6 +92,7 @@ class UserCategory(models.Model):
         category_gained = Transaction.objects.filter(
                                         to_category_id=self.category.id,
                                         paid_user_id=self.user_id,
+                                        created_for_group_id=None,
                                     ).filter(
                                         time_filter
                                     ).aggregate(

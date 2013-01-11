@@ -50,6 +50,10 @@ function filterController($scope) {
     $scope.to_list = new Array();
 	for (temp=0;temp<$scope.category_list.length;temp++)
 	{ 
+        if($scope.category_list[temp].type == {{ INCOME }}){
+            $scope.category_list[temp].type = "INCOME"
+            $scope.from_list.push($scope.category_list[temp]);
+        }
         if($scope.category_list[temp].type == {{ BANK }}){
             $scope.category_list[temp].type = "BANK"
             $scope.from_list.push($scope.category_list[temp]);

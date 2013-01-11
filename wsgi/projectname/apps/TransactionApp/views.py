@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction, Payee
 from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, get_paid_amount, \
         get_personal_paid_amount, parseGET_initialise, parseGET_ordering, get_page_info, new_group_transaction_event, \
-        new_personal_transaction_event, delete_group_transaction_event
+        new_personal_transaction_event, delete_group_transaction_event, updateSession
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME
 from projectApp1.models import Membership  # , Group
 from itertools import groupby
@@ -281,6 +281,7 @@ def createCategory(request, gid):
                                             initial_amount=0,
                                             current_amount=0,
                                             deleted=False)
+            updateSession(request)
             return HttpResponse(SafeString(json.dumps({
                                                     'name': categoryRow.name,
                                                     'id': categoryRow.id,
