@@ -78,7 +78,7 @@
 		<tbody>
 {% for i in group_paid_amount_list%}
 			<tr>
-			  <td class="span2"><a href="{{i.0.id}}">{{i.0}}</a></td>
+                <td class="span2"><a href="/changeGroup/{{ i.0.group.id }}/?next=/group/{{i.0.group.id}}">{{i.0.group}}</a></td>
 			  <td class="span1">{{i.1}}</td>
 			</tr>
 {% endfor %}
