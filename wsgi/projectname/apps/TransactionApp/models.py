@@ -74,7 +74,7 @@ class UserCategory(models.Model):
     def __unicode__(self):
         return '{0}'.format(self.category.name)
 
-    def get_outstnading(self, start_time=None, end_time=None):
+    def get_outstanding(self, start_time=None, end_time=None):
         if start_time is not None and end_time is not None:
             time_filter = Q(transaction_time__range=(start_time, end_time))
         else:

@@ -607,17 +607,17 @@ def personalStatistics(request):
     personal_expense_alone = 0
     if expense_category_list is not None:
         for temp in expense_category_list:
-            category_outstanding = temp.get_outstnading(start_time, end_time)
+            category_outstanding = temp.get_outstanding(start_time, end_time)
             personal_expense_alone = personal_expense_alone + category_outstanding
             expense_category_outstanding_list.append([temp, category_outstanding])
     income_category_outstanding_list = list()
     if income_category_list is not None:
         for temp in income_category_list:
-            income_category_outstanding_list.append([temp, temp.get_outstnading(start_time, end_time)])
+            income_category_outstanding_list.append([temp, temp.get_outstanding(start_time, end_time)])
     bank_category_outstanding_list = list()
     if bank_category_list is not None:
         for temp in bank_category_list:
-            bank_category_outstanding_list.append([temp, temp.get_outstnading()])
+            bank_category_outstanding_list.append([temp, temp.get_outstanding()])
     group_paid_amount_list = list()
     for temp in request.session['memberships']:
         group_paid_amount_list.append(

@@ -2,8 +2,10 @@ from django.test import TestCase
 from django.contrib.auth.models import User, Permission
 from projectApp1.models import Membership, Group
 from TransactionApp.models import Category, UserCategory, GroupCategory
-from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, PRIVATE, PUBLIC, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, DEFAULT_START_PAGE, DEFAULT_RPP
-from TransactionApp.helper import parseGET_initialise, get_outstanding_amount, get_expense
+from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, PRIVATE, PUBLIC, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, \
+        ALL_TIME, DEFAULT_START_PAGE, DEFAULT_RPP
+from TransactionApp.helper import parseGET_initialise, get_outstanding_amount, get_expense, get_personal_paid_amount, \
+        parseGET_ordering
 from django.test.client import RequestFactory
 from datetime import datetime
 
@@ -155,20 +157,33 @@ class TransactionAppTestCase(TestCase):
                                                                 'u': str(self.u1.pk),
                                                                 })
         (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+        # TODO
         # sending invalid values
         request = self.factory.get('/group/transactionList/', {
                                                                 'tr': 'abcd',
                                                                 'u': str(self.u1.pk),
                                                                 })
         (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+        # TODO
         # sending invalid values
         request = self.factory.get('/group/transactionList/', {
                                                                 'ts': 'abcd',
                                                                 'u': str(self.u1.pk),
                                                                 })
         (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+        # TODO
+        request = self.factory.get('/group/transactionList/', {
+                                                                'o': '1.2.3.4.5',
+                                                                })
+        (order_by_args, order_by_page_list) = parseGET_ordering(request)
+        self.assertEqual(order_by_args, ['paid_user', 'amount', 'description', 'users_involved', 'transaction_time'])
+        request = self.factory.get('/group/transactionList/', {
+                                                                'o': '-1.-2.-3.-4.-5',
+                                                                })
+        (order_by_args, order_by_page_list) = parseGET_ordering(request)
+        self.assertEqual(order_by_args, ['-paid_user', '-amount', '-description', '-users_involved', '-transaction_time'])
 
-    def test_makeTransaction_group(TestCase):
+    def test_makeTransaction_group(self):
         # TODO asser tat a direct acces to this ink redirets  to formlink
         # TODO verify in test the atr the row is creaTED;
         # TODO verify that if the <useris making a group txn> the category belogs to group
@@ -177,6 +192,11 @@ class TransactionAppTestCase(TestCase):
         # perfoem a vlaid and invalid txn with group perm alone TODO
         # perfoem a valid adn invalid txn with both perm TODO
         pass
+
+    def test_calculator(self):
+        response = self.client.post('/calculator/2+3*5/', follow=True)
+        self.assertEqual(response.content, '17')
+
 
 class TransctionsTestCase(TestCase):
     '''
@@ -289,7 +309,7 @@ class TransctionsTestCase(TestCase):
         self.assertEqual(-600, self.m3.amount_in_pool)
         self.assertEqual(-200, self.m4.amount_in_pool)
         self.assertEqual(+900, self.m5.amount_in_pool)
-        self.assertEqual(-400, get_outstanding_amount(self.g1.id, self.m1.id, end_time=datetime(2050, 1, 1)))
+        self.assertEqual(-400, get_outstanding_amount(self.g1.id, self.m1.id, end_time=datetime(2015, 1, 1)))
         self.assertEqual(+300, get_outstanding_amount(self.g1.id, self.m2.id))
         self.assertEqual(-600, get_outstanding_amount(self.g1.id, self.m3.id))
         self.assertEqual(-200, get_outstanding_amount(self.g1.id, self.m4.id))
@@ -394,4 +414,6 @@ class TransctionsTestCase(TestCase):
         self.uc4 = UserCategory.objects.get(user_id=self.u6.id, category=self.c4)
         self.assertEqual(1100, self.gc2.current_amount)
         self.assertEqual(-900, self.uc3.current_amount)
+        self.assertEqual(-900, self.uc3.get_outstanding())  # ensure outstanding also gets the same value
+        self.assertEqual(900, get_personal_paid_amount(self.u6.id))  # ensure outstanding also gets the same value
         self.assertEqual(200, self.uc4.current_amount)
