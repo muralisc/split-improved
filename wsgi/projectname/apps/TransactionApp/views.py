@@ -46,6 +46,9 @@ def displaySingleTransaction(request, tid):
     return render_to_response('displaySingleTransaction.html', dict_for_html, context_instance=RequestContext(request))
 
 
+def onlineApp(request):
+    return render_to_response('onlineApp.html', locals(), context_instance=RequestContext(request))
+
 @login_required(login_url='/login/')
 def displayTransactionForm(request):
     '''

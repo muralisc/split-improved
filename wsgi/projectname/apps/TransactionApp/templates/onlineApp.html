@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block ngAppName %} ng-app="YourAppName" {% endblock %}
+
+{% block title %}
+{% endblock %}
+
+
+{% block header %}
+{% include "navbar.html" %}
+{% endblock %}
+
+
+{% block body %}
+<div class="span2">
+{% include "navlist.html" %}
+</div>
+<div class="span8" ng-controller="onlineAppController">
+    <h1 class="offset1">Make Txn</h1>
+        <input type="text" ng-model="no_of_people" ng-change="ad()">
+        <style>
+            table
+            {
+                border-collapse:collapse;
+            }
+            table,th, td
+            {
+                border: 1px solid black;
+            }
+            td a 
+            {
+                display: block;
+                width: 30px;
+                text-align: center;
+                padding: 10px;
+            }
+        </style>
+        <table>
+            <tr ng-repeat="row in no_people_array">
+                <td>
+                    <input ng-model="amount[row]" type="number" placeholder="Amount" id="id_amount">
+                </td>
+                <td ng-repeat="col in no_people_array">
+                    <a>
+                        {[{amount[row]}]}
+                    </a>
+                </td>
+            </tr>
+        </table>
+</div>
+
+{% endblock %}
+
+
+{% block footer%}
+{% endblock %}
+
+
+{% block afterbody%}
+<script type="text/javascript">
+
+    function onlineAppController($scope) {
+        $scope.amount = {};
+		$scope.no_of_people = 0;
+        $scope.ad = function(){
+            $scope.no_people_array = new Array($scope.no_of_people);
+            for(var i=0; i<$scope.no_of_people; i++){
+                $scope.no_people_array[i] = i;
+            }
+        }
+    };
+</script>
+<!-- ============================================== -->
+{% endblock %}
