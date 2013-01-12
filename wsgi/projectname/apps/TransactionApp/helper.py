@@ -478,3 +478,10 @@ def updateSession(request):
                 for row in UserCategory.objects.filter(user_id=request.user.id)]
     response_json['category'] = SafeString(json.dumps(category))
     request.session['response_json'] = response_json
+
+def updateVotificationInvites(request):
+    no_of_invites = Invite.objects.filter(to_user_id=request.user.id).filter(unread=True).count()
+    no_of_notifications = Notification.objects.filter(to_user_id=request.user.id, is_unread=True).count()
+    request.session['no_of_invites'] = no_of_invites
+    request.session['no_of_notifications'] = no_of_notifications
+

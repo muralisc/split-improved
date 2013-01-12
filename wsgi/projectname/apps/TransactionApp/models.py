@@ -175,32 +175,24 @@ class Transaction(models.Model):
         # TODO make help string for this function
         # TODO test to ensuer that the trasaction craing user dont have a txn
         payee_objects = Payee.objects.filter(txn_id=self.id, deleted=False)
+        type_specific_msg = ''
+        message = ''
         for p_object in payee_objects:
             if p_object.user_id != user_created_id:
                 if notification_type == 'txn_created':
-                    message = 'created transaction for {0}/{1}; \
-                            your outstanding is <strong>{2:.2f}</strong> \
-                            among {3} users involved '.format(
-                                self.description, self.to_category,
-                                p_object.outstanding_amount,
-                                self.users_involved.count()
-                                )
+                    type_specific_msg = 'Created'
                 elif notification_type == 'txn_deleted':
-                    message = 'deleted transaction for {0}/{1}; \
-                            your outstanding is <strong>{2:.2f}</strong> \
-                            among {3} users involved '.format(
-                                self.description, self.to_category,
-                                p_object.outstanding_amount,
-                                self.users_involved.count()
-                                )
+                    type_specific_msg = 'Deleted'
                 elif notification_type == 'txn_edited':
-                    message = 'edited transaction for {0}/{1}; \
-                            your outstanding is <strong>{2:.2f}</strong> \
-                            among {3} users involved '.format(
-                                self.description, self.to_category,
-                                p_object.outstanding_amount,
-                                self.users_involved.count()
-                                )
+                    type_specific_msg = 'Edited'
+                message = '<strong>{0}</strong> transaction for <strong>{1}</strong>; \
+                        your outstanding is <strong>{2:.2f}</strong> \
+                        among <strong>{3}</strong> users involved '.format(
+                            type_specific_msg,
+                            self.description,
+                            p_object.outstanding_amount,
+                            self.users_involved.count()
+                            )
                 # create notficatin for all the payees
                 if p_object.user.id != user_created_id:
                     Notification.objects.create(
@@ -215,13 +207,6 @@ class Transaction(models.Model):
                                                 )
         # create notification for the user paid
         if self.paid_user_id != user_created_id:
-            message = 'edited transaction for {0}/{1}; \
-                    your outstanding is <strong>{2:.2f}</strong> \
-                    among {3} users involved '.format(
-                        self.description, self.to_category,
-                        self.get_outstanding_amount(self.paid_user_id),
-                        self.users_involved.count()
-                        )
             Notification.objects.create(
                                 from_user_id=user_created_id,
                                 to_user_id=self.paid_user_id,

@@ -25,6 +25,7 @@ urlpatterns = patterns('',
 
 
     (r'^calculator/(.*)/$', 'TransactionApp.views.calculator'),
+    (r'^transaction/(\d+)/$', 'TransactionApp.views.displaySingleTransaction'),
     (u'^transactionForm/$', 'TransactionApp.views.displayTransactionForm'),
     (u'^editTransactionForm/$', 'TransactionApp.views.editTransactionForm'),
     (u'^editTransaction/$', 'TransactionApp.views.editTransaction'),

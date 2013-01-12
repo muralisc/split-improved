@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}
+{% endblock %}
+
+
+{% block header %}
+{% include "navbar.html" %}
+{% endblock %}
+
+
+{% block body %}
+<div class="span2">
+    {% include "navlist.html" %}
+</div>
+<div class="span10">
+    <h1 class=""></h1>
+    <h3> you owe {{ outstanding }}</h3>
+    <strong>{{ transactionRow.paid_user }}</strong>
+    <br/>
+
+    paid
+    <strong>{{ transactionRow.amount }}</strong>
+    {% if transactionRow.from_category %}
+    <strong>{{ transactionRow.from_category }}</strong> 
+    {% endif %}
+    <br/>
+
+    for
+    <strong>{{ transactionRow.description }}</strong>
+    {% if transactionRow.to_category %}
+    <strong>{{ transactionRow.to_category }}</strong>
+    {% endif %}
+    <br/>
+
+    involving
+    <br/>
+    <em>
+        {% for i in payees %}
+        {{i.user}}
+        {{i.outstanding_amount}}<br/>
+        {%endfor%}
+    </em>
+    paid at 
+    <strong>{{ transactionRow.transaction_time }}</strong>
+    <br/>
+    added to split on
+    <strong>{{ transactionRow.create_time }}</strong>
+    <br/>
+    by
+    <strong>{{ transactionRow.created_by_user }}</strong>
+    <br/>
+    in the group
+    <strong>{{ transactionRow.created_for_group }}</strong>
+    {% if transactionRow.history%}
+    <strong>{{ transactionRow.history }}</strong>
+    {% endif %}
+</div>            
+{% endblock %}    
+
+
+{% block footer%}
+{% endblock %}
+
+
+{% block afterbody%}
+{% endblock %}

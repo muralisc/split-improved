@@ -12,7 +12,7 @@ from django.http import Http404, HttpResponse
 from django.utils.safestring import SafeString
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME
 from TransactionApp.helper import on_create_user, updateSession, get_outstanding_amount, get_expense, get_paid_amount, \
-        parseGET_initialise
+        parseGET_initialise, updateVotificationInvites
 
 
 def createUser(request):
@@ -71,10 +71,8 @@ def siteLogin(request):
 @login_required(login_url='/login/')
 def home(request):
     (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
-    no_of_invites = Invite.objects.filter(to_user_id=request.user.id).filter(unread=True).count()
-    no_of_notifications = Notification.objects.filter(to_user_id=request.user.id, is_hidden=False).count()
-    request.session['no_of_invites'] = no_of_invites
-    request.session['no_of_notifications'] = no_of_notifications
+    # TODO funtion to update no fo invires is session
+    updateVotificationInvites(request)
     group_list = list()
     for temp in request.session['memberships']:
         group_list.append(
@@ -223,7 +221,10 @@ def showInvites(request):
 
 @login_required(login_url='/login/')
 def showNotifications(request):
-    all_notifications = Notification.objects.filter(to_user=request.user, is_hidden=False)
+    new_notifications = [i for i in Notification.objects.filter(to_user=request.user, is_unread=True)]
+    all_notifications = [i for i in Notification.objects.filter(to_user=request.user, is_unread=False)]
+    Notification.objects.filter(to_user=request.user, is_unread=True).update(is_unread=False)
+    updateVotificationInvites(request)
     return render_to_response('allNotifications.html', locals(), context_instance=RequestContext(request))
 
 

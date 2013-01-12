@@ -14,8 +14,15 @@
 </div>
 <div class="span10">
 <h1 class="">Notifications</h1>
+Unseen
+<br/>
+{% for i in new_notifications %}
+{{ i.from_user }} {{ i.message|safe }}<a href="/transaction/{{ i.href|safe }}/">link to he notificai</a><br/>
+{% endfor %}
+Seen
+<br/>
 {% for i in all_notifications %}
-{{ i.from_user }} {{ i.message|safe }}<a href="{{ i.href|safe }}/">link to he notificai</a><br/>
+{{ i.from_user }} {{ i.message|safe }}<a href="/transaction/{{ i.href|safe }}/">link to he notificai</a><br/>
 {% endfor %}
 </div>
 {% endblock %}

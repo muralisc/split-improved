@@ -33,6 +33,19 @@ def calculator(request, exp):
     return HttpResponse(result)
 
 
+def displaySingleTransaction(request, tid):
+    transactionRow = Transaction.objects.get(id=tid)
+    payees = Payee.objects.filter(txn_id=tid)
+    dict_for_html = {
+            'payees': payees,
+            'outstanding': transactionRow.get_outstanding_amount(request.user.id),
+            'transactionRow': transactionRow,
+            'response_json': request.session['response_json'],
+            'request': request,
+            }
+    return render_to_response('displaySingleTransaction.html', dict_for_html, context_instance=RequestContext(request))
+
+
 @login_required(login_url='/login/')
 def displayTransactionForm(request):
     '''
