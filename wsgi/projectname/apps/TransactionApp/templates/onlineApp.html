@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block ngAppName %} ng-app="YourAppName" {% endblock %}
+
+{% block title %}
+{% endblock %}
+
+
+{% block header %}
+{% include "navbar.html" %}
+{% endblock %}
+
+
+{% block body %}
+<div class="span2">
+{% include "navlist.html" %}
+</div>
+<div class="span8" ng-controller="onlineAppController">
+    <h1 class="offset1">Make Txn</h1>
+        <style>
+            table
+            {
+                border-collapse:collapse;
+            }
+            /*table,th, td
+            {
+                border: 1px solid black;
+            }*/
+            td a 
+            {
+                display: block;
+                width: 30px;
+                text-align: center;
+                padding: 10px;
+                text-decoration: none;
+                color:inherit;
+            }
+            .bg2 
+            { 
+                background-color: #f00;
+                border: 1px solid black;
+            }
+            .bg1 
+            { 
+                background-color: #fff;
+                border: 1px solid black;
+            }
+        </style>
+        no of txn
+        {[{no_of_txn}]}
+        <a ng-click="incrementTxn()">add txn</a>
+        <a ng-click="decrementTxn()">remove txn</a>
+        <br/>
+        no of people
+        {[{no_of_people}]}
+        <a ng-click="incrementUser()">add user</a>
+        <a ng-click="decrementUser()">remove user</a>
+        <table>
+            <tr ng-repeat="row in txn_people_array">
+                <td>
+                    <input ng-model="amount[$index]" type="number" placeholder="Amount" id="id_amount">
+                </td>
+                <td ng-class="css_class[txn_people_array[$parent.$index][$index]]" ng-repeat="col in row">
+                    <a ng-click="toggleCell($parent.$index, $index)">
+                        <!-- {[{txn_people_array[$parent.$index][$index]}]} -->
+                        {[{(amount[$parent.$index]/getNoOfCells($parent.$index)).toFixed(2)}]}
+                    </a>
+                </td>
+            </tr>
+        </table>
+</div>
+{% endblock %}
+
+
+{% block footer%}
+{% endblock %}
+
+
+{% block afterbody%}
+<script type="text/javascript">
+    function onlineAppController($scope) {
+        $scope.amount = {};
+		$scope.no_of_people = 1;
+		$scope.no_of_txn= 1;
+		$scope.txn_people_array= [[1]];
+		$scope.css_class = ['bg1', 'bg2'];
+        $scope.incrementTxn = function(){
+            // add a new row with "no_of_people" cells
+            $scope.txn_people_array[$scope.no_of_txn] = [];
+            for(var i=0; i<$scope.no_of_people; i++){
+                $scope.txn_people_array[$scope.no_of_txn][i] = 1;
+            }
+            $scope.no_of_txn= $scope.no_of_txn+ 1;
+        };
+        $scope.decrementTxn= function(){
+            if($scope.no_of_txn > 0){
+                $scope.txn_people_array.splice($scope.txn_people_array.length-1, 1);
+                $scope.no_of_txn= $scope.no_of_txn- 1;
+            }
+        };
+        $scope.incrementUser= function(){
+            // increase the the array size by one column for all rows
+            for(var i=0; i<$scope.txn_people_array.length; i++){
+                $scope.txn_people_array[i][$scope.no_of_people] = 1;
+            }
+            $scope.no_of_people = $scope.no_of_people + 1;
+        };
+        $scope.decrementUser= function(){
+            if($scope.no_of_people > 0){
+                for(var i=0; i<$scope.txn_people_array.length; i++){
+                    $scope.txn_people_array[i].splice($scope.txn_people_array[i].length-1, 1);
+                }
+            }
+            $scope.no_of_people = $scope.no_of_people - 1;
+        };
+        $scope.toggleCell = function(row, col){
+            $scope.txn_people_array[row][col] = $scope.txn_people_array[row][col]==1?0:1;
+        };
+        $scope.getNoOfCells= function(row){
+            var sum = 0;
+            for (var i=0; i<$scope.txn_people_array[row].length; i++){ 
+                if ($scope.txn_people_array[row][i]==1){
+                    sum = sum +1;
+                }
+            }
+            return sum;
+        };
+    };
+</script>
+<!-- ============================================== -->
+{% endblock %}
