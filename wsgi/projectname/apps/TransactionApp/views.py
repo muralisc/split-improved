@@ -390,7 +390,7 @@ def groupStatistics(request):
 
 @login_required(login_url='/login/')
 def groupSettle(request):
-    members = Membership.objects.filter(group=request.session['active_group'])
+    members = Membership.objects.filter(group=request.session['active_group']).order_by('-amount_in_pool')
     dict_for_html = {
             'members': members,
             'request': request,

@@ -31,6 +31,7 @@ def import_from_snapshot(request):
     model_strings = ['TransactionsApp.users', 'TransactionsApp.groupstable', 'TransactionsApp.transactions', 'personalApp.categories', 'personalApp.transfers']
     # make a dictionalr of old_pk and new_pk from user model
     user_dict = dict()
+    perm = Permission.objects.get(codename='group_transactions')
     for temp in model_dict[model_strings[0]]:
         try:
             asd = User.objects.create_user(
@@ -43,6 +44,7 @@ def import_from_snapshot(request):
                                     username=temp['fields']['email'],
                                     )
         user_dict[str(temp['pk'])] = asd.id   # assign the new id here
+        asd.user_permissions.add(perm)
     ######## groupstable
     group_dict = dict()
     for temp in model_dict[model_strings[1]]:
