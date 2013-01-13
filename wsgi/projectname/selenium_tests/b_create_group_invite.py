@@ -20,6 +20,7 @@ inputElement.send_keys("p")
 inputElement.submit()
 # create a group
 driver.find_element_by_link_text("createGroup").click()
+WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//form[@name='groupCreate']/input[@name='name']").is_displayed())
 inputElement = driver.find_element_by_xpath("//form[@name='groupCreate']/input[@name='name']")
 inputElement.send_keys("car")
 for i in range(1, 7):
