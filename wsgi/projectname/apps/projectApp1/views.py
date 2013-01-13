@@ -12,7 +12,7 @@ from django.http import Http404, HttpResponse
 from django.utils.safestring import SafeString
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME
 from TransactionApp.helper import on_create_user, updateSession, get_outstanding_amount, get_expense, get_paid_amount, \
-        parseGET_initialise, updateVotificationInvites
+        parseGET_initialise, updateNotificationInvites
 
 
 def createUser(request):
@@ -72,7 +72,7 @@ def siteLogin(request):
 def home(request):
     (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
     # TODO funtion to update no fo invires is session
-    updateVotificationInvites(request)
+    updateNotificationInvites(request)
     group_list = list()
     for temp in request.session['memberships']:
         group_list.append(
@@ -224,7 +224,7 @@ def showNotifications(request):
     new_notifications = [i for i in Notification.objects.filter(to_user=request.user, is_unread=True)]
     all_notifications = [i for i in Notification.objects.filter(to_user=request.user, is_unread=False)]
     Notification.objects.filter(to_user=request.user, is_unread=True).update(is_unread=False)
-    updateVotificationInvites(request)
+    updateNotificationInvites(request)
     return render_to_response('allNotifications.html', locals(), context_instance=RequestContext(request))
 
 

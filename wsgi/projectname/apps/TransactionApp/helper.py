@@ -3,7 +3,7 @@ except ImportError: import json
 from datetime import datetime, timedelta
 from django.contrib.auth.models import User, Permission
 from TransactionApp.models import Category, Payee, Transaction, UserCategory, GroupCategory
-from projectApp1.models import Membership, Group
+from projectApp1.models import Membership, Group, Invite, Notification
 from django.utils.safestring import SafeString
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, DEFAULT_START_PAGE, DEFAULT_RPP
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -479,7 +479,7 @@ def updateSession(request):
     response_json['category'] = SafeString(json.dumps(category))
     request.session['response_json'] = response_json
 
-def updateVotificationInvites(request):
+def updateNotificationInvites(request):
     no_of_invites = Invite.objects.filter(to_user_id=request.user.id).filter(unread=True).count()
     no_of_notifications = Notification.objects.filter(to_user_id=request.user.id, is_unread=True).count()
     request.session['no_of_invites'] = no_of_invites
