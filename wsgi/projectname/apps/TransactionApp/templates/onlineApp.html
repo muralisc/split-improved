@@ -15,8 +15,8 @@
 <div class="span2">
 {% include "navlist.html" %}
 </div>
-<div class="span8" ng-controller="onlineAppController">
-    <h1 class="offset1">Make Txn</h1>
+<div class="span10" ng-controller="onlineAppController">
+    <h1 class="offset1"></h1>
         <style>
             table
             {
@@ -29,7 +29,6 @@
             td a 
             {
                 display: block;
-                width: 30px;
                 text-align: center;
                 padding: 10px;
                 text-decoration: none;
@@ -56,18 +55,48 @@
         <a ng-click="incrementUser()">add user</a>
         <a ng-click="decrementUser()">remove user</a>
         <table>
-            <tr ng-repeat="row in txn_people_array">
-                <td>
-                    <input ng-model="amount[$index]" type="number" placeholder="Amount" id="id_amount">
+            <tr>
+                <td ng-repeat="t in names">
+                    <input class="input-mini" type="text" ng-model="names[$index].value">
+                    </input>
                 </td>
-                <td ng-class="css_class[txn_people_array[$parent.$index][$index]]" ng-repeat="col in row">
+                <td></td>
+                <td></td>
+                <td ng-repeat="t in names">
+                    {[{names[$index].value}]}
+                </td>
+            </tr>
+            <tr ng-repeat="row in txn_expense_people_array">
+                <td class="bg1" ng-repeat="col in row">
+                    <input class="input-mini" ng-model="txn_paid_people_array[$parent.$index][$index]" type="number">
+                </td>
+                <td>
+                    <select class="input-medium" ng-model="selected_perosn_pos">
+                        <option value="" selected="selected">-Select a person-</option>
+                        <option value="{[{$index}]}" ng-repeat="obj in names">{[{obj.value}]}</option>
+                    </select>
+                    <input class="input-mini" ng-model="txn_paid_people_array[$index][selected_perosn_pos]" type="number">
+                </td>
+                <td>
+                    {[{getNetPaidAmount($index)}]}
+                </td>
+                <td ng-class="css_class[txn_expense_people_array[$parent.$index][$index]]" ng-repeat="col in row">
                     <a ng-click="toggleCell($parent.$index, $index)">
-                        <!-- {[{txn_people_array[$parent.$index][$index]}]} -->
-                        {[{(amount[$parent.$index]/getNoOfCells($parent.$index)).toFixed(2)}]}
+                        <!-- {[{txn_expense_people_array[$parent.$index][$index]}]} -->
+                        {[{getExpenseCellValue($parent.$index, $index)}]}
                     </a>
                 </td>
             </tr>
+            <tr>
+                <td ng-repeat="t in names">{[{verticalPaidAmountSum($index)}]}</td>
+                <td></td>
+                <td></td>
+                <td ng-repeat="t in names">{[{verticalExpenseSum($index)}]}</td>
+            </tr>
         </table>
+        <input class="btn btn-primary" type="submit" name="Submit" value="Submit" ng-click="makeSettleArray()"/>
+        <span ng-repeat="t in outstandingArray">{[{t.name}]}  {[{t.outstanding}]}<br/></span>
+        <span ng-repeat="t in settleArray">{[{t}]}<br/></span>
 </div>
 {% endblock %}
 
@@ -79,51 +108,129 @@
 {% block afterbody%}
 <script type="text/javascript">
     function onlineAppController($scope) {
-        $scope.amount = {};
+        $scope.names= [
+            {'value': 'Person0'},
+        ];
 		$scope.no_of_people = 1;
 		$scope.no_of_txn= 1;
-		$scope.txn_people_array= [[1]];
+		$scope.txn_expense_people_array= [[1]];     // constains 1 or 0 marking weather user is present in the txn or not
+		$scope.txn_paid_people_array= [[0]];        // contains actual amount paid by user
 		$scope.css_class = ['bg1', 'bg2'];
         $scope.incrementTxn = function(){
             // add a new row with "no_of_people" cells
-            $scope.txn_people_array[$scope.no_of_txn] = [];
+            $scope.txn_expense_people_array[$scope.no_of_txn] = [];
             for(var i=0; i<$scope.no_of_people; i++){
-                $scope.txn_people_array[$scope.no_of_txn][i] = 1;
+                $scope.txn_expense_people_array[$scope.no_of_txn][i] = 1;
+            }
+            $scope.txn_paid_people_array[$scope.no_of_txn] = [];
+            for(var i=0; i<$scope.no_of_people; i++){
+                $scope.txn_paid_people_array[$scope.no_of_txn][i] = 0;
             }
             $scope.no_of_txn= $scope.no_of_txn+ 1;
         };
         $scope.decrementTxn= function(){
             if($scope.no_of_txn > 0){
-                $scope.txn_people_array.splice($scope.txn_people_array.length-1, 1);
+                $scope.txn_expense_people_array.splice($scope.txn_expense_people_array.length-1, 1);
+                $scope.txn_paid_people_array.splice($scope.txn_paid_people_array.length-1, 1);
                 $scope.no_of_txn= $scope.no_of_txn- 1;
             }
         };
         $scope.incrementUser= function(){
             // increase the the array size by one column for all rows
-            for(var i=0; i<$scope.txn_people_array.length; i++){
-                $scope.txn_people_array[i][$scope.no_of_people] = 1;
+            for(var i=0; i<$scope.txn_expense_people_array.length; i++){
+                $scope.txn_expense_people_array[i][$scope.no_of_people] = 1;
             }
+            for(var i=0; i<$scope.txn_paid_people_array.length; i++){
+                $scope.txn_paid_people_array[i][$scope.no_of_people] = 0;
+            }
+            $scope.names[$scope.no_of_people] = {};
+            $scope.names[$scope.no_of_people].value = 'Person' + $scope.no_of_people;
             $scope.no_of_people = $scope.no_of_people + 1;
         };
         $scope.decrementUser= function(){
             if($scope.no_of_people > 0){
-                for(var i=0; i<$scope.txn_people_array.length; i++){
-                    $scope.txn_people_array[i].splice($scope.txn_people_array[i].length-1, 1);
+                for(var i=0; i<$scope.txn_expense_people_array.length; i++){
+                    $scope.txn_expense_people_array[i].splice($scope.txn_expense_people_array[i].length-1, 1);
+                }
+                for(var i=0; i<$scope.txn_paid_people_array.length; i++){
+                    $scope.txn_paid_people_array[i].splice($scope.txn_paid_people_array[i].length-1, 1);
                 }
             }
+            $scope.names.splice($scope.no_of_people-1, 1);
             $scope.no_of_people = $scope.no_of_people - 1;
         };
         $scope.toggleCell = function(row, col){
-            $scope.txn_people_array[row][col] = $scope.txn_people_array[row][col]==1?0:1;
+            $scope.txn_expense_people_array[row][col] = $scope.txn_expense_people_array[row][col]==1?0:1;
         };
         $scope.getNoOfCells= function(row){
+            // gets the count of no of cells involved in a transaction
             var sum = 0;
-            for (var i=0; i<$scope.txn_people_array[row].length; i++){ 
-                if ($scope.txn_people_array[row][i]==1){
+            for (var i=0; i<$scope.txn_expense_people_array[row].length; i++){ 
+                if ($scope.txn_expense_people_array[row][i]==1){
                     sum = sum +1;
                 }
             }
             return sum;
+        };
+        $scope.verticalExpenseSum = function(col_pos){
+            var sum = 0;
+            for(var row_pos=0; row_pos<$scope.txn_expense_people_array.length; row_pos++){
+                sum = sum + $scope.getExpenseCellValue(row_pos, col_pos);
+            }
+            return sum;
+        };
+        $scope.getExpenseCellValue = function(row_pos, col_pos){
+            var sum = 0;
+            if($scope.txn_expense_people_array[row_pos][col_pos] == 1){
+                sum = $scope.getNetPaidAmount(row_pos) / $scope.getNoOfCells(row_pos);
+            }
+            return sum;
+        }
+        $scope.getNetPaidAmount= function(row_pos){
+            var sum = 0;
+            for (var i=0; i<$scope.txn_paid_people_array[row_pos].length; i++){ 
+                sum = sum +$scope.txn_paid_people_array[row_pos][i];
+            }
+            return sum;
+        };
+        $scope.verticalPaidAmountSum = function(col_pos){
+            var sum = 0;
+            for(var row_pos=0; row_pos<$scope.txn_paid_people_array.length; row_pos++){
+                sum = sum + $scope.txn_paid_people_array[row_pos][col_pos];
+            }
+            return sum;
+        };
+        $scope.outstandingArray = [];
+        $scope.settleArray= [];
+        $scope.makeSettleArray = function(){
+            var settleArray = [];
+            var outstandingArray = [];
+            for(var row_pos=0; row_pos<$scope.names.length; row_pos++){
+                outstandingArray[row_pos] = {};
+                outstandingArray[row_pos].name = $scope.names[row_pos].value;
+                outstandingArray[row_pos].outstanding = $scope.verticalPaidAmountSum(row_pos) - $scope.verticalExpenseSum(row_pos);
+            }
+            $scope.outstandingArray = JSON.parse(JSON.stringify(outstandingArray));    // deep copy 
+            var settleArray_pos = 0;
+            while(outstandingArray.length>1){
+                outstandingArray.sort(function(a,b){ return (a.outstanding - b.outstanding)});
+                settleArray[settleArray_pos] = "";
+                settleArray[settleArray_pos] = settleArray[settleArray_pos].concat(outstandingArray[0].name);
+                settleArray[settleArray_pos] = settleArray[settleArray_pos].concat("=>");
+                settleArray[settleArray_pos] = settleArray[settleArray_pos].concat(outstandingArray[outstandingArray.length-1].name);
+                if( Math.abs(outstandingArray[outstandingArray.length-1].outstanding) > Math.abs(outstandingArray[0].outstanding) ){
+                    settleArray[settleArray_pos] = settleArray[settleArray_pos].concat(Math.abs(outstandingArray[0].outstanding));
+                    outstandingArray[outstandingArray.length-1].outstanding = outstandingArray[outstandingArray.length-1].outstanding + outstandingArray[0].outstanding;
+                    outstandingArray.splice(0,1);
+                }
+                else{
+                    settleArray[settleArray_pos] = settleArray[settleArray_pos].concat(Math.abs(outstandingArray[outstandingArray.length-1].outstanding));
+                    outstandingArray[0].outstanding = outstandingArray[outstandingArray.length-1].outstanding + outstandingArray[0].outstanding;
+                    outstandingArray.splice(outstandingArray.length-1,1);
+                }
+                settleArray_pos = settleArray_pos +1 ;
+            }
+            $scope.settleArray= JSON.parse(JSON.stringify(settleArray)); // deep copy
         };
     };
 </script>

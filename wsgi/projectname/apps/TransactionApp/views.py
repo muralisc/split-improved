@@ -20,6 +20,7 @@ from itertools import groupby
 from django.utils.safestring import SafeString
 from django.http import Http404, HttpResponse
 from django.db.models import Q, Sum
+from django.core.mail import EmailMessage
 
 
 def calculator(request, exp):
@@ -48,6 +49,7 @@ def displaySingleTransaction(request, tid):
 
 def onlineApp(request):
     return render_to_response('onlineApp.html', locals(), context_instance=RequestContext(request))
+
 
 @login_required(login_url='/login/')
 def displayTransactionForm(request):
