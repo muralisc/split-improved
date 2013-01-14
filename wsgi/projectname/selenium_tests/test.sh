@@ -1,0 +1,6 @@
+#python a_create_users.py
+#python b_create_group_invite.py
+python c_create_group_categories.py
+python d_create_group_transactions.py
+python e_create_personal_categories.py
+python f_create_personal_transactions.py

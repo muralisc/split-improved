@@ -5,7 +5,7 @@ from TransactionApp.models import Category, UserCategory, GroupCategory
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, PRIVATE, PUBLIC, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, \
         ALL_TIME, DEFAULT_START_PAGE, DEFAULT_RPP
 from TransactionApp.helper import parseGET_initialise, get_outstanding_amount, get_expense, get_personal_paid_amount, \
-        parseGET_ordering
+        parseGET_ordering, get_paid_amount
 from django.test.client import RequestFactory
 from datetime import datetime
 
@@ -207,7 +207,7 @@ class TransctionsTestCase(TestCase):
         shakku
         kurian
         dash
-    having default to categories
+    having default to_categories
         Bills
         Food
     and corresponding grpup categories
@@ -240,6 +240,20 @@ class TransctionsTestCase(TestCase):
 
     def test_make_transactions(self):
         '''
+        this test asserts fields and function that are affected by multiple transactions :
+        Membership.amount_in_pool
+        GroupCategory.current_amount
+        GroupCategory.get_outstanding()
+        UserCategory.current_amount
+        UserCategory.get_outstanding()
+        helper.get_outstanding_amount(gid,uid ,time...)
+        helper.get_expense(gid, uid time...)
+        helper.get_paid_amount(gid, uid time...)
+        helper.get_personal_paid_amount(uid time...)
+
+        a group car is created with 5 members and 3 types of group txn performed
+        and the above balences are checked
+
         case1: user just paid
         jay ->  kurian  |200    |Rent   |gc:Bills   |1988
                 ropo
@@ -252,11 +266,6 @@ class TransctionsTestCase(TestCase):
                 shakku
                 dash
                 kurian
-        assert
-            GroupCategory.current_amount
-            Membership.amount_in_pool
-            get_outstanding_amount function
-            get_expense function
         '''
         #login
         self.client.login(username="jayalalv@default.com", password="solar")
@@ -299,45 +308,59 @@ class TransctionsTestCase(TestCase):
                                     'description': ['Food']
                                 }
                                 )
-        self.m1 = Membership.objects.get(group=self.g1, user=self.u1)
-        self.m2 = Membership.objects.get(group=self.g1, user=self.u2)
-        self.m3 = Membership.objects.get(group=self.g1, user=self.u3)
-        self.m4 = Membership.objects.get(group=self.g1, user=self.u4)
-        self.m5 = Membership.objects.get(group=self.g1, user=self.u5)
-        self.assertEqual(-400, self.m1.amount_in_pool)
-        self.assertEqual(+300, self.m2.amount_in_pool)
-        self.assertEqual(-600, self.m3.amount_in_pool)
-        self.assertEqual(-200, self.m4.amount_in_pool)
-        self.assertEqual(+900, self.m5.amount_in_pool)
-        self.assertEqual(-400, get_outstanding_amount(self.g1.id, self.m1.id, end_time=datetime(2015, 1, 1)))
-        self.assertEqual(+300, get_outstanding_amount(self.g1.id, self.m2.id))
-        self.assertEqual(-600, get_outstanding_amount(self.g1.id, self.m3.id))
-        self.assertEqual(-200, get_outstanding_amount(self.g1.id, self.m4.id))
-        self.assertEqual(+900, get_outstanding_amount(self.g1.id, self.m5.id))
-        self.assertEqual(+600, get_expense(self.g1.id, self.m1.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
-        self.assertEqual(+100, get_expense(self.g1.id, self.m2.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
-        self.assertEqual(+600, get_expense(self.g1.id, self.m3.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
-        self.assertEqual(+200, get_expense(self.g1.id, self.m4.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
-        self.assertEqual(+600, get_expense(self.g1.id, self.m5.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
-
+        # update membership objects to latest values
+        self.mJay = Membership.objects.get(group=self.g1, user=self.u1)
+        self.mRopo = Membership.objects.get(group=self.g1, user=self.u2)
+        self.mShakku = Membership.objects.get(group=self.g1, user=self.u3)
+        self.mKurian = Membership.objects.get(group=self.g1, user=self.u4)
+        self.mDash = Membership.objects.get(group=self.g1, user=self.u5)
         self.gc1 = GroupCategory.objects.get(group_id=self.g1.id, category=self.c1)
         self.gc2 = GroupCategory.objects.get(group_id=self.g1.id, category=self.c2)
+        self.assertEqual(-400, self.mJay.amount_in_pool)
+        self.assertEqual(+300, self.mRopo.amount_in_pool)
+        self.assertEqual(-600, self.mShakku.amount_in_pool)
+        self.assertEqual(-200, self.mKurian.amount_in_pool)
+        self.assertEqual(+900, self.mDash.amount_in_pool)
         self.assertEqual(1700, self.gc1.current_amount)
-        self.assertEqual(400, self.gc2.current_amount)
+        self.assertEqual(+400, self.gc2.current_amount)
+        #self.assertEqual(1700, self.gc1.get_outstanding())
+        #self.assertEqual(400, self.gc2.get_outstanding())
+        self.assertEqual(-400, get_outstanding_amount(self.g1.id, self.mJay.id, end_time=datetime(2015, 1, 1)))
+        self.assertEqual(+300, get_outstanding_amount(self.g1.id, self.mRopo.id))
+        self.assertEqual(-600, get_outstanding_amount(self.g1.id, self.mShakku.id))
+        self.assertEqual(-200, get_outstanding_amount(self.g1.id, self.mKurian.id))
+        self.assertEqual(+900, get_outstanding_amount(self.g1.id, self.mDash.id))
+        self.assertEqual(+600, get_expense(self.g1.id, self.mJay.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+100, get_expense(self.g1.id, self.mRopo.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+600, get_expense(self.g1.id, self.mShakku.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+200, get_expense(self.g1.id, self.mKurian.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+600, get_expense(self.g1.id, self.mDash.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+200, get_paid_amount(self.g1.id, self.mJay.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+400, get_paid_amount(self.g1.id, self.mRopo.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+000, get_paid_amount(self.g1.id, self.mShakku.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+000, get_paid_amount(self.g1.id, self.mKurian.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(1500, get_paid_amount(self.g1.id, self.mDash.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+
         '''
-        create new users muru and gman one with group permission and other with both
-        make a new category CITI
-        make two UserCategories CITI and Food
+        create new users muru and gman with group permission and other with both
+        make a new GroupCategory Food
+        make two UserCategories  for muru CITI and Food
         assert that
         userCategories are update properly
-        muru -> jay     |700    |uc:CITI    |gc: Food
+        group balences reflected properly
+        muru -> jay     |700    |uc:CITI    |gc: Food   |1991
                 ropo
                 shakku
                 kurian
                 dash
                 muru
                 gman
-        muru            |200    |uc: CITI   |uc: Food
+        assert
+            GroupCategory.current_amount
+            Membership.amount_in_pool
+            get_outstanding_amount function
+            get_expense function
+        muru            |200    |uc: CITI   |uc: Food   |1992
         '''
 
         self.u6 = User.objects.create_user(username="murali@default.com", email="murali@default.com", password="p")
@@ -347,10 +370,9 @@ class TransctionsTestCase(TestCase):
         self.m7 = Membership.objects.create(group=self.g1, user=self.u7, administrator=False, positions='', amount_in_pool=0)
 
         self.c3 = Category.objects.create(name='CITI', category_type=EXPENSE, privacy=PRIVATE, created_by_id=self.u1.id,)
-        self.c4 = Category.objects.create(name='Food', category_type=EXPENSE, privacy=PRIVATE, created_by_id=self.u1.id,)
 
-        self.uc3 = UserCategory.objects.create(user_id=self.u6.id, category=self.c3, initial_amount=0, current_amount=0, deleted=False)
-        self.uc4 = UserCategory.objects.create(user_id=self.u6.id, category=self.c4, initial_amount=0, current_amount=0, deleted=False)
+        self.uc1 = UserCategory.objects.create(user_id=self.u6.id, category=self.c3, initial_amount=0, current_amount=0, deleted=False)
+        self.uc2 = UserCategory.objects.create(user_id=self.u6.id, category=self.c2, initial_amount=0, current_amount=0, deleted=False)
 
         self.u6.user_permissions.add(Permission.objects.get(codename='group_transactions'))
         self.u6.user_permissions.add(Permission.objects.get(codename='personal_transactions'))
@@ -386,7 +408,7 @@ class TransctionsTestCase(TestCase):
                                 '/makeTransaction/',
                                 {
                                     'from_category': [str(self.c3.id)],
-                                    'to_category': [str(self.c4.id)],
+                                    'to_category': [str(self.c2.id)],
                                     'transaction_time': datetime(1992, 1, 1),
                                     'Submit': ['Submit'],
                                     'amount': '200',
@@ -401,6 +423,9 @@ class TransctionsTestCase(TestCase):
         self.m5 = Membership.objects.get(group=self.g1, user=self.u5)
         self.m6 = Membership.objects.get(group=self.g1, user=self.u6)
         self.m7 = Membership.objects.get(group=self.g1, user=self.u7)
+        self.gc2 = GroupCategory.objects.get(group_id=self.g1.id, category=self.c2)
+        self.uc1 = UserCategory.objects.get(user_id=self.u6.id, category=self.c3)
+        self.uc2 = UserCategory.objects.get(user_id=self.u6.id, category=self.c2)
         self.assertEqual(-500, self.m1.amount_in_pool)
         self.assertEqual(+200, self.m2.amount_in_pool)
         self.assertEqual(-700, self.m3.amount_in_pool)
@@ -409,11 +434,39 @@ class TransctionsTestCase(TestCase):
         self.assertEqual(+600, self.m6.amount_in_pool)
         self.assertEqual(-100, self.m7.amount_in_pool)
 
-        self.gc2 = GroupCategory.objects.get(group_id=self.g1.id, category=self.c2)
-        self.uc3 = UserCategory.objects.get(user_id=self.u6.id, category=self.c3)
-        self.uc4 = UserCategory.objects.get(user_id=self.u6.id, category=self.c4)
+        self.assertEqual(1700, self.gc1.current_amount)
         self.assertEqual(1100, self.gc2.current_amount)
-        self.assertEqual(-900, self.uc3.current_amount)
-        self.assertEqual(-900, self.uc3.get_outstanding())  # ensure outstanding also gets the same value
-        self.assertEqual(900, get_personal_paid_amount(self.u6.id))  # ensure outstanding also gets the same value
-        self.assertEqual(200, self.uc4.current_amount)
+        #self.assertEqual(1700, self.gc1.get_outstanding())
+        #self.assertEqual(400, self.gc2.get_outstanding())
+        self.assertEqual(-900, self.uc1.current_amount)
+        self.assertEqual(+200, self.uc2.current_amount)
+        self.assertEqual(-900, self.uc1.get_outstanding())
+        self.assertEqual(+200, self.uc2.get_outstanding())
+        self.assertEqual(-500, get_outstanding_amount(self.g1.id, self.m1.id, end_time=datetime(2015, 1, 1)))
+        self.assertEqual(+200, get_outstanding_amount(self.g1.id, self.m2.id))
+        self.assertEqual(-700, get_outstanding_amount(self.g1.id, self.m3.id))
+        self.assertEqual(-300, get_outstanding_amount(self.g1.id, self.m4.id))
+        self.assertEqual(+800, get_outstanding_amount(self.g1.id, self.m5.id))
+        self.assertEqual(+600, get_outstanding_amount(self.g1.id, self.m6.id))
+        self.assertEqual(-100, get_outstanding_amount(self.g1.id, self.m7.id))
+        self.assertEqual(+700, get_expense(self.g1.id, self.m1.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+200, get_expense(self.g1.id, self.m2.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+700, get_expense(self.g1.id, self.m3.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+300, get_expense(self.g1.id, self.m4.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+700, get_expense(self.g1.id, self.m5.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+100, get_expense(self.g1.id, self.m6.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+100, get_expense(self.g1.id, self.m7.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+200, get_paid_amount(self.g1.id, self.m1.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+400, get_paid_amount(self.g1.id, self.m2.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+000, get_paid_amount(self.g1.id, self.m3.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+000, get_paid_amount(self.g1.id, self.m4.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(1500, get_paid_amount(self.g1.id, self.m5.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+700, get_paid_amount(self.g1.id, self.m6.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+000, get_paid_amount(self.g1.id, self.m7.id, datetime(1987, 1, 1), datetime(2011, 1, 1)))
+        self.assertEqual(+200, get_personal_paid_amount(self.u1.id))
+        self.assertEqual(+400, get_personal_paid_amount(self.u2.id))
+        self.assertEqual(+000, get_personal_paid_amount(self.u3.id))
+        self.assertEqual(+000, get_personal_paid_amount(self.u4.id))
+        self.assertEqual(1500, get_personal_paid_amount(self.u5.id))
+        self.assertEqual(+900, get_personal_paid_amount(self.u6.id))
+        self.assertEqual(+000, get_personal_paid_amount(self.u7.id))

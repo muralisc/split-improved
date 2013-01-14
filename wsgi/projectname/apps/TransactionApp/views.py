@@ -24,6 +24,7 @@ from django.core.mail import EmailMessage
 import os
 
 
+# update session problem
 def emailFunc(request):
     body = ""
     body = "This is a system generated mail \n" + body
