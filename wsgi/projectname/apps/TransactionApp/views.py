@@ -31,10 +31,10 @@ def emailFunc(request):
     to_list = []
     to_list.append('muralisc@gmail.com')
     email = EmailMessage('SPLITv2 Mailer Daemon daily Report', body, to=to_list)
-    if 'OPENSHIFT_APP_NAME' in os.environ:
-        email.attach_file(os.environ['OPENSHIFT_DATA_DIR'] + '/mysql_dump_snapshot.gz')
-    else:
-        email.attach_file('mysql_dump_snapshot.gz')
+    #if 'OPENSHIFT_APP_NAME' in os.environ:
+    #    email.attach_file(os.environ['OPENSHIFT_DATA_DIR'] + '/mysql_dump_snapshot.gz')
+    #else:
+    #    email.attach_file('mysql_dump_snapshot.gz')
     email.send()
     return HttpResponse("done")
 
