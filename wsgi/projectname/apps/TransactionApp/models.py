@@ -121,7 +121,7 @@ class Transaction(models.Model):
     create_time = models.DateTimeField(auto_now_add=True, null=False, blank=True)
     created_by_user = models.ForeignKey(User, related_name='ceatedTransaction', null=False, blank=True)
     created_for_group = models.ForeignKey(Group, null=True, blank=True)
-    history = models.OneToOneField('Transaction', null=True, blank=True, related_name='future')
+    history = models.ForeignKey('Transaction', null=True, blank=True, related_name='future')
     deleted = models.BooleanField(null=False, blank=True)
 
     class Meta:
