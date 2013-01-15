@@ -88,11 +88,11 @@ function filterController($scope) {
 		*/
 		switch($scope.timeRange){
 			case "1":
-				$scope.queryString = $scope.queryString.concat("tr=1");
-				$scope.queryString = $scope.queryString.concat("&");
-				break;
 			case "2":
-				$scope.queryString = $scope.queryString.concat("tr=2");
+			case "4":
+			case "5":
+				$scope.queryString = $scope.queryString.concat("tr=");
+                $scope.queryString = $scope.queryString.concat($scope.timeRange);
 				$scope.queryString = $scope.queryString.concat("&");
 				break;
 			case "3":
@@ -102,10 +102,6 @@ function filterController($scope) {
 				else{
 					break;
 				}
-			case "4":
-				$scope.queryString = $scope.queryString.concat("tr=4");
-				$scope.queryString = $scope.queryString.concat("&");
-				break;
 			default:
 				break;
 		};

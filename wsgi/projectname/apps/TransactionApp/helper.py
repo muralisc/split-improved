@@ -278,7 +278,8 @@ def parseGET_initialise(request):
     # Defaults
     current_time = datetime.now()
     month_start = datetime(year=current_time.year, month=current_time.month, day=1)
-    start_time = month_start
+    day_start = datetime(year=current_time.year, month=current_time.month, day=current_time.day)
+    start_time = day_start
     end_time = current_time
     timeRange = TODAY                   # for angularjs
     # time range
