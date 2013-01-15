@@ -1,5 +1,5 @@
 #!/bin/bash
 source $OPENSHIFT_HOMEDIR/python-2.6/virtenv/bin/activate
 cd ${OPENSHIFT_REPO_DIR}/wsgi/projectname
-python manage.py dumpdata TransactionsApp personalApp | /bin/gzip -v > ${OPENSHIFT_DATA_DIR}/mysql_dump_snapshot.gz
+python manage.py dumpdata TransactionApp projectApp1 | /bin/gzip -v > ${OPENSHIFT_DATA_DIR}/mysql_dump_snapshot.gz
 python emailcron_helper.py

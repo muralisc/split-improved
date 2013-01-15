@@ -5,7 +5,7 @@ from django.contrib.auth.models import User, Permission
 from TransactionApp.models import Category, Payee, Transaction, UserCategory, GroupCategory
 from projectApp1.models import Membership, Group, Invite, Notification
 from django.utils.safestring import SafeString
-from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, DEFAULT_START_PAGE, DEFAULT_RPP
+from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, DEFAULT_START_PAGE, DEFAULT_RPP, TODAY
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
 from django.http import Http404
@@ -280,7 +280,7 @@ def parseGET_initialise(request):
     month_start = datetime(year=current_time.year, month=current_time.month, day=1)
     start_time = month_start
     end_time = current_time
-    timeRange = THIS_MONTH                                                                          # for angularjs
+    timeRange = TODAY                   # for angularjs
     # time range
     if 'tr' in request.GET:
         try:
@@ -303,6 +303,9 @@ def parseGET_initialise(request):
                 start_time = Transaction.objects.order_by('transaction_time')[0].transaction_time
                 timeRange = ALL_TIME                                                        # for angularjs
                 #end_time = current_time
+            elif int(request.GET['tr']) == TODAY:
+                start_time = datetime(year=current_time.year, month=current_time.month, day=current_time.day)
+                timeRange = TODAY
         except:
             # default values alredy filled
             pass

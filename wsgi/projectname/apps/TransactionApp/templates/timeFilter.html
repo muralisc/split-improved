@@ -8,6 +8,7 @@ and ng-app in <html> tag
         <label>for</label>
         <select ng-model="timeRange" ng-change="frameGETquery()">
             <option value="" selected="selected">---------</option>
+            <option value="{{TODAY}}">Today</option>
             <option value="{{THIS_MONTH}}">This Month</option>
             <option value="{{LAST_MONTH}}">Last Month</option>
             <option value="{{CUSTOM_RANGE}}">Custom timerange</option>

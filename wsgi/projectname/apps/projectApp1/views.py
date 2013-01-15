@@ -10,7 +10,7 @@ from projectApp1.forms import LoginCreateForm
 from projectApp1.models import GroupForm, Membership, Group, Invite, Notification
 from django.http import Http404, HttpResponse
 from django.utils.safestring import SafeString
-from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME
+from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, TODAY
 from TransactionApp.helper import on_create_user, updateSession, get_outstanding_amount, get_expense, get_paid_amount, \
         parseGET_initialise, updateNotificationInvites
 
@@ -90,6 +90,7 @@ def home(request):
             'start_time': start_time,
             'end_time': end_time,
             'timeRange': timeRange,
+            'TODAY': TODAY,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,

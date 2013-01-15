@@ -14,7 +14,7 @@ from TransactionApp.models import TransactionForm, Category, CategoryForm, UserC
 from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, get_paid_amount, \
         get_personal_paid_amount, parseGET_initialise, parseGET_ordering, get_page_info, new_group_transaction_event, \
         new_personal_transaction_event, delete_group_transaction_event, updateSession
-from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME
+from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, TODAY
 from projectApp1.models import Membership  # , Group
 from itertools import groupby
 from django.utils.safestring import SafeString
@@ -381,6 +381,7 @@ def groupStatistics(request):
             'start_time': start_time,
             'end_time': end_time,
             'timeRange': timeRange,
+            'TODAY': TODAY,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,
@@ -445,6 +446,7 @@ def groupExpenseList(request):
             'current_page': current_page,
             'txn_per_page': txn_per_page,
             'paginator_obj': paginator_obj,
+            'TODAY': TODAY,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,
@@ -493,6 +495,7 @@ def groupTransactionList(request):
             'current_page': current_page,
             'txn_per_page': txn_per_page,
             'paginator_obj': paginator_obj,
+            'TODAY': TODAY,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,
@@ -555,6 +558,7 @@ def groupOutstandingList(request):
             'current_page': current_page,
             'txn_per_page': txn_per_page,
             'paginator_obj': paginator_obj,
+            'TODAY': TODAY,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,
@@ -607,6 +611,7 @@ def groupPaidList(request):
             'current_page': current_page,
             'txn_per_page': txn_per_page,
             'paginator_obj': paginator_obj,
+            'TODAY': TODAY,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,
@@ -670,6 +675,7 @@ def personalStatistics(request):
             'start_time': start_time,
             'end_time': end_time,
             'timeRange': timeRange,
+            'TODAY': TODAY,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,
@@ -745,6 +751,7 @@ def personalTransactionList(request):
             'current_page': current_page,
             'txn_per_page': txn_per_page,
             'paginator_obj': paginator_obj,
+            'TODAY': TODAY,
             'THIS_MONTH': THIS_MONTH,
             'LAST_MONTH': LAST_MONTH,
             'CUSTOM_RANGE': CUSTOM_RANGE,
