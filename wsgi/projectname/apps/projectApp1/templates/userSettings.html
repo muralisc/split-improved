@@ -16,7 +16,7 @@
     <a class="" href="/passwordChange/" >ChangePassword</a>
     <br/>
     <label>Personal
-<a class="" href="/permission/personal_transactions/
+<a class="" name="personalTransactionPermission" href="/permission/personal_transactions/
 {% if perms.TransactionApp.personal_transactions %}
 dissable{% else %}enable{% endif %}
 /">
@@ -24,7 +24,7 @@ dissable{% else %}enable{% endif %}
 dissable{% else %}enable{% endif %}
 </a></label>
     <label>Group
-<a class="" href="/permission/group_transactions/
+<a class="" name="groupTransactionPermission" href="/permission/group_transactions/
 {% if perms.TransactionApp.group_transactions %}
 dissable{% else %}enable{% endif %}
 /">
