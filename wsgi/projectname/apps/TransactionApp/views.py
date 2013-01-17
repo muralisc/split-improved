@@ -13,7 +13,8 @@ from django.contrib.auth.decorators import login_required
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction, Payee
 from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, get_paid_amount, \
         get_personal_paid_amount, parseGET_initialise, parseGET_ordering, get_page_info, new_group_transaction_event, \
-        new_personal_transaction_event, delete_group_transaction_event, updateSession
+        new_personal_transaction_event, delete_group_transaction_event, updateSession, get_uncategorised_personal_expense, \
+        get_total_paid_amount
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, TODAY
 from projectApp1.models import Membership  # , Group
 from itertools import groupby
@@ -642,30 +643,30 @@ def personalStatistics(request):
             income_category_list = list(grp)
         if keys == BANK:
             bank_category_list = list(grp)
-    expense_category_outstanding_list = list()
-    personal_expense_alone = 0
-    if expense_category_list is not None:
-        for temp in expense_category_list:
-            category_outstanding = temp.get_outstanding(start_time, end_time)
-            personal_expense_alone = personal_expense_alone + category_outstanding
-            expense_category_outstanding_list.append([temp, category_outstanding])
-    income_category_outstanding_list = list()
-    if income_category_list is not None:
-        for temp in income_category_list:
-            income_category_outstanding_list.append([temp, temp.get_outstanding(start_time, end_time)])
     bank_category_outstanding_list = list()
     if bank_category_list is not None:
         for temp in bank_category_list:
             bank_category_outstanding_list.append([temp, temp.get_outstanding()])
+    income_category_outstanding_list = list()
+    if income_category_list is not None:
+        for temp in income_category_list:
+            income_category_outstanding_list.append([temp, temp.get_outstanding(start_time, end_time)])
+    expense_category_outstanding_list = list()
+    if expense_category_list is not None:
+        for temp in expense_category_list:
+            category_outstanding = temp.get_outstanding(start_time, end_time)
+            expense_category_outstanding_list.append([temp, category_outstanding])
+    uncategorised_expense = get_uncategorised_personal_expense(request.user.id, start_time, end_time)
+    total_personal_expense_except_group = get_personal_paid_amount(request.user.id, start_time, end_time)
     group_paid_amount_list = list()
     for temp in request.session['memberships']:
         group_paid_amount_list.append(
                 [temp, get_paid_amount(temp.group.id, temp.user.id, start_time, end_time)]
                 )
-        pass
     dict_for_html = {
-            'personal_expense_alone': personal_expense_alone,
-            'personal_total': get_personal_paid_amount(request.user.id, start_time, end_time),
+            'uncategorised_expense': uncategorised_expense,
+            'total_personal_expense_except_group': total_personal_expense_except_group,
+            'personal_total': get_total_paid_amount(request.user.id, start_time, end_time),
             'request': request,
             'group_paid_amount_list': group_paid_amount_list,
             'expense_category_outstanding_list': expense_category_outstanding_list,

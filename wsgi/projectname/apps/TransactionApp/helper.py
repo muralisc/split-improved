@@ -144,6 +144,24 @@ def import_from_snapshot(request):
         temp.save()
 
 
+def get_uncategorised_personal_expense(user_id, start_time=None, end_time=None):
+    '''
+    expense of the user in the given time frame not categorised
+    '''
+    s2t = Transaction.objects.filter(
+                        Q(created_for_group_id=None) &
+                        Q(deleted=False) &
+                        (Q(paid_user_id=user_id)) &
+                        Q(transaction_time__range=(start_time, end_time)) &
+                        Q(to_category_id=None) &
+                        Q(history_id=None)  # to exclude 'send to group' rows
+                    ).aggregate(
+                        Sum('amount')
+                    )['amount__sum']
+    s2t = s2t if s2t is not None else 0
+    return s2t
+
+
 def get_outstanding_amount(group_id, user_id, start_time=None, end_time=None):
     '''
     get the net outstandin amount in a group till the timestamp specified
@@ -204,7 +222,7 @@ def get_expense(group_id, user_id, start_time, end_time):
 
 def get_paid_amount(group_id, user_id, start_time, end_time):
     '''
-    PaidAmount[in contrst to Expense and Outstanding] is the total amount spent by a user
+    PaidAmount[in contrst to Expense and Outstanding] is the total amount spent by a user in a Group
     '''
     s2t = Transaction.objects.filter(
                         Q(created_for_group_id=group_id) &
@@ -221,6 +239,38 @@ def get_paid_amount(group_id, user_id, start_time, end_time):
 def get_personal_paid_amount(user_id, start_time=None, end_time=None):
     '''
     For personal Tranasctions alone
+    categorised and uncategorised
+    '''
+    if start_time is not None and end_time is not None:
+        time_filter = Q(transaction_time__range=(start_time, end_time))
+    else:
+        time_filter = Q()
+    user_source_category_list = UserCategory.objects.filter(
+                                                user_id=user_id,
+                                            ).filter(
+                                                Q(category__category_type=INCOME) |
+                                                Q(category__category_type=BANK) |
+                                                Q(category__category_type=CREDIT)
+                                            ).values_list(
+                                                'category', flat=True
+                                            )
+    s2t = Transaction.objects.filter(
+                        Q(created_for_group_id=None) &
+                        Q(deleted=False) &
+                        Q(paid_user_id=user_id) &
+                        ~Q(to_category_id__in=user_source_category_list) &
+                        Q(history_id=None) &  # to exclude 'send to group' rows
+                        time_filter
+                    ).aggregate(
+                        Sum('amount')
+                    )['amount__sum']
+    s2t = s2t if s2t is not None else 0
+    return s2t
+
+
+def get_total_paid_amount(user_id, start_time=None, end_time=None):
+    '''
+    net amount paid by the user in all transactions
     '''
     if start_time is not None and end_time is not None:
         time_filter = Q(transaction_time__range=(start_time, end_time))
@@ -492,6 +542,7 @@ def updateSession(request):
                 for row in UserCategory.objects.filter(user_id=request.user.id)]
     response_json['category'] = SafeString(json.dumps(category))
     request.session['response_json'] = response_json
+
 
 def updateNotificationInvites(request):
     no_of_invites = Invite.objects.filter(to_user_id=request.user.id).filter(unread=True).count()
