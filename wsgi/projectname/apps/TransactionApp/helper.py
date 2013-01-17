@@ -28,7 +28,15 @@ def import_from_snapshot(request):
     # group the json by model
     for key, g in itertools.groupby(data, key=lambda x: x["model"]):
         model_dict[key] = list(g)
-    model_strings = ['TransactionsApp.users', 'TransactionsApp.groupstable', 'TransactionsApp.transactions', 'personalApp.categories', 'personalApp.transfers']
+    model_strings = [
+                        'TransactionApp.category',
+                        'TransactionApp.usercategory',
+                        'TransactionApp.transaction',
+                        'TransactionApp.payee',
+                        'projectApp1.group',
+                        'projectApp1.notification',
+                        'projectApp1.membership',
+                        ]
     # make a dictionalr of old_pk and new_pk from user model
     user_dict = dict()
     perm = Permission.objects.get(codename='group_transactions')
