@@ -185,9 +185,13 @@ class Transaction(models.Model):
                     type_specific_msg = 'Deleted'
                 elif notification_type == 'txn_edited':
                     type_specific_msg = 'Edited'
-                message = '<strong>{0}</strong> transaction for <strong>{1}</strong>; \
-                        your outstanding is <strong>{2:.2f}</strong> \
-                        among <strong>{3}</strong> users involved '.format(
+                message = """
+                        <strong>{0}</strong> transaction<br/>
+                        <small>
+                        for <strong>{1}</strong><br/>
+                        <strong>{2:.2f}</strong> is your outstanding<br/>
+                        <strong>{3}</strong> users involved
+                        </small>""".format(
                             type_specific_msg,
                             self.description,
                             p_object.outstanding_amount,

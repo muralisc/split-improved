@@ -14,16 +14,44 @@
 </div>
 <div class="span10">
 <h1 class="">Notifications</h1>
-Unseen
-<br/>
-{% for i in new_notifications %}
-{{ i.from_user }} {{ i.message|safe }}<a href="/transaction/{{ i.href|safe }}/">link to he notificai</a><br/>
-{% endfor %}
-Seen
-<br/>
-{% for i in all_notifications %}
-{{ i.from_user }} {{ i.message|safe }}<a href="/transaction/{{ i.href|safe }}/">link to he notificai</a><br/>
-{% endfor %}
+        <table class="table table-hover table-condensed span7">
+            <thead>
+                <tr>
+                    <th>Unseen</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in new_notifications %}
+                <tr>
+                    <td>
+                        <a href="/transaction/{{ i.href|safe }}/">
+                            <div>
+                                {{ i.from_user }} {{ i.message|safe }}
+                            </div>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <thead>
+                <tr>
+                    <th>Seen</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in all_notifications %}
+                <tr>
+                    <td>
+                        <a href="/transaction/{{ i.href|safe }}/">
+                            <div >
+                                {{ i.from_user }} {{ i.message|safe }}
+                            </div>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 </div>
 {% endblock %}
 

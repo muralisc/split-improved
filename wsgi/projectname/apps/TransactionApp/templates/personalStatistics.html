@@ -37,7 +37,7 @@
 <table class="table table-hover table-condensed">
 		<thead>
 			<tr>
-			  <th>Categ</th>
+			  <th>ICateg</th>
 			  <th>Amount</th>
 			</tr>
 		</thead>
@@ -59,10 +59,14 @@
 		</thead>
 		<tbody>
 {% for i in expense_category_outstanding_list%}
-			<tr>
-			  <td class="span2"><a href="/personal/transactionList/?atofc={{i.0.id}}">{{i.0}}</a></td>
-			  <td class="span1">{{i.1}}</td>
-			</tr>
+            <tr>
+                <td class="span2">
+                    <a href="/personal/transactionList/?atofc={{i.0.id}}&ts={{start_time|date:'Y-m-d'}}&te={{end_time|date:'Y-m-d'}}">
+                        {{i.0}}
+                    </a>
+                </td>
+                <td class="span1">{{i.1}}</td>
+            </tr>
 {% endfor %}
 			<tr>
 			  <td class="span2">uncategorised Expense</td>

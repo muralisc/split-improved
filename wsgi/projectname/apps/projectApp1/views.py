@@ -4,7 +4,7 @@ except ImportError: import json
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth.models import User, Permission
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login
 from projectApp1.forms import LoginCreateForm
 from projectApp1.models import GroupForm, Membership, Group, Invite, Notification
@@ -12,7 +12,47 @@ from django.http import Http404, HttpResponse
 from django.utils.safestring import SafeString
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, TODAY
 from TransactionApp.helper import on_create_user, updateSession, get_outstanding_amount, get_expense, get_paid_amount, \
-        parseGET_initialise, updateNotificationInvites
+        parseGET_initialise, updateNotificationInvites, get_total_paid_amount, get_personal_paid_amount
+from projectApp1.helper import user_test_name
+
+
+@user_passes_test(user_test_name)
+def debug_helper_funcs(request, url_param):
+    log = []
+    if url_param == 'replace':
+        log.append('url_param is {0}'.format(url_param))
+        '''
+        code sinppet to restructure all the notifiction messages
+        '''
+        import re
+        for temp in Notification.objects.all():
+            asd = temp.message
+            match_object = re.match(r"""<strong>(?P<created>.*?)</strong>
+                                    .*?
+                                    <strong>(?P<desc>.*?)</strong>
+                                    .*?
+                                    <strong>(?P<ost>.*?)</strong>
+                                    .*?
+                                    <strong>(?P<pinv>.*?)</strong>""", asd, re.X)
+            if match_object is not None:
+                new_msg = ("<strong>{0}</strong> transaction<br/>"
+                            "<small>"
+                            "for <strong>{1}</strong><br/>"
+                            "<strong>{2}</strong> is your outstanding change<br/>"
+                            "<strong>{3}</strong> users involved"
+                            "</small>").format(
+                                    match_object.group('created'),
+                                    match_object.group('desc'),
+                                    match_object.group('ost'),
+                                    match_object.group('pinv'),
+                                    )
+                temp.message = new_msg
+                temp.save()
+            else:
+                log.append('match object is not found')
+    else:
+        log.append('url_param is not found')
+    return HttpResponse(''.join(log))
 
 
 def createUser(request):
@@ -84,6 +124,8 @@ def home(request):
                 ]
                 )
     dict_for_html = {
+            'total_personal_expense_except_group': get_personal_paid_amount(request.user.id, start_time, end_time),
+            'personal_total': get_total_paid_amount(request.user.id, start_time, end_time),
             'group_list': group_list,
             'request': request,
             'response_json': request.session['response_json'],

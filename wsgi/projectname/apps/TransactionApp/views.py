@@ -9,12 +9,13 @@ from datetime import datetime
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 #from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from TransactionApp.models import TransactionForm, Category, CategoryForm, UserCategory, GroupCategory, Transaction, Payee
 from TransactionApp.helper import import_from_snapshot, get_outstanding_amount, get_expense, get_paid_amount, \
         get_personal_paid_amount, parseGET_initialise, parseGET_ordering, get_page_info, new_group_transaction_event, \
         new_personal_transaction_event, delete_group_transaction_event, updateSession, get_uncategorised_personal_expense, \
         get_total_paid_amount
+from projectApp1.helper import user_test_name
 from TransactionApp.__init__ import INCOME, BANK, EXPENSE, CREDIT, THIS_MONTH, LAST_MONTH, CUSTOM_RANGE, ALL_TIME, TODAY
 from projectApp1.models import Membership  # , Group
 from itertools import groupby
@@ -25,7 +26,8 @@ from django.core.mail import EmailMessage
 import os
 
 
-# update session problem
+# TODO update session problem
+@user_passes_test(user_test_name)
 def emailFunc(request):
     body = ""
     body = "This is a system generated mail \n" + body
@@ -37,7 +39,7 @@ def emailFunc(request):
     else:
         email.attach_file('mysql_dump_snapshot.gz')
     email.send()
-    return HttpResponse("done")
+    return HttpResponse("email sent done")
 
 
 def calculator(request, exp):
@@ -725,6 +727,7 @@ def personalTransactionList(request):
             page_no,
             txn_per_page
                             ) = parseGET_initialise(request)
+    (order_by_args, order_by_page_list) = parseGET_ordering(request)
     transaction_list = Transaction.objects.filter(
                         Q(created_for_group=None) &
                         Q(deleted=False) &
@@ -733,7 +736,7 @@ def personalTransactionList(request):
                         Q(users_involved__id=None)
                         ).filter(
                             transacton_filters
-                        ).distinct().order_by('-transaction_time')
+                        ).distinct().order_by(*order_by_args)
     (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
 

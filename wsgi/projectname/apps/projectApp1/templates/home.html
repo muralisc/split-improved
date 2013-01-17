@@ -45,6 +45,31 @@
                     </td>
                 </tr>
                 {%endfor%}
+                <tr>
+                    <td>
+                        Personal Expenses
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                        <a href="/personal/transactionList/?ts={{start_time|date:'Y-m-d'}}&te={{end_time|date:'Y-m-d'}}"
+                            rel="tooltip" data-placement="right" data-original-title="How did this come?" >{{total_personal_expense_except_group}}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Total
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                        {{personal_total}}
+                    </td>
+                </tr>
             </tbody>
         </table>
 	</div>
@@ -57,4 +82,12 @@
 
 
 {% block afterbody%}
+<script type="text/javascript">
+  $(document).ready(function () {
+	$("a").tooltip({
+	  'selector': '',
+//	  'placement': 'bottom'
+	});
+  });
+</script>
 {% endblock %}
