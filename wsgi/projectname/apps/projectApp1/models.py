@@ -76,13 +76,43 @@ class Notification(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     updated_time = models.DateTimeField(auto_now=True)
     href = models.CharField(max_length=256, null=True, blank=True)
-    message = models.CharField(max_length=256, null=True, blank=True)
+    message = models.CharField(max_length=1000, null=True, blank=True)
     is_unread = models.BooleanField(null=False, blank=True)
     is_hidden = models.BooleanField(null=False, blank=True)
     deleted = models.BooleanField(null=False, blank=True)
 
     def __unicode__(self):
         return '{0}--{1}'.format(self.from_user, self.to_user)
+
+    def get_time(self):
+        """
+        formats creted_time
+        """
+        from datetime import datetime
+        import pytz
+        time_passed = datetime.now(pytz.UTC) - self.create_time
+        if (time_passed.days < 7):
+            if (time_passed.days == 0):
+                hours, seconds = divmod(time_passed.seconds, 3600)
+                if (hours == 0):
+                    minutes, dont_want = divmod(seconds, 60)
+                    if(minutes == 0):
+                        time_string = "{0} seconds ago".format(dont_want)
+                    else:
+                        time_string = "{0} minutes ago".format(minutes)
+                elif (hours == 1):
+                    time_string = "an hour ago"
+                else:
+                    time_string = "{0} hours ago".format(hours)
+            elif (time_passed.days == 1):
+                time_string = "Yesterday "
+            else:
+                time_string = "{0} days ago".format(time_passed.days)
+        elif(time_passed.days < 150):
+            time_string = self.create_time.strftime('%b %d %H:%M')
+        else:
+            time_string = self.create_time.strftime('%Y,%b %d')
+        return time_string
 
 
 class Membership(models.Model):

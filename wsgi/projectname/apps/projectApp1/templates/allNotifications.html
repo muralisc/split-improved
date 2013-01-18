@@ -45,6 +45,7 @@
                         <a href="/transaction/{{ i.href|safe }}/">
                             <div >
                                 {{ i.from_user }} {{ i.message|safe }}
+                                <div class="pull-right">{{ i.get_time }}</div>
                             </div>
                         </a>
                     </td>
