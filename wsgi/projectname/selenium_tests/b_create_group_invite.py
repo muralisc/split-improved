@@ -23,7 +23,7 @@ driver.find_element_by_link_text("createGroup").click()
 WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//form[@name='groupCreate']/input[@name='name']").is_displayed())
 inputElement = driver.find_element_by_xpath("//form[@name='groupCreate']/input[@name='name']")
 inputElement.send_keys("car")
-for i in range(1, 7):
+for i in range(1, len(usernames)):
     inputElement = driver.find_element_by_xpath("//li/input")
     inputElement.send_keys(usernames[i])
     time.sleep(0.5)
@@ -33,7 +33,7 @@ select_element.select_by_visible_text('private')
 inputElement.submit()
 driver.get("http://127.0.0.1:8000/logout/")
 # accept all invites
-for i in range(1, 7):
+for i in range(1, len(usernames)):
     WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//form[@name='login']/input[@name='email']").is_displayed())
     inputElement = driver.find_element_by_xpath("//form[@name='login']/input[@name='email']")
     inputElement.clear()

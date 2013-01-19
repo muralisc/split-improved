@@ -87,7 +87,7 @@
                     <option value="" selected="selected">---------</option>
                 </select>
                 <input id="id_from_category" class="" name="from_category" style="display: none" type="text" value={[{selectedFromCategory.id}]} >
-                <a href="#createCategoryModal" class="" data-toggle="modal" ng-click="displaycreateCategory('/createCategory/0/','NewFromCategory')">NewFromCategory</a><br/>
+                <a name="fromCategoryCreateLink" href="#createCategoryModal" class="" data-toggle="modal" ng-click="displaycreateCategory('/createCategory/0/','NewFromCategory')">NewFromCategory</a><br/>
             </div>
         </div>
         {% endif %}
@@ -105,7 +105,7 @@
                     <option value="" selected="selected">---------</option>
                 </select>
                 <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
-                <a href="#createCategoryModal" class="" data-toggle="modal" ng-click="displaycreateCategory('/createCategory/0/','NewToUserCategory')">NewToUserCategory</a><br/>
+                <a name="toUserCategoryCreateLink" href="#createCategoryModal" class="" data-toggle="modal" ng-click="displaycreateCategory('/createCategory/0/','NewToUserCategory')">NewToUserCategory</a><br/>
             </div>
         </div>
 		{% if perms.TransactionApp.group_transactions %}
@@ -116,7 +116,7 @@
                 <select ng-model="selectedToCategory" ng-options="c.name for c in toCategory_group">
                     <option value="" selected="selected">---------</option>
                 </select>
-                <a href="#createCategoryModal" class="" data-toggle="modal" ng-click="displaycreateCategory('/createCategory/{{request.session.active_group.pk}}/','NewToGroupCategory')">NewToGroupCategory</a><br/>
+                <a name="toGroupCategoryCreateLink" href="#createCategoryModal" class="" data-toggle="modal" ng-click="displaycreateCategory('/createCategory/{{request.session.active_group.pk}}/','NewToGroupCategory')">NewToGroupCategory</a><br/>
             </div>
         </div>
 		{% endif %}
@@ -138,7 +138,7 @@
 			<h3 id="myModalLabel">user created</h3>
 		</div>
         <div class="modal-body">
-            <p><label for="id_name">Name:</label> <input id="id_name" type="text" name="name" ng-model="name" maxlength="256" /></p>
+            <p><label for="id_name">Name:</label> <input id="id_name" type="text" name="newCategoryName" ng-model="name" maxlength="256" /></p>
             <p>
             <label for="id_category_type">Category type:</label> 
             <select name="category_type" ng-model="category_type" id="id_category_type" ng-show="fromUserCategory">
