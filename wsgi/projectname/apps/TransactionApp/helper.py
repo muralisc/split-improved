@@ -509,6 +509,7 @@ def updateSession(request):
             users_in_grp = [{
                             'username': mem_ship.user.username,
                             'id': mem_ship.user.id,
+                            'amount_in_pool': mem_ship.amount_in_pool,
                             'checked': False
                             }
                             for mem_ship in request.session['active_group'].getMemberships.all()]

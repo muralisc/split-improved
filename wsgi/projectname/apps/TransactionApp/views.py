@@ -154,6 +154,7 @@ def makeTransaction(request, called_for_edit=None):
                 if form.cleaned_data['users_involved'] is not None:
                     transactionRow.associatePayees(form.cleaned_data['users_involved'])
                 new_group_transaction_event(request.session['active_group'].id, transactionRow, request.user.id)
+                updateSession(request)
                 if called_for_edit is not True:
                     transactionRow.create_notifications(request.user.id, 'txn_created')
                 else:  # the transction is being editted

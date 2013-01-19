@@ -27,7 +27,7 @@
     <span ng-show="selectedToCategory">to {[{selectedToCategory.name}]}<br/></span> 
     <span ng-show="date">on<br><strong>{[{date}]}</strong><br/>
     </p>
-    <form name="makeTransactionForm" action="{{next_link}}?t={{edit_id}}" method="POST" class="form-horizontal span6">{% csrf_token %}  
+    <form name="makeTransactionForm" action="{{next_link}}?t={{edit_id}}" method="POST" class="form-horizontal span7">{% csrf_token %}  
 		<div class="control-group" ng-hide="involving_checkbox">
 			<label class="control-label" for="paid_user">You</label>
             <div class="controls">
@@ -68,8 +68,34 @@
                                 </label>
                             </td>
                             <td>
-								<span ng-show="usr.checked">
-                                    <strong>{[{amount/users_inv.length | number:2}]}</strong>
+                                <!--
+                                user paid can be checked or unchecked
+                                -->
+								<span ng-show="usr.id==paid_user.id && usr.checked ">
+                                    <i>{[{ usr.amount_in_pool+amount-amount/users_inv.length | number:2}]}</i>
+                                    <small>
+                                        <i class="icon-arrow-up"></i>
+                                        {[{ amount-amount/users_inv.length | number:2}]}
+                                    </small>
+								</span>
+								<span ng-show="usr.id==paid_user.id && !usr.checked ">
+                                    <em>{[{ usr.amount_in_pool+amount | number:2}]} </em>
+                                    <small>
+                                        <i class="icon-arrow-up"></i>
+                                        {[{ amount | number:2}]}
+                                    </small>
+								</span>
+                                <!--
+                                non-paid user be checked or unchecked
+                                -->
+								<span ng-show="usr.checked && !(usr.id==paid_user.id)">
+                                    <strong>{[{ usr.amount_in_pool-amount/users_inv.length | number:2}]} </strong>
+                                    <small>
+                                        {[{ -amount/users_inv.length | number:2}]}
+                                    </small>
+								</span>
+								<span ng-show="!usr.checked && !(usr.id==paid_user.id)">
+                                    {[{ usr.amount_in_pool | number:2}]}
 								</span>
                             </td>
                         </tr>
