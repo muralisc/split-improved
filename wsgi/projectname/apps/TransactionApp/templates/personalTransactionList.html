@@ -32,6 +32,8 @@
 			  <th>Description</th>
 			  <th>DatePaid</th>
 			  <th>Amount</th>
+			  <th>delete</th>
+			  <th>edit</th>
 			</tr>
 		</thead>
 {% for i in personal_transaction_list%}
@@ -44,6 +46,8 @@
 			  <td class="span1">{{i.description}}</td>
 			  <td class="span2">{{i.transaction_time}}</td>
 			  <td class="span1">{{i.amount}}</td>
+              <td class="span1"><a href="/deleteTransaction/?t={{i.pk}}">delete</a></td>
+              <td class="span1"><a href="/editTransactionForm/?t={{i.pk}}">edit</a></td>
 			</tr>
 		</tbody>
 {% endfor %}

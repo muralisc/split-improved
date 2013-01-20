@@ -73,13 +73,32 @@
                                 -->
 								<span ng-show="usr.id==paid_user.id && usr.checked ">
                                     <i>{[{ usr.amount_in_pool+amount-amount/users_inv.length | number:2}]}</i>
+								</span>
+								<span ng-show="usr.id==paid_user.id && !usr.checked ">
+                                    <em>{[{ usr.amount_in_pool+amount | number:2}]} </em>
+								</span>
+                                <!--
+                                non-paid user be checked or unchecked
+                                -->
+								<span ng-show="usr.checked && !(usr.id==paid_user.id)">
+                                    <strong>{[{ usr.amount_in_pool-amount/users_inv.length | number:2}]} </strong>
+								</span>
+								<span ng-show="!usr.checked && !(usr.id==paid_user.id)">
+                                    {[{ usr.amount_in_pool | number:2}]}
+								</span>
+                            </td>
+                            <td>
+                                <!-- change in amount -->
+                                <!--
+                                user paid can be checked or unchecked
+                                -->
+								<span ng-show="usr.id==paid_user.id && usr.checked ">
                                     <small>
                                         <i class="icon-arrow-up"></i>
                                         {[{ amount-amount/users_inv.length | number:2}]}
                                     </small>
 								</span>
 								<span ng-show="usr.id==paid_user.id && !usr.checked ">
-                                    <em>{[{ usr.amount_in_pool+amount | number:2}]} </em>
                                     <small>
                                         <i class="icon-arrow-up"></i>
                                         {[{ amount | number:2}]}
@@ -89,13 +108,12 @@
                                 non-paid user be checked or unchecked
                                 -->
 								<span ng-show="usr.checked && !(usr.id==paid_user.id)">
-                                    <strong>{[{ usr.amount_in_pool-amount/users_inv.length | number:2}]} </strong>
                                     <small>
                                         {[{ -amount/users_inv.length | number:2}]}
                                     </small>
 								</span>
 								<span ng-show="!usr.checked && !(usr.id==paid_user.id)">
-                                    {[{ usr.amount_in_pool | number:2}]}
+                                    <!-- -->
 								</span>
                             </td>
                         </tr>
