@@ -29,10 +29,13 @@ driver.find_element_by_xpath("//a[@name='toGroupCategoryCreateLink']").click()
 WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//input[@name='newCategoryName']").is_displayed())
 inputElement = driver.find_element_by_xpath("//input[@name='newCategoryName']")
 inputElement.clear()
-inputElement.send_keys('asdf')
-select_element = Select(driver.find_element_by_xpath("//select[@name='selectUserPaid']"))
-select_element.select_by_visible_text(usernames[4])
-inputElement.submit()
+inputElement.send_keys('Bills')
+select_element = Select(driver.find_element_by_xpath("//select[@name='category_type']"))
+select_element.select_by_visible_text('expense')
+select_element = Select(driver.find_element_by_xpath("//select[@name='privacy']"))
+select_element.select_by_visible_text('private')
+inputElement = driver.find_element_by_xpath("//input[@name='CreateCaetgory']")
+inputElement.send_keys('Food')
 '''
 wind up the browser automation
 '''
