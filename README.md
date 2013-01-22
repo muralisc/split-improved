@@ -1,6 +1,8 @@
-#Prototype of the Split webapp#
+#Split webapp#
 
-This is a finance management appliction for groups and induvidulas.
+This is a finance management appliction for groups and induviduals.
+
+_Django, Python , Jquery, AngularJS, HTML5, CSS_
 
 Split = Mint + groups finaces incorporated
 
