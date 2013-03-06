@@ -16,7 +16,6 @@ from TransactionApp.helper import on_create_user, updateSession, get_outstanding
 from projectApp1.helper import user_test_name
 
 
-@user_passes_test(user_test_name)
 def debug_helper_funcs(request, url_param):
     log = []
     if url_param == 'replace':

@@ -30,12 +30,22 @@ WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//i
 inputElement = driver.find_element_by_xpath("//input[@name='newCategoryName']")
 inputElement.clear()
 inputElement.send_keys('Bills')
-select_element = Select(driver.find_element_by_xpath("//select[@name='category_type']"))
+select_element = Select(driver.find_element_by_xpath("//select[@name='category_type3']"))
 select_element.select_by_visible_text('expense')
 select_element = Select(driver.find_element_by_xpath("//select[@name='privacy']"))
 select_element.select_by_visible_text('private')
-inputElement = driver.find_element_by_xpath("//input[@name='CreateCaetgory']")
+driver.find_element_by_xpath("//input[@name='CreateCaetgory']").click()
+driver.find_element_by_xpath("//a[@name='toGroupCategoryCreateLink']").click()
+#
+WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_xpath("//input[@name='newCategoryName']").is_displayed())
+inputElement = driver.find_element_by_xpath("//input[@name='newCategoryName']")
+inputElement.clear()
 inputElement.send_keys('Food')
+select_element = Select(driver.find_element_by_xpath("//select[@name='category_type3']"))
+select_element.select_by_visible_text('expense')
+select_element = Select(driver.find_element_by_xpath("//select[@name='privacy']"))
+select_element.select_by_visible_text('private')
+driver.find_element_by_xpath("//input[@name='CreateCaetgory']").click()
 '''
 wind up the browser automation
 '''

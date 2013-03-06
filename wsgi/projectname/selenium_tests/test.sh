@@ -1,6 +1,12 @@
-#python a_create_users.py
-#python b_create_group_invite.py
+python a_create_users.py
+python b_create_group_invite.py
 python c_create_group_categories.py
 python d_create_group_transactions.py
-python e_create_personal_categories.py
-python f_create_personal_transactions.py
+# create more users
+python h_toggle_personal_permissions.py
+python g_create_more_transactions.py
+python _edit_transactions_of_both _types.py
+python _check_notification_present.py
+python _create_personal_categories.py
+python _view_history.py
+python _wrong_login.py

@@ -127,7 +127,7 @@
             <label class="control-label" for="from_category">From Cayegory </label>
             <div class="controls">
                 <!-- Seperate input elemet is attached to pass values to Django-->
-                <select ng-model="selectedFromCategory" ng-options="c.name for c in fromCategory_user">
+                <select name="fromCategory" ng-model="selectedFromCategory" ng-options="c.name for c in fromCategory_user">
                     <option value="" selected="selected">---------</option>
                 </select>
                 <input id="id_from_category" class="" name="from_category" style="display: none" type="text" value={[{selectedFromCategory.id}]} >
@@ -145,7 +145,7 @@
             <label class="control-label" for="to_category">toCategoryUser</label>
             <div class="controls">
                 <!-- Seperate input elemet is attached to pass values to Django-->
-                <select ng-model="selectedToCategory" ng-options="c.name for c in toCategory_user">
+                <select name="toCategoryUser" ng-model="selectedToCategory" ng-options="c.name for c in toCategory_user">
                     <option value="" selected="selected">---------</option>
                 </select>
                 <input id="id_to_category" class="" name="to_category" style="display: none" type="text" value={[{selectedToCategory.id}]} >
@@ -157,7 +157,7 @@
             <label class="control-label" for="to_category">toCategoryGroup</label>
             <div class="controls">
                 <!-- Seperate input elemet is attached to pass values to Django-->
-                <select ng-model="selectedToCategory" ng-options="c.name for c in toCategory_group">
+                <select name="toCategoryGroup" ng-model="selectedToCategory" ng-options="c.name for c in toCategory_group">
                     <option value="" selected="selected">---------</option>
                 </select>
                 <a name="toGroupCategoryCreateLink" href="#createCategoryModal" class="" data-toggle="modal" ng-click="displaycreateCategory('/createCategory/{{request.session.active_group.pk}}/','NewToGroupCategory')">NewToGroupCategory</a><br/>
@@ -185,20 +185,20 @@
             <p><label for="id_name">Name:</label> <input id="id_name" type="text" name="newCategoryName" ng-model="name" maxlength="256" /></p>
             <p>
             <label for="id_category_type">Category type:</label> 
-            <select name="category_type" ng-model="category_type" id="id_category_type" ng-show="fromUserCategory">
+            <select name="category_type1" ng-model="category_type" id="id_category_type" ng-show="fromUserCategory">
                 <option value="" selected="selected">---------</option>
                 <option value="{{INCOME}}">income</option>
                 <option value="{{BANK}}">bank</option>
                 <option value="{{EXPENSE}}">expense</option>
                 <option value="{{CREDIT}}">credit</option>
             </select>
-            <select name="category_type" ng-model="category_type" id="id_category_type" ng-show="toUserCategory">
+            <select name="category_type2" ng-model="category_type" id="id_category_type" ng-show="toUserCategory">
                 <option value="" selected="selected">---------</option>
                 <option value="{{BANK}}">bank</option>
                 <option value="{{EXPENSE}}">expense</option>
                 <option value="{{CREDIT}}">credit</option>
             </select>
-            <select name="category_type" ng-model="category_type" id="id_category_type" ng-show="toGroupCategory">
+            <select name="category_type3" ng-model="category_type" id="id_category_type" ng-show="toGroupCategory">
                 <option value="" selected="selected">---------</option>
                 <option value="{{EXPENSE}}">expense</option>
             </select>
