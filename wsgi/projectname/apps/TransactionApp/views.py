@@ -51,6 +51,7 @@ def calculator(request, exp):
     return HttpResponse(result)
 
 
+@login_required(login_url='/login/')
 def displaySingleTransaction(request, tid):
     transactionRow = Transaction.objects.get(id=tid)
     payees = Payee.objects.filter(txn_id=tid)
