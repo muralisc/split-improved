@@ -2,7 +2,7 @@
 Requires 
 {-% include "filterController.html" %-}
 and ng-app in <html> tag
---->
+-->
 <div ng-controller="filterController">
     <form action="" class="form-inline">
         <label>for</label>
@@ -13,14 +13,9 @@ and ng-app in <html> tag
             <option value="{{LAST_MONTH}}">Last Month</option>
             <option value="{{CUSTOM_RANGE}}">Custom timerange</option>
             <option value="{{ALL_TIME}}">from the begining of time</option>
-        </select>
+        </select> :
+        <input id="id_t_st" type="date" ng-model="t_s" class="" name="t_st" ng-change="timeChanged()" /> to
+        <input id="id_t_et" type="date" ng-model="t_e" class="" name="t_et" ng-change="timeChanged()"/>
         <label><strong>{{start_time}}</strong> to <strong>{{end_time}}</strong></label>
-        <div ng-show="timeRange=={{CUSTOM_RANGE}}">
-            <input id="id_t_st" type="date" ng-model="t_s" class="input-small" name="t_st"/> to
-            <input id="id_t_et" type="date" ng-model="t_e" class="input-small" name="t_et"/>
-            <a ng-click="frameGETquery()">Filter</a><br/>
-        </div>
-        <!--
-        -->
     </form>
 </div>

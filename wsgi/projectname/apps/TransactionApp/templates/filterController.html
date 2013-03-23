@@ -17,15 +17,8 @@ function filterController($scope) {
 {% endif %}
 	$scope.timeRange="{{timeRange}}";
 	$scope.listType = window.location.pathname;
-	
-	if($scope.timeRange=="3"){
-		/*
-		initialise these only if custom range is alredy selected 
-		otherwise it will trigger the switch case"3"
-		*/
-		$scope.t_s="{{start_time|date:'Y-m-d'}}";
-		$scope.t_e="{{end_time|date:'Y-m-d'}}";
-	};
+    $scope.t_s="{{start_time|date:'Y-m-d'}}";
+    $scope.t_e="{{end_time|date:'Y-m-d'}}";
 	
 {% if paginator_obj %}<!--{{{-->
 	//Initialise variables
@@ -74,8 +67,17 @@ function filterController($scope) {
     $scope.tc = {{tc}};
 {% endif %}
 {% endif %}<!--}}}-->
+
+    $scope.timeChanged = function() {
+        if($scope.timeRange!="3"){
+            $scope.timeRange="3";
+        }
+		if($scope.timeRange=="3" && undefined != $scope.t_s && undefined != $scope.t_e){
+		    $scope.frameGETquery();
+        }
+    };
 		
-	$scope.frameGETquery = function() {
+    $scope.frameGETquery = function() {  <!--{{{-->
         $scope.queryString = $scope.listType;
         $scope.queryString = $scope.queryString.concat("?");
 {% if filter_user_id %}
@@ -171,5 +173,5 @@ function filterController($scope) {
 {% endif %}
 		window.location.href = $scope.queryString;
 	};
-};
+};   <!--}}}-->
 </script>
