@@ -71,14 +71,17 @@
                     <input class="input-mini" ng-model="txn_paid_people_array[$parent.$index][$index]" type="number">
                 </td>
                 <td>
-                    <select class="input-medium" ng-model="selected_perosn_pos">
+                    <!--                    
+                        <select class="input-medium" ng-model="selected_perosn_pos">
                         <option value="" selected="selected">-Select a person-</option>
                         <option value="{[{$index}]}" ng-repeat="obj in names">{[{obj.value}]}</option>
                     </select>
                     <input class="input-mini" ng-model="txn_paid_people_array[$index][selected_perosn_pos]" type="number">
+                    {[{getNetPaidAmount($index)}]}
+                    -->
+                    <input class="input-large" placeholder="Description" type="text">
                 </td>
                 <td>
-                    {[{getNetPaidAmount($index)}]}
                 </td>
                 <td ng-class="css_class[txn_expense_people_array[$parent.$index][$index]]" ng-repeat="col in row">
                     <a ng-click="toggleCell($parent.$index, $index)">

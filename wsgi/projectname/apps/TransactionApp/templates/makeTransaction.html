@@ -166,8 +166,9 @@
 		{% endif %}
         <div class="control-group">
             <label class="control-label" for="date">on</label>
-            <div class="controls">
-                <input id="id_date" type="date" placeholder="Datemm" class="" name="transaction_time" ng-model="date"/>
+            <div class="controls control-group input-append">
+                <input id="id_date" type="text" ng-model="date" name="transaction_time" data-date-format="yyyy-mm-dd" bs-datepicker>
+                <button type="button" class="btn" data-toggle="datepicker"><i class="icon-calendar"></i></button>
             </div>
         </div>
         <div class="control-group">

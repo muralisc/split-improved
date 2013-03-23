@@ -14,8 +14,14 @@ and ng-app in <html> tag
             <option value="{{CUSTOM_RANGE}}">Custom timerange</option>
             <option value="{{ALL_TIME}}">from the begining of time</option>
         </select> :
-        <input id="id_t_st" type="date" ng-model="t_s" class="" name="t_st" ng-change="timeChanged()" /> to
-        <input id="id_t_et" type="date" ng-model="t_e" class="" name="t_et" ng-change="timeChanged()"/>
+        <div class="control-group input-append">
+            <input id="id_t_st" type="text" ng-model="t_s" name="t_st" ng-change="timeChanged()" data-date-format="yyyy-mm-dd" bs-datepicker>
+            <button type="button" class="btn" data-toggle="datepicker"><i class="icon-calendar"></i></button>
+        </div> to
+        <div class="control-group input-append">
+            <input id="id_t_et" type="text" ng-model="t_e" name="t_et" ng-change="timeChanged()" data-date-format="yyyy-mm-dd" bs-datepicker>
+            <button type="button" class="btn" data-toggle="datepicker"><i class="icon-calendar"></i></button>
+        </div>
         <label><strong>{{start_time}}</strong> to <strong>{{end_time}}</strong></label>
     </form>
 </div>
