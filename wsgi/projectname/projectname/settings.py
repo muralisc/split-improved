@@ -80,6 +80,9 @@ USE_L10N = True
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
+#for browser length sessions
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = os.environ.get('OPENSHIFT_DATA_DIR', '')
