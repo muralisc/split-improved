@@ -70,7 +70,14 @@
                         {{i.1|floatformat}}
                         </div>
                         {%endif%}
-                        <div style="display:none">{{i.2|floatformat}}</div>
+                    </div>
+                    <div id="net">
+                        <div id="text">
+                        Net
+                        </div>
+                        <div id="number">
+                        {{i.2|floatformat}}
+                        </div>
                     </div>
                     <div id="actions">
                         <a href="/deleteTransaction/?t={{i.0.pk}}">DEL</a>

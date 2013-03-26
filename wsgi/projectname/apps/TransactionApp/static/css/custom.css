@@ -64,10 +64,10 @@
 #paid {
     vertical-align: top;
     display: inline-block;
-    border-right: 1px rgba(0,0,0, 0.5) solid;
     height: auto;
     width: 200px;
     text-align: right;
+    border-right: 1px rgba(0,0,0, 0.5) solid;
     margin: 5px 0px 0px 0px;
     padding: 5px 5px 0px 0px;
 }
@@ -80,9 +80,12 @@
 #oweOrGetBack {
     vertical-align: top;
     display: inline-block;
-    height: 40px;
-    width: 100px;
-    padding: 10px 5px 0px 0px;
+    height: auto;
+    width: 75px;
+    text-align: center;
+    border-right: 1px rgba(0,0,0, 0.5) solid;
+    margin: 5px 0px 0px 0px;
+    padding: 5px 5px 0px 0px;
 }
 #oweOrGetBack > #text {
     font-size: 0.75em;
@@ -94,6 +97,20 @@
 #oweOrGetBack > #noGreen{
     color: blue;
     font-weight: bold;
+}
+#net{
+    vertical-align: top;
+    display: inline-block;
+    height: auto;
+    width: 50px;
+    padding: 10px 0px 0px 0px;
+}
+#net > #number{
+    color: #FF7621;
+    font-weight: bold;
+}
+#net > #text {
+    font-size: 0.75em;
 }
 #actions{
     display: inline-block;
