@@ -27,16 +27,9 @@
         {% include "listTypeFilter.html" %}
     </div>
     {% include "filterController.html" %}
-    <script type="text/javascript">
-        function asdCont($scope){
-            $scope.msC = function($model){
-                var a = 1+1;
-            };
-        };
-    </script>
     {%if transaction_list_for_sorting%}
         <div id="transactionList" class="row">
-            <div id="transactionList" class="span10 offset1" ng-controller="asdCont">
+            <div id="transactionList" class="span10 offset1">
                 {% for i in transaction_list_for_sorting%}
                 <div id="transaction" ng-click="a{{i}} = !a{{i}}">
                     <div style="display:none">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</div>
@@ -59,6 +52,8 @@
                         </div>
                         <div id="amount">{{i.amount}}
                         </div>
+                    </div>
+                    <div id="oweOrGetBack">
                     </div>
                     <div id="actions">
                         <a href="/deleteTransaction/?t={{i.pk}}">DEL</a>

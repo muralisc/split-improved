@@ -15,54 +15,78 @@
 {% include "navlist.html" %}
 </div>
 <div class="span10" >
-<h1 class="">Outsranding List</h1>
-{% include "timeFilter.html" %}
-<div class="pull-right">
-    {% include "pageFilter.html" %}
-</div>
-<div class="pull-left">
-    {% include "userFilter.html" %}
-</div>
-<div class="pull-left">
-{% include "listTypeFilter.html" %}
-</div>
-{% include "filterController.html" %}
-{%if transaction_list_with_outstanding%}
-<table class="table table-hover table-condensed">
-		<thead>
-			<tr>
-			  <th></th>
-			  <th>name</th>
-			  <th>Amount</th>
-			  <th>Description</th>
-			  <th>PaidFor</th>
-			  <th>DatePaid</th>
-			  <th>Outstanding</th>
-			  <th>CumOutstanding</th>
-			  <th>delete</th>
-			  <th>edit</th>
-			</tr>
-		</thead>
-{% for i in transaction_list_with_outstanding %}
-		<tbody>
-            <tr>
-                <td class="span1">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</td>
-                <td class="span1">{{i.0.paid_user}}</td>
-                <td class="span1">{{i.0.amount}}</td>
-                <td class="span1">{{i.0.description}}</td>
-                <td class="span1">{%for usr in i.0.users_involved.all%}
-                    {{usr}}<br/>
-                    {%endfor%}
-                </td>
-                <td class="span2">{{i.0.transaction_time}}</td>
-                <td class="span1">{{i.1|floatformat}}</td>
-                <td class="span1">{{i.2|floatformat}}</td>
-                <td class="span1"><a href="/deleteTransaction/?t={{i.0.pk}}">delete</a></td>
-                <td class="span1"><a href="/editTransactionForm/?t={{i.0.pk}}">edit</a></td>
-            </tr>
-		</tbody>
-{% endfor %}
-</table>
+    <h1 class="">Outstanding List</h1>
+    {% include "timeFilter.html" %}
+    <div class="pull-right">
+        {% include "pageFilter.html" %}
+    </div>
+    <div class="pull-left">
+        {% include "userFilter.html" %}
+    </div>
+    <div class="pull-left">
+    {% include "listTypeFilter.html" %}
+    </div>
+    {% include "filterController.html" %}
+    {%if transaction_list_with_outstanding%}
+    <div id="transactionList" class="row">
+        <div id="transactionList" class="span10 offset1">
+            {% for i in transaction_list_with_outstanding %}
+                <div id="transaction" ng-click="a{{i.0.id}} = !a{{i.0.id}}">
+                    <div style="display:none">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</div>
+                    <div id="date">
+                        <div id="month">
+                        {{i.0.transaction_time|date:'M'}}
+                        </div>
+                        <div id="day">
+                        {{i.0.transaction_time|date:'j'}}
+                        </div>
+                        <div id="time">
+                        {{i.0.transaction_time|date:'H:i'}}
+                        </div>
+                    </div>
+                    <div id="description">
+                        {{i.0.description}}
+                    </div>
+                    <div id="paid">
+                        <div id="person">{{i.0.paid_user}} paid
+                        </div>
+                        <div id="amount">{{i.0.amount}}
+                        </div>
+                    </div>
+                    <div id="oweOrGetBack">
+                        {%if i.1 < 0%}
+                        <div id="text">
+                            You owe them
+                        </div>
+                        <div id="noRed">
+                            {{i.1|floatformat}}
+                        </div>
+                        {%endif%}
+                        {%if i.1 >= 0%}
+                        <div id="text">
+                            They owe you
+                        </div>
+                        <div id="noGreen">
+                        {{i.1|floatformat}}
+                        </div>
+                        {%endif%}
+                        <div style="display:none">{{i.2|floatformat}}</div>
+                    </div>
+                    <div id="actions">
+                        <a href="/deleteTransaction/?t={{i.0.pk}}">DEL</a>
+                        <a href="/editTransactionForm/?t={{i.0.pk}}">EDIT</a>
+                    </div>
+                </div>
+                <div id="transactionDetail" ng-show="a{{i.0.id}}">
+                    <div id="text">
+                        {%for usr in i.0.users_involved.all%}
+                        {{usr}}<br/>
+                        {%endfor%}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 {%endif%}
 

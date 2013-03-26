@@ -18,7 +18,7 @@
     border-bottom: 1px rgba(0,0,0, 0.25) solid;
     display: block;
     height: auto;
-    width: 700px;
+    width: 800px;
 }
 #transaction:hover {
     background-color: #f0f0ff;
@@ -27,7 +27,7 @@
 #transactionDetail{
     background-color: #E8E8E8;
     box-shadow: 1px 1px 5px rgba(0,0,0,0.5) inset;
-    width: 700px;
+    width: 800px;
 }
 #transactionDetail > #text{
     padding: 9px;
@@ -78,10 +78,22 @@
     font-weight: bold;
 }
 #oweOrGetBack {
-    background-color: #52D108;
+    vertical-align: top;
     display: inline-block;
     height: 40px;
-    width: 50px;
+    width: 100px;
+    padding: 10px 5px 0px 0px;
+}
+#oweOrGetBack > #text {
+    font-size: 0.75em;
+}
+#oweOrGetBack > #noRed{
+    color: red;
+    font-weight: bold;
+}
+#oweOrGetBack > #noGreen{
+    color: blue;
+    font-weight: bold;
 }
 #actions{
     display: inline-block;
