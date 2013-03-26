@@ -12,62 +12,74 @@
 
 {% block body%}
 <div class="span2">
-{% include "navlist.html" %}
+    {% include "navlist.html" %}
 </div>
 <div class="span10">
-<h1 class="">Transaction List</h1>
-{% include "timeFilter.html" %}
-<div class="pull-right">
-    {% include "pageFilter.html" %}
+    <h1 class="">Transaction List</h1>
+    {% include "timeFilter.html" %}
+    <div class="pull-right">
+        {% include "pageFilter.html" %}
+    </div>
+    <div class="pull-left">
+        {% include "userFilter.html" %}
+    </div>
+    <div class="pull-left">
+        {% include "listTypeFilter.html" %}
+    </div>
+    {% include "filterController.html" %}
+    <script type="text/javascript">
+        function asdCont($scope){
+            $scope.msC = function($model){
+                var a = 1+1;
+            };
+        };
+    </script>
+    {%if transaction_list_for_sorting%}
+        <div id="transactionList" class="row">
+            <div id="transactionList" class="span10 offset1" ng-controller="asdCont">
+                {% for i in transaction_list_for_sorting%}
+                <div id="transaction" ng-click="a{{i}} = !a{{i}}">
+                    <div style="display:none">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</div>
+                    <div id="date">
+                        <div id="month">
+                        {{i.transaction_time|date:'M'}}
+                        </div>
+                        <div id="day">
+                        {{i.transaction_time|date:'j'}}
+                        </div>
+                        <div id="time">
+                        {{i.transaction_time|date:'H:i'}}
+                        </div>
+                    </div>
+                    <div id="description">
+                        {{i.description}}
+                    </div>
+                    <div id="paid">
+                        <div id="person">{{i.paid_user}} paid
+                        </div>
+                        <div id="amount">{{i.amount}}
+                        </div>
+                    </div>
+                    <div id="actions">
+                        <a href="/deleteTransaction/?t={{i.pk}}">DEL</a>
+                        <a href="/editTransactionForm/?t={{i.pk}}">EDIT</a>
+                        {% if i.0.history %}
+                                <a href="">HISTORY</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div id="transactionDetail" ng-show="a{{i}}">
+                    <div id="text">
+                        {%for usr in i.users_involved.all%}
+                        {{usr}}<br/>
+                        {%endfor%}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {%endif%}
 </div>
-<div class="pull-left">
-    {% include "userFilter.html" %}
-</div>
-<div class="pull-left">
-    {% include "listTypeFilter.html" %}
-</div>
-{% include "filterController.html" %}
-{%if transaction_list_for_sorting%}
-<table class="table table-hover table-condensed">
-		<thead>
-			<tr>
-			  <th></th>
-			  <th>name</th>
-			  <th>Amount</th>
-			  <th>Description</th>
-			  <th>PaidFor</th>
-			  <th>DatePaid</th>
-			  <th>delete</th>
-			  <th>edit</th>
-			  <th>history</th>
-			</tr>
-		</thead>
-{% for i in transaction_list_for_sorting%}
-		<tbody>
-			<tr>
-              <td class="span1">{{paginator_obj.count|subtract:current_page.start_index|subtract:forloop.counter0|add:1}}</td>
-              <td class="span1">{{i.paid_user}}</td>
-			  <td class="span1">{{i.amount}}</td>
-			  <td class="span1">{{i.description}}</td>
-			  <td class="span1">{%for usr in i.users_involved.all%}
-								{{usr}}<br/>
-								{%endfor%}
-								</td>
-			  <td class="span2">{{i.transaction_time}}</td>
-              <td class="span1"><a href="/deleteTransaction/?t={{i.pk}}">delete</a></td>
-              <td class="span1"><a href="/editTransactionForm/?t={{i.pk}}">edit</a></td>
-              <td class="span1">
-{% if i.0.history %}
-                  <a href="">history</a>
-{% endif %}
-              </td>
-			</tr>
-		</tbody>
-{% endfor %}
-</table>
-</div>
-{%endif%}
-
 {% endblock %}
 
 

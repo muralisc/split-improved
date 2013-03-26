@@ -7,3 +7,86 @@
     width:auto;
     margin-left:100px;
 }
+#transactionList{
+    display: block;
+    height: auto;
+}
+#transaction {
+    background-color: #FFFFFF;
+    border-left: 1px rgba(0,0,0, 0.5) solid;
+    border-right: 1px rgba(0,0,0, 0.5) solid;
+    border-bottom: 1px rgba(0,0,0, 0.25) solid;
+    display: block;
+    height: auto;
+    width: 700px;
+}
+#transaction:hover {
+    background-color: #f0f0ff;
+    cursor: pointer;
+}
+#transactionDetail{
+    background-color: #E8E8E8;
+    box-shadow: 1px 1px 5px rgba(0,0,0,0.5) inset;
+    width: 700px;
+}
+#transactionDetail > #text{
+    padding: 9px;
+}
+#date {
+    display: inline-block;
+    background-color: #FFE6E6;
+    text-align: center;
+    height: 55px;
+    width: 55px;
+    box-shadow: 1px 1px 2px;
+    border: 2px #FFFFFF solid;
+    margin: 5px;
+}
+#date > #month {
+    font-size: 0.9em;
+}
+#date > #day {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+#date > #time{
+    font-size: 0.7em;
+}
+#description {
+    display: inline-block;
+    vertical-align: top;
+    font-size: 1.25em;
+    font-weight: bold;
+    padding-top: 25px;
+    height: auto;
+    width: 300px;
+}
+#paid {
+    vertical-align: top;
+    display: inline-block;
+    border-right: 1px rgba(0,0,0, 0.5) solid;
+    height: auto;
+    width: 200px;
+    text-align: right;
+    margin: 5px 0px 0px 0px;
+    padding: 5px 5px 0px 0px;
+}
+#paid > #person{
+    font-size: 0.75em;
+}
+#paid > #amount{
+    font-weight: bold;
+}
+#oweOrGetBack {
+    background-color: #52D108;
+    display: inline-block;
+    height: 40px;
+    width: 50px;
+}
+#actions{
+    display: inline-block;
+    vertical-align: top;
+    width: 50px;
+    padding: 5px 0px 0px 10px ;
+    font-weight: bold;
+}
