@@ -19,6 +19,7 @@ function filterController($scope) {
 	$scope.listType = window.location.pathname;
     $scope.t_s="{{start_time|date:'Y-m-d'}}";
     $scope.t_e="{{end_time|date:'Y-m-d'}}";
+    $scope.initiatedBySearch = false;
 	
 {% if paginator_obj %}<!--{{{-->
 	//Initialise variables
@@ -85,56 +86,68 @@ function filterController($scope) {
         $scope.queryString = $scope.queryString.concat($scope.u.id);
         $scope.queryString = $scope.queryString.concat("&");
 {% endif %}
-		/*
-		start framing "tr=" queries
-		*/
-		switch($scope.timeRange){
-			case "1":
-			case "2":
-			case "4":
-			case "5":
-				$scope.queryString = $scope.queryString.concat("tr=");
-                $scope.queryString = $scope.queryString.concat($scope.timeRange);
-				$scope.queryString = $scope.queryString.concat("&");
-				break;
-			case "3":
-				if(undefined == $scope.t_s && undefined == $scope.t_e){
-					return;
-				}
-				else{
-					break;
-				}
-			default:
-				break;
-		};
-		if($scope.timeRange=="3" && undefined != $scope.t_s && undefined != $scope.t_e){
-			/*
-			start framing "ts=" and "te=" queries
-			*/
-			$scope.tsExist = ((new Date($scope.t_s)).toString() != "Invalid Date");
-			$scope.teExist = ((new Date($scope.t_e)).toString() != "Invalid Date");
-			if(!$scope.tsExist && !$scope.teExist){
-				alert("enter valid date");
-				return;
-			}
-			//If both has vaid date check startDate<EndDate
-			if($scope.tsExist && $scope.teExist){
-				if((new Date($scope.t_s)) > (new Date($scope.t_e))){
-					alert("start date is after the end date duffer");
-					return;
-				}
-			}
-			if($scope.tsExist){  
-				$scope.queryString = $scope.queryString.concat("ts=");
-				$scope.queryString = $scope.queryString.concat($scope.t_s);
-				$scope.queryString = $scope.queryString.concat("&");
-			}
-			if($scope.teExist){  
-				$scope.queryString = $scope.queryString.concat("te=");
-				$scope.queryString = $scope.queryString.concat($scope.t_e);
-				$scope.queryString = $scope.queryString.concat("&");
-			}
-		};
+        if ($scope.initiatedBySearch==false)
+        {
+            /*
+            start framing "tr=" queries
+            */
+            switch($scope.timeRange){
+                case "1":
+                case "2":
+                case "4":
+                case "5":
+                    $scope.queryString = $scope.queryString.concat("tr=");
+                    $scope.queryString = $scope.queryString.concat($scope.timeRange);
+                    $scope.queryString = $scope.queryString.concat("&");
+                    break;
+                case "3":
+                    if(undefined == $scope.t_s && undefined == $scope.t_e){
+                        return;
+                    }
+                    else{
+                        break;
+                    }
+                default:
+                    break;
+            };
+            if($scope.timeRange=="3" && undefined != $scope.t_s && undefined != $scope.t_e){
+                /*
+                start framing "ts=" and "te=" queries
+                */
+                $scope.tsExist = ((new Date($scope.t_s)).toString() != "Invalid Date");
+                $scope.teExist = ((new Date($scope.t_e)).toString() != "Invalid Date");
+                if(!$scope.tsExist && !$scope.teExist){
+                    alert("enter valid date");
+                    return;
+                }
+                //If both has vaid date check startDate<EndDate
+                if($scope.tsExist && $scope.teExist){
+                    if((new Date($scope.t_s)) > (new Date($scope.t_e))){
+                        alert("start date is after the end date duffer");
+                        return;
+                    }
+                }
+                if($scope.tsExist){  
+                    $scope.queryString = $scope.queryString.concat("ts=");
+                    $scope.queryString = $scope.queryString.concat($scope.t_s);
+                    $scope.queryString = $scope.queryString.concat("&");
+                }
+                if($scope.teExist){  
+                    $scope.queryString = $scope.queryString.concat("te=");
+                    $scope.queryString = $scope.queryString.concat($scope.t_e);
+                    $scope.queryString = $scope.queryString.concat("&");
+                }
+            };
+        }
+        else
+        {
+            $scope.queryString = $scope.queryString.concat("s=");
+            $scope.queryString = $scope.queryString.concat($scope.searchString);
+            $scope.queryString = $scope.queryString.concat("&");
+            $scope.queryString = $scope.queryString.concat("tr=");
+            $scope.queryString = $scope.queryString.concat({{ALL_TIME}});
+            $scope.queryString = $scope.queryString.concat("&");
+        }
 {% if paginator_obj %}
 		/*
 		start framing "page=" and "rpp=" queries
@@ -150,7 +163,7 @@ function filterController($scope) {
 {% endif %}
 
 {% if response_json.category %}
-        if (undefined |= $scope.atofc && $scope.atofc > 0 && $scope.fc == $scope.tc){
+        if (undefined != $scope.atofc && $scope.atofc > 0 && $scope.fc == $scope.tc){
             $scope.queryString = $scope.queryString.concat("atofc=");
             $scope.queryString = $scope.queryString.concat($scope.atofc);
             $scope.queryString = $scope.queryString.concat("&");

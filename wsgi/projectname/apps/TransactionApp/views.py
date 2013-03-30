@@ -364,7 +364,8 @@ def groupStatistics(request):
             timeRange,
             filter_user_id,
             page_no,
-            txn_per_page
+            txn_per_page,
+            search_string
                             ) = parseGET_initialise(request)
     members = Membership.objects.filter(group=request.session['active_group'])
     members1 = list()
@@ -412,7 +413,8 @@ def groupExpenseList(request):
             timeRange,
             filter_user_id,
             page_no,
-            txn_per_page
+            txn_per_page,
+            search_string
                             ) = parseGET_initialise(request)
     (order_by_args, order_by_page_list) = parseGET_ordering(request)
     transaction_list = Transaction.objects.filter(
@@ -471,7 +473,8 @@ def groupTransactionList(request):
             timeRange,
             filter_user_id,
             page_no,
-            txn_per_page
+            txn_per_page,
+            search_string
                             ) = parseGET_initialise(request)
     (order_by_args, order_by_page_list) = parseGET_ordering(request)
     transaction_list = Transaction.objects.filter(
@@ -522,7 +525,8 @@ def groupOutstandingList(request):
             timeRange,
             filter_user_id,
             page_no,
-            txn_per_page
+            txn_per_page,
+            search_string
                             ) = parseGET_initialise(request)
     (order_by_args, order_by_page_list) = parseGET_ordering(request)
     transaction_list = Transaction.objects.filter(
@@ -532,7 +536,8 @@ def groupOutstandingList(request):
                         (
                             Q(paid_user_id=filter_user_id) |        # for including all transaction to which user is conencted
                             Q(users_involved__id__in=[filter_user_id])
-                        )
+                        ) &
+                        Q(description__icontains=search_string)
                         ).distinct().order_by(*order_by_args)
     (paginator_obj, current_page) = get_page_info(transaction_list, txn_per_page, page_no)
     transaction_list = current_page.object_list
@@ -578,7 +583,8 @@ def groupPaidList(request):
             timeRange,
             filter_user_id,
             page_no,
-            txn_per_page
+            txn_per_page,
+            search_string
                             ) = parseGET_initialise(request)
     (order_by_args, order_by_page_list) = parseGET_ordering(request)
     transaction_list = Transaction.objects.filter(
@@ -631,7 +637,8 @@ def personalStatistics(request):
             timeRange,
             filter_user_id,
             page_no,
-            txn_per_page
+            txn_per_page,
+            search_string
                             ) = parseGET_initialise(request)
     user_categories = UserCategory.objects.filter(user_id=request.user.id).order_by('category__category_type')
     user_categories = sorted(user_categories, key=lambda x: x.category.category_type)
@@ -725,7 +732,8 @@ def personalTransactionList(request):
             timeRange,
             filter_user_id,
             page_no,
-            txn_per_page
+            txn_per_page,
+            search_string
                             ) = parseGET_initialise(request)
     (order_by_args, order_by_page_list) = parseGET_ordering(request)
     transaction_list = Transaction.objects.filter(

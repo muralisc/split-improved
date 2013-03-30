@@ -5,12 +5,12 @@ and ng-app in <html> tag
 --->
 <div ng-controller="filterController">
     <form action="" class="form-inline">
-    <label>Current list type:</label>
+    <label> In which you:</label>
 	<select ng-model="listType" ng-change="frameGETquery()">
 		<option value="" selected="selected">---------</option>
-		<option value="/group/outstandingList/">Outstanding List</option>
-		<option value="/group/expenseList/">ExpenseList</option>
-		<option value="/group/paidList/">PaidList</option>
+		<option value="/group/outstandingList/">are invloved</option>
+		<option value="/group/expenseList/">incurred an expense</option>
+		<option value="/group/paidList/">paid</option>
 		<option value="/group/transactionList/">All Transactions simple</option>
         <option value="">All Transactions advanced</option>
 	</select>

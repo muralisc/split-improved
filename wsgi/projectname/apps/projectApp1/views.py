@@ -110,7 +110,15 @@ def siteLogin(request):
 
 @login_required(login_url='/login/')
 def home(request):
-    (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+    (
+            start_time,
+            end_time,
+            timeRange,
+            filter_user_id,
+            page_no,
+            txn_per_page,
+            search_string
+                            ) = parseGET_initialise(request)
     # TODO funtion to update no fo invires is session
     updateNotificationInvites(request)
     group_list = list()

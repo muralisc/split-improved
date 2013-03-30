@@ -393,7 +393,11 @@ def parseGET_initialise(request):
         txn_per_page = int(request.GET['rpp'])
     except:
         txn_per_page = DEFAULT_RPP
-    return (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page)
+    try:
+        search_string = request.GET['s']
+    except:
+        search_string = ""
+    return (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page, search_string)
 
 
 def get_page_info(transaction_list, txn_per_page, page_no):

@@ -142,3 +142,7 @@
     float: right;
     display: inline-block;
 }
+.blockInline{
+    display: inline-block;
+    vertical-align: top;
+}

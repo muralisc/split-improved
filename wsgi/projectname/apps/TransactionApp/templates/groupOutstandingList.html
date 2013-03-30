@@ -15,16 +15,23 @@
 {% include "navlist.html" %}
 </div>
 <div class="span10" >
-    <h1 class="">Outstanding List</h1>
+    <h1 class="">Transactions</h1>
     {% include "timeFilter.html" %}
-    <div class="pull-right">
-        {% include "pageFilter.html" %}
+    <div>
+        <div class="blockInline">
+            {% include "userFilter.html" %}
+        </div>
+        <div class="blockInline">
+            {% include "listTypeFilter.html" %}
+        </div>
+        <div class="blockInline">
+            {% include "pageFilter.html" %}
+        </div>
     </div>
-    <div class="pull-left">
-        {% include "userFilter.html" %}
-    </div>
-    <div class="pull-left">
-    {% include "listTypeFilter.html" %}
+    <div class="" ng-controller="filterController">
+        <form  ng-submit="frameGETquery()">
+            <input type="text" name="searchString" ng-click="initiatedBySearch=true" ng-model="searchString" placeholder="Search Descreption"/>
+        </form>
     </div>
     {% include "filterController.html" %}
     {%if transaction_list_with_outstanding%}

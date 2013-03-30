@@ -4,24 +4,31 @@ Requires
 and ng-app in <html> tag
 -->
 <div ng-controller="filterController">
-    <form action="" class="form-inline">
-        <label>for</label>
-        <select ng-model="timeRange" ng-change="frameGETquery()">
-            <option value="" selected="selected">---------</option>
-            <option value="{{TODAY}}">Today</option>
-            <option value="{{THIS_MONTH}}">This Month</option>
-            <option value="{{LAST_MONTH}}">Last Month</option>
-            <option value="{{CUSTOM_RANGE}}">Custom timerange</option>
-            <option value="{{ALL_TIME}}">from the begining of time</option>
-        </select> :
-        <div class="control-group input-append">
-            <input id="id_t_st" type="text" ng-model="t_s" name="t_st" ng-change="timeChanged()" data-date-format="yyyy-mm-dd" bs-datepicker>
-            <button type="button" class="btn" data-toggle="datepicker"><i class="icon-calendar"></i></button>
+    <form action="">
+        <div class="blockInline">
+            <label class="blockInline">for</label>
+            <select ng-model="timeRange" ng-change="frameGETquery()">
+                <option value="" selected="selected">---------</option>
+                <option value="{{TODAY}}">Today</option>
+                <option value="{{THIS_MONTH}}">This Month</option>
+                <option value="{{LAST_MONTH}}">Last Month</option>
+                <option value="{{CUSTOM_RANGE}}">Custom timerange</option>
+                <option value="{{ALL_TIME}}">from the begining of time</option>
+            </select> :
+        </div>
+        <div class="blockInline">
+            <div class="control-group input-append">
+                <input id="id_t_st" type="text" ng-model="t_s" name="t_st" ng-change="timeChanged()" data-date-format="yyyy-mm-dd" bs-datepicker>
+                <button type="button" class="btn" data-toggle="datepicker"><i class="icon-calendar"></i></button>
+            </div>            
+            <div><strong>{{start_time}}</strong></div>
         </div> to
+        <div class="blockInline">
         <div class="control-group input-append">
             <input id="id_t_et" type="text" ng-model="t_e" name="t_et" ng-change="timeChanged()" data-date-format="yyyy-mm-dd" bs-datepicker>
             <button type="button" class="btn" data-toggle="datepicker"><i class="icon-calendar"></i></button>
         </div>
-        <label><strong>{{start_time}}</strong> to <strong>{{end_time}}</strong></label>
+        <label><strong>{{end_time}}</strong></label>
+        </div>
     </form>
 </div>

@@ -133,7 +133,15 @@ class TransactionAppTestCase(TestCase):
                                                                 'page': '1',
                                                                 'rpp': '10'
                                                                 })
-        (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+        (
+                start_time,
+                end_time,
+                timeRange,
+                filter_user_id,
+                page_no,
+                txn_per_page,
+                search_string
+                                ) = parseGET_initialise(request)
         self.assertEqual(start_time, month_start)
         self.assertEqual(timeRange, THIS_MONTH)
         self.assertEqual(filter_user_id, self.u1.pk)
@@ -145,7 +153,15 @@ class TransactionAppTestCase(TestCase):
                                                                 'te': '2012-12-11',
                                                                 'u': str(self.u1.pk),
                                                                 })
-        (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+        (
+                start_time,
+                end_time,
+                timeRange,
+                filter_user_id,
+                page_no,
+                txn_per_page,
+                search_string
+                                ) = parseGET_initialise(request)
         self.assertEqual(start_time, datetime(2012, 12, 11))
         self.assertEqual(end_time, datetime(2012, 12, 12))
         self.assertEqual(timeRange, CUSTOM_RANGE)
@@ -156,21 +172,45 @@ class TransactionAppTestCase(TestCase):
                                                                 'tr': str(LAST_MONTH),
                                                                 'u': str(self.u1.pk),
                                                                 })
-        (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+        (
+                start_time,
+                end_time,
+                timeRange,
+                filter_user_id,
+                page_no,
+                txn_per_page,
+                search_string
+                                ) = parseGET_initialise(request)
         # TODO
         # sending invalid values
         request = self.factory.get('/group/transactionList/', {
                                                                 'tr': 'abcd',
                                                                 'u': str(self.u1.pk),
                                                                 })
-        (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+        (
+                start_time,
+                end_time,
+                timeRange,
+                filter_user_id,
+                page_no,
+                txn_per_page,
+                search_string
+                                ) = parseGET_initialise(request)
         # TODO
         # sending invalid values
         request = self.factory.get('/group/transactionList/', {
                                                                 'ts': 'abcd',
                                                                 'u': str(self.u1.pk),
                                                                 })
-        (start_time, end_time, timeRange, filter_user_id, page_no, txn_per_page) = parseGET_initialise(request)
+        (
+                start_time,
+                end_time,
+                timeRange,
+                filter_user_id,
+                page_no,
+                txn_per_page,
+                search_string
+                                ) = parseGET_initialise(request)
         # TODO
         request = self.factory.get('/group/transactionList/', {
                                                                 'o': '1.2.3.4.5',
