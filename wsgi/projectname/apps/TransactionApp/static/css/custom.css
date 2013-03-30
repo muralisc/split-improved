@@ -119,3 +119,26 @@
     padding: 5px 0px 0px 10px ;
     font-weight: bold;
 }
+.red a{
+    color: red;
+}
+.green a{
+    color: blue;
+}
+
+#userRow {  // for a generic row
+    background-color: #FFFFFF;
+    display: block;
+    height: auto;
+    width: 300px;
+}
+#userRow:hover {
+    background-color: #f0f0ff;
+}
+#userName{
+    display: inline-block;
+}
+#amount{
+    float: right;
+    display: inline-block;
+}
