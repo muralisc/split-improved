@@ -141,6 +141,10 @@ function filterController($scope) {
         }
         else
         {
+            if($scope.searchString == undefined)
+            {
+                $scope.searchString = "";
+            }
             $scope.queryString = $scope.queryString.concat("s=");
             $scope.queryString = $scope.queryString.concat($scope.searchString);
             $scope.queryString = $scope.queryString.concat("&");
