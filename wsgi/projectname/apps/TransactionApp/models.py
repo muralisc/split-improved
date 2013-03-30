@@ -186,16 +186,14 @@ class Transaction(models.Model):
                 elif notification_type == 'txn_edited':
                     type_specific_msg = 'Edited'
                 message = """
-                        <strong>{0}</strong> transaction<br/>
+                        <div id="notificationType{0}">{0}</div> transaction<br/>
                         <small>
-                        for <strong>{1}</strong><br/>
-                        <strong>{2:.2f}</strong> is your outstanding<br/>
-                        <strong>{3}</strong> users involved
+                        for <div id="notificationDesc">{1}</div><br/>
+                        <div id="notificationOutstanding">{2:.2f}</strong> is your outstanding<br/>
                         </small>""".format(
                             type_specific_msg,
                             self.description,
-                            p_object.outstanding_amount,
-                            self.users_involved.count()
+                            p_object.outstanding_amount
                             )
                 # create notficatin for all the payees
                 if p_object.user.id != user_created_id:
