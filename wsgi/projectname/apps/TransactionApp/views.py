@@ -24,6 +24,7 @@ from django.http import Http404, HttpResponse
 from django.db.models import Q, Sum
 from django.core.mail import EmailMessage
 import os
+import glob
 
 
 def emailFunc(request):
@@ -33,7 +34,7 @@ def emailFunc(request):
     to_list.append('muralisc@gmail.com')
     email = EmailMessage('SPLITv2 Mailer Daemon daily Report', body, to=to_list)
     if 'OPENSHIFT_APP_NAME' in os.environ:
-        email.attach_file(os.environ['OPENSHIFT_DATA_DIR'] + '/mysql_dump_snapshot.gz')
+        email.attach_file(glob.glob(os.environ["OPENSHIFT_DATA_DIR"] + "*")[0])
     else:
         email.attach_file('mysql_dump_snapshot.gz')
     email.send()
