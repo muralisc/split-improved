@@ -347,6 +347,13 @@ def import_from_json(request):
     return render_to_response('import.html', locals(), context_instance=RequestContext(request))
 
 
+def sanitize(request):
+    members = Membership.objects.filter(group=request.session['active_group'])
+    for temp in members:
+        temp.amount_in_pool = get_outstanding_amount(temp.group.id, temp.user.id)
+        temp.save()
+    return HttpResponse("sanitized")
+
 '''
 TransactionFn is for supporint reorder and sort
 OutstandingFn is for viewing cumulstive outstnding at various filters

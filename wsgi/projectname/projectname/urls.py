@@ -44,6 +44,7 @@ urlpatterns = patterns('',
     (r'^group/outstandingList/$', 'TransactionApp.views.groupOutstandingList'),
     (r'^group/paidList/$', 'TransactionApp.views.groupPaidList'),
     (r'^group/settle/$', 'TransactionApp.views.groupSettle'),
+    (r'^sanitize/$', 'TransactionApp.views.sanitize'),
     (r'^transactionHistory/$', 'TransactionApp.views.transactionHistory'),
 
     (r'^import/$', 'TransactionApp.views.import_from_json'),
