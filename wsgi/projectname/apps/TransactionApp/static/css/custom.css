@@ -135,14 +135,22 @@
 #userRow:hover {
     background-color: #f0f0ff;
 }
-#userName{
+#userName {
     display: inline-block;
 }
-#amount{
+#amount {
     float: right;
     display: inline-block;
 }
-.blockInline{
+.blockInline {
     display: inline-block;
     vertical-align: top;
+}
+#notificationTypeCreated:before {
+    content: "+";
+    background-color: #ffffff;
+    font-size: 30px;
+}
+#notificationTypeCreated {
+    visibility: hidden;
 }

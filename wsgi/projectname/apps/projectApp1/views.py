@@ -273,7 +273,7 @@ def showInvites(request):
 @login_required(login_url='/login/')
 def showNotifications(request):
     new_notifications = [i for i in Notification.objects.filter(to_user=request.user, is_unread=True)]
-    all_notifications = [i for i in Notification.objects.filter(to_user=request.user, is_unread=False)]
+    all_notifications = [i for i in Notification.objects.filter(to_user=request.user, is_unread=False).order_by('-create_time')]
     Notification.objects.filter(to_user=request.user, is_unread=True).update(is_unread=False)
     updateNotificationInvites(request)
     return render_to_response('allNotifications.html', locals(), context_instance=RequestContext(request))

@@ -10,6 +10,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum
 from django.http import Http404
 from django.db.models import Q
+from django.core.mail import EmailMessage
+import thread
 
 
 def on_create_user(user):
@@ -439,6 +441,7 @@ def new_group_transaction_event(group_id, transaction, user_created_id):
         tc.save()
     except:
         pass
+    thread.start_new_thread(sanity_checker, (group_id,))
 
 
 # TODO transaction groupid to transctuin.grop_id
@@ -470,6 +473,7 @@ def delete_group_transaction_event(group_id, transaction, user_created_id):
     ass_personal_txn = Transaction.objects.get(id=transaction.id + 1)
     ass_personal_txn.deleted = True
     ass_personal_txn.save()
+    thread.start_new_thread(sanity_checker, (group_id,))
 
 
 # TODO transaction user_id to transctuin.user_paidid
@@ -555,3 +559,19 @@ def updateNotificationInvites(request):
     request.session['no_of_invites'] = no_of_invites
     request.session['no_of_notifications'] = no_of_notifications
 
+
+def sanity_checker(group_id):
+    sanity_issue = False
+    members = Membership.objects.filter(group_id=group_id)
+    for temp in members:
+        if round(temp.amount_in_pool,2) != round(get_outstanding_amount(temp.group.id, temp.user.id),2):
+            import pdb; pdb.set_trace() ### XXX BREAKPOINT
+            pass
+    if sanity_issue is True:
+        body = "Sanity Issue @time" + str(datetime.now() + timedelta(hours=9, minutes=30))
+        body = "This is a system generated mail \n" + body
+        to_list = []
+        to_list.append('muralisc@gmail.com')
+        email = EmailMessage('SPLITv2 ERROR', body, to=to_list)
+        email.send()
+    pass

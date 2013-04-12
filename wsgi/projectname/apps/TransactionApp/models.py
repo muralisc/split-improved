@@ -186,11 +186,10 @@ class Transaction(models.Model):
                 elif notification_type == 'txn_edited':
                     type_specific_msg = 'Edited'
                 message = """
-                        <div id="notificationType{0}">{0}</div> transaction<br/>
-                        <small>
-                        for <div id="notificationDesc">{1}</div><br/>
-                        <div id="notificationOutstanding">{2:.2f}</strong> is your outstanding<br/>
-                        </small>""".format(
+                        <div id="notificationType{0}"></div>
+                        <div id="notificationDesc">{1}</div>
+                        <div id="notificationOutstanding">{2:.2f}</strong>
+                        """.format(
                             type_specific_msg,
                             self.description,
                             p_object.outstanding_amount

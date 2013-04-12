@@ -13,46 +13,34 @@
 {% include "navlist.html" %}
 </div>
 <div class="span10">
-<h1 class="">Notifications</h1>
-        <table class="table table-hover table-condensed span7">
-            <thead>
-                <tr>
-                    <th>Unseen</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for i in new_notifications %}
-                <tr>
-                    <td>
-                        <a href="/transaction/{{ i.href|safe }}/">
-                            <div>
-                                {{ i.from_user }} {{ i.message|safe }}
-                            </div>
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            <thead>
-                <tr>
-                    <th>Seen</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for i in all_notifications %}
-                <tr>
-                    <td>
-                        <a href="/transaction/{{ i.href|safe }}/">
-                            <div >
-                                {{ i.from_user }} {{ i.message|safe }}
-                                <div class="pull-right">{{ i.get_time }}</div>
-                            </div>
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <h1 class="">Notifications</h1>
+    <span>Unseen</span>
+    {% for i in new_notifications %}
+    <div>
+            <a href="/transaction/{{ i.href|safe }}/">
+                <div>
+                    {{ i.from_user }} {{ i.message|safe }}
+                </div>
+            </a>
+    </div>
+    {% endfor %}
+
+    <span class="brandico-facebook"></span>
+
+    <div class="">
+        <span>seen</span>
+        {% for i in all_notifications %}
+        <div>
+            <a href="/transaction/{{ i.href|safe }}/">
+                <div >
+                    {{ i.message|safe }}
+                    {{ i.from_user }}
+                    <div class="">{{ i.get_time }}</div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
 
