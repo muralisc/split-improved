@@ -347,7 +347,10 @@ def changeGroup(request, gid):
 def authorize(request):
     '''
     '''
-    if request.method == 'POST':
-        return redirect(request.POST['state'])
-    elif request.method == 'GET':
-        return redirect(request.GET['state'])
+    import re
+    if request.method == 'GET':
+        url = re.search('^(.*\D)\d+', request.GET['state']).group(1)
+        parameters = ''
+        for key in request.GET:
+            parameters = parameters +'&'+ key+'='+a[key]
+        return redirect(url+parameters)
