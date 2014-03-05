@@ -352,5 +352,5 @@ def authorize(request):
         url = re.search('^(.*\D)\d+', request.GET['state']).group(1)
         parameters = ''
         for key in request.GET:
-            parameters = parameters +'&'+ key+'='+a[key]
+            parameters = parameters +'&'+ key+'='+request.GET[key]
         return redirect(url+parameters)
