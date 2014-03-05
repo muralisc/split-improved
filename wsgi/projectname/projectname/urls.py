@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     (r'^deleteGroup/(\d+)/$', 'projectApp1.views.deleteGroup'),
     (r'^sentInvites/(\d+)/$', 'projectApp1.views.sentInvites'),
     (r'^changeGroup/(\d+)/$', 'projectApp1.views.changeGroup'),
+    (r'^authorize/$', 'projectApp1.views.authorize'),
 
 
     (r'^email/$', 'TransactionApp.views.emailFunc'),
