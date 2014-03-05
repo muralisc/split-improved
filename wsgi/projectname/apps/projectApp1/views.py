@@ -349,5 +349,5 @@ def authorize(request):
     '''
     if request.method == 'POST':
         return redirect(request.POST['state'])
-    else:
-        return redirect('https://www.google.co.in/')
+    elif request.method == 'GET':
+        return redirect(request.GET['state'])
