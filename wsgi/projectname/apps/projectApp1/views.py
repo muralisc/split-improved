@@ -350,7 +350,7 @@ def authorize(request):
     import re
     if request.method == 'GET':
         url = re.search('^(.*\D)\d+', request.GET['state']).group(1)
-        parameters = ''
+        parameters = '?'
         for key in request.GET:
-            parameters = parameters +'&'+ key+'='+request.GET[key]
+            parameters = parameters + key+'='+request.GET[key] +'&'
         return redirect(url+parameters)
