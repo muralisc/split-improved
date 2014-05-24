@@ -47,6 +47,16 @@ def csvFunc(request):
     response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
 
     writer = csv.writer(response)
+    for category in UserCategory.objects.filter(user__email='muralisc@gmail.com', deleted=False):
+        writer.writerow([
+            category.category,
+            category.initial_amount,
+            category.user,
+            ])
+
+    writer.writerow([
+        '###############',
+        ])
     for txn in Transaction.objects.filter(paid_user__email='muralisc@gmail.com', 
             deleted=False):
         writer.writerow([
@@ -58,14 +68,6 @@ def csvFunc(request):
             txn.transaction_time,
             txn.deleted,
             ])
-
-    for category in UserCategory.objects.filter(user__email='muralisc@gmail.com', deleted=False):
-        writer.writerow([
-            category.category,
-            category.initial_amount
-            ])
-
-
     return response
 
 
