@@ -59,15 +59,16 @@ def csvFunc(request):
         ])
     for txn in Transaction.objects.filter(paid_user__email='muralisc@gmail.com', 
             deleted=False):
-        writer.writerow([
-            txn.paid_user,
-            txn.amount,
-            txn.from_category,
-            txn.description.replace(',','#'),
-            txn.to_category,
-            txn.transaction_time,
-            txn.deleted,
-            ])
+        if 'PA303' not in txn.description:
+            writer.writerow([
+                txn.paid_user,
+                txn.amount,
+                txn.from_category,
+                txn.description.replace(',','#'),
+                txn.to_category,
+                txn.transaction_time,
+                txn.deleted,
+                ])
     return response
 
 
