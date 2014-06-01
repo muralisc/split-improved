@@ -57,8 +57,7 @@ def csvFunc(request):
     writer.writerow([
         '###############',
         ])
-    for txn in Transaction.objects.filter(paid_user__email='muralisc@gmail.com', 
-            deleted=False):
+    for txn in Transaction.objects.filter(paid_user__email='muralisc@gmail.com'):
         if 'PA303' not in txn.description:
             writer.writerow([
                 txn.paid_user,
