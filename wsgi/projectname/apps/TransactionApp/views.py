@@ -40,6 +40,37 @@ def emailFunc(request):
     email.send()
     return HttpResponse("email sent done")
 
+def csvFunc(request):
+    import csv
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+    writer = csv.writer(response)
+    for category in UserCategory.objects.filter(user__email='muralisc@gmail.com', deleted=False):
+        writer.writerow([
+            category.category,
+            category.initial_amount,
+            category.user,
+            ])
+
+    writer.writerow([
+        '###############',
+        ])
+    for txn in Transaction.objects.filter(paid_user__email='muralisc@gmail.com', 
+            deleted=False):
+        if 'PA303' not in txn.description:
+            writer.writerow([
+                txn.paid_user,
+                txn.amount,
+                txn.from_category,
+                txn.description.replace(',','#'),
+                txn.to_category,
+                txn.transaction_time,
+                txn.deleted,
+                ])
+    return response
+
 
 def calculator(request, exp):
     response = urllib.urlopen('http://www.google.com/ig/calculator?q=' + urllib.quote(exp))

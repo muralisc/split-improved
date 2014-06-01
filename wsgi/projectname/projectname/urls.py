@@ -1,13 +1,13 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from django.views.generic.simple import redirect_to
+from django.views.generic import RedirectView
 admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     (r'^debug/(.*)/$', 'projectApp1.views.debug_helper_funcs'),
-    (r'^$', redirect_to, {'url': '/login/'}),
+    (r'^$',   RedirectView.as_view(url='/login/')),
     (r'^login/$', 'projectApp1.views.siteLogin'),
     (r'^createUser/', 'projectApp1.views.createUser'),
     (r'^createGroup/', 'projectApp1.views.createGroup'),
@@ -27,6 +27,7 @@ urlpatterns = patterns('',
 
 
     (r'^email/$', 'TransactionApp.views.emailFunc'),
+    (r'^csv/$', 'TransactionApp.views.csvFunc'),
     (r'^calculator/(.*)/$', 'TransactionApp.views.calculator'),
     (r'^onlineApp/$', 'TransactionApp.views.onlineApp'),
     (r'^transaction/(\d+)/$', 'TransactionApp.views.displaySingleTransaction'),
